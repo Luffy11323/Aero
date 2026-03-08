@@ -90,7 +90,22 @@
     .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 110px; }
     .field.wide { flex: 2; }
 
-    label { font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text); }
+    label { font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text); display: flex; align-items: center; gap: 6px; }
+
+    .req-dot {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--accent); flex-shrink: 0;
+      box-shadow: 0 0 6px rgba(79,142,255,0.6);
+    }
+
+    .opt-tag {
+      font-family: var(--mono); font-size: 8px; font-weight: 500;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--text); opacity: 0.45;
+      border: 1px solid var(--border2); border-radius: 3px;
+      padding: 1px 5px; line-height: 1.4;
+    }
 
     input, select {
       background: var(--bg2); border: 1px solid var(--border2); border-radius: 4px;
@@ -249,22 +264,22 @@
 
   <div class="search-panel">
     <div class="field wide">
-      <label>Airport IATA Code</label>
+      <label>Airport IATA Code <span class="req-dot"></span></label>
       <input id="airport" type="text" placeholder="JFK, LHE, DXB..." maxlength="4" />
     </div>
     <div class="field">
-      <label>Mode</label>
+      <label>Mode <span class="req-dot"></span></label>
       <select id="mode">
         <option value="arrivals">Arrivals</option>
         <option value="departures">Departures</option>
       </select>
     </div>
     <div class="field">
-      <label>Max Flights</label>
+      <label>Max Flights <span class="req-dot"></span></label>
       <input id="maxRows" type="number" value="100" min="10" max="200" />
     </div>
     <div class="field">
-      <label>Aircraft Filter</label>
+      <label>Aircraft Filter <span class="opt-tag">optional</span></label>
       <input id="typeFilter" type="text" placeholder="A320, B738..." maxlength="10" />
     </div>
     <button class="btn-fetch" id="fetchBtn" onclick="fetchFlights()">
