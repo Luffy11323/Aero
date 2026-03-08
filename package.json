@@ -1,1 +1,16 @@
-{\rtf1}
+{
+  "name": "airport-traffic-analyzer",
+  "version": "1.0.0",
+  "description": "Airport flight traffic analyzer powered by AviationStack",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "devDependencies": {
+    "vercel": "^33.0.0"
+  }
+}

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Airport Traffic Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --surface: #111318;
+      --border: #1e2330;
+      --accent: #00d4ff;
+      --accent2: #00ff9d;
+      --warn: #ff6b35;
+      --text: #c8d0e0;
+      --text-dim: #4a5568;
+      --text-bright: #e8edf5;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface);
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .logo span {
+      color: var(--text-dim);
+      font-weight: 400;
+    }
+
+    .header-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent2);
+      box-shadow: 0 0 8px var(--accent2);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent2); }
+      50% { opacity: 0.4; box-shadow: 0 0 2px var(--accent2); }
+    }
+
+    .main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    h1 {
+      font-family: var(--mono);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-bright);
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      margin-bottom: 32px;
+    }
+
+    /* Controls */
+    .controls {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-dim);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text-bright);
+      font-family: var(--mono);
+      font-size: 14px;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent)22;
+    }
+
+    input::placeholder { color: var(--text-dim); }
+
+    select option {
+      background: var(--surface);
+    }
+
+    .btn-fetch {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 10px 24px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-fetch:hover { background: #33ddff; }
+    .btn-fetch:active { transform: scale(0.98); }
+    .btn-fetch:disabled {
+      background: var(--border);
+      color: var(--text-dim);
+      cursor: not-allowed;
+    }
+
+    /* Status bar */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+      min-height: 20px;
+    }
+
+    .status-bar.loading { color: var(--accent); }
+    .status-bar.success { color: var(--accent2); }
+    .status-bar.error { color: var(--warn); }
+
+    /* Stats row */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 14px 16px;
+    }
+
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-bright);
+    }
+
+    .stat-value.accent { color: var(--accent); }
+    .stat-value.green { color: var(--accent2); }
+    .stat-value.orange { color: var(--warn); }
+
+    /* Table */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .btn-export {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-export:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead tr {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 10px 12px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border)88;
+      transition: background 0.1s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(0,212,255,0.03); }
+
+    td {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      padding: 9px 12px;
+      white-space: nowrap;
+    }
+
+    td.bright { color: var(--text-bright); font-weight: 500; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 2px;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-active    { background: rgba(0,255,157,0.1); color: var(--accent2); border: 1px solid rgba(0,255,157,0.2); }
+    .badge-scheduled { background: rgba(0,212,255,0.1); color: var(--accent);  border: 1px solid rgba(0,212,255,0.2); }
+    .badge-landed    { background: rgba(200,208,224,0.1); color: var(--text);  border: 1px solid var(--border); }
+    .badge-cancelled { background: rgba(255,107,53,0.1); color: var(--warn);  border: 1px solid rgba(255,107,53,0.2); }
+    .badge-diverted  { background: rgba(255,200,0,0.1);  color: #ffc800;      border: 1px solid rgba(255,200,0,0.2); }
+    .badge-other     { background: rgba(74,85,104,0.2); color: var(--text-dim); border: 1px solid var(--border); }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 64px 32px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .empty-icon { font-size: 32px; opacity: 0.3; }
+
+    .spinner {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border: 1.5px solid var(--accent)44;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .controls { grid-template-columns: 1fr 1fr; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .main { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-dot"></div>
+  <div class="logo">ATC <span>// Airport Traffic Analyzer</span></div>
+</header>
+
+<div class="main">
+  <h1>Flight Data Terminal</h1>
+  <div class="subtitle">// powered by aviationstack api</div>
+
+  <div class="controls">
+    <div class="field">
+      <label>Airport IATA Code</label>
+      <input id="airport" type="text" placeholder="JFK, LHE, DXB..." maxlength="4" />
+    </div>
+    <div class="field">
+      <label>Mode</label>
+      <select id="mode">
+        <option value="arrivals">Arrivals</option>
+        <option value="departures">Departures</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Max Flights</label>
+      <input id="maxRows" type="number" value="100" min="10" max="200" />
+    </div>
+    <div class="field">
+      <label>Aircraft Type Filter</label>
+      <input id="typeFilter" type="text" placeholder="A32, B738..." maxlength="10" />
+    </div>
+    <button class="btn-fetch" id="fetchBtn" onclick="fetchFlights()">Fetch →</button>
+  </div>
+
+  <div class="status-bar" id="statusBar">
+    <span>// ready</span>
+  </div>
+
+  <div class="stats" id="statsRow" style="display:none">
+    <div class="stat-card">
+      <div class="stat-label">Total Flights</div>
+      <div class="stat-value accent" id="statTotal">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active / En Route</div>
+      <div class="stat-value green" id="statActive">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Cancelled</div>
+      <div class="stat-value orange" id="statCancelled">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Aircraft Classes</div>
+      <div class="stat-value" id="statClasses">—</div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">Flight Records</div>
+      <button class="btn-export" onclick="exportCSV()">Export CSV</button>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Flight</th>
+            <th>Registration</th>
+            <th>Type</th>
+            <th>Class</th>
+            <th>Operator</th>
+            <th>Origin</th>
+            <th>Dest</th>
+            <th>Date</th>
+            <th>Sched In</th>
+            <th>Actual In</th>
+            <th>Sched Out</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="flightTable">
+          <tr>
+            <td colspan="12">
+              <div class="empty-state">
+                <div class="empty-icon">✈</div>
+                <div>Enter an airport code and press Fetch to load flight data</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  let flightData = [];
+
+  function setStatus(msg, type = '') {
+    const bar = document.getElementById('statusBar');
+    bar.className = `status-bar ${type}`;
+    bar.innerHTML = type === 'loading'
+      ? `<span class="spinner"></span><span>${msg}</span>`
+      : `<span>${msg}</span>`;
+  }
+
+  function getBadgeClass(status) {
+    const s = (status || '').toLowerCase();
+    if (s === 'active') return 'badge-active';
+    if (s === 'scheduled') return 'badge-scheduled';
+    if (s === 'landed') return 'badge-landed';
+    if (s === 'cancelled') return 'badge-cancelled';
+    if (s === 'diverted') return 'badge-diverted';
+    return 'badge-other';
+  }
+
+  function fmtTime(iso) {
+    if (!iso) return '<span style="color:var(--text-dim)">—</span>';
+    try {
+      const d = new Date(iso);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch { return iso; }
+  }
+
+  function renderTable(flights) {
+    const tbody = document.getElementById('flightTable');
+
+    if (!flights.length) {
+      tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">✈</div><div>No flights match the current filters</div></div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = flights.map(f => `
+      <tr>
+        <td class="bright">${f.flight_ident || '—'}</td>
+        <td>${f.registration || '<span style="color:var(--text-dim)">—</span>'}</td>
+        <td>${f.aircraft_type || '<span style="color:var(--text-dim)">—</span>'}</td>
+        <td>${f.aircraft_class}</td>
+        <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis">${f.operator || '<span style="color:var(--text-dim)">—</span>'}</td>
+        <td class="bright">${f.origin || '—'}</td>
+        <td class="bright">${f.destination || '—'}</td>
+        <td>${f.flight_date || '<span style="color:var(--text-dim)">—</span>'}</td>
+        <td>${fmtTime(f.scheduled_in)}</td>
+        <td>${fmtTime(f.actual_in)}</td>
+        <td>${fmtTime(f.scheduled_out)}</td>
+        <td><span class="badge ${getBadgeClass(f.status)}">${f.status || 'unknown'}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function updateStats(flights) {
+    const active = flights.filter(f => f.status?.toLowerCase() === 'active').length;
+    const cancelled = flights.filter(f => f.status?.toLowerCase() === 'cancelled').length;
+    const classes = [...new Set(flights.map(f => f.aircraft_class).filter(Boolean))];
+
+    document.getElementById('statTotal').textContent = flights.length;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statCancelled').textContent = cancelled;
+    document.getElementById('statClasses').textContent = classes.length;
+    document.getElementById('statsRow').style.display = 'grid';
+  }
+
+  async function fetchFlights() {
+    const airport = document.getElementById('airport').value.trim().toUpperCase();
+    const mode = document.getElementById('mode').value;
+    const maxRows = document.getElementById('maxRows').value;
+    const typeFilter = document.getElementById('typeFilter').value.trim();
+
+    if (!airport) {
+      setStatus('// error: airport code required', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('fetchBtn');
+    btn.disabled = true;
+    setStatus(`// fetching ${mode} for ${airport}...`, 'loading');
+
+    const params = new URLSearchParams({ airport, mode, maxRows });
+    if (typeFilter) params.set('typeFilter', typeFilter);
+
+    try {
+      const res = await fetch(`/api/flights?${params}`);
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Unknown error');
+
+      flightData = data.flights;
+      renderTable(flightData);
+      updateStats(flightData);
+      setStatus(`// loaded ${data.total_returned} flights from ${airport} (${data.total_fetched} fetched) — ${new Date().toLocaleTimeString()}`, 'success');
+    } catch (err) {
+      setStatus(`// error: ${err.message}`, 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function exportCSV() {
+    if (!flightData.length) return;
+
+    const headers = Object.keys(flightData[0]);
+    const rows = [
+      headers.join(','),
+      ...flightData.map(f =>
+        headers.map(h => JSON.stringify(f[h] ?? '')).join(',')
+      )
+    ];
+
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `flights_${document.getElementById('airport').value || 'export'}_${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Allow Enter key to trigger fetch
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') fetchFlights();
+  });
+</script>
+</body>
+</html>
