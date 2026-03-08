@@ -3,388 +3,252 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Airport Traffic Analyzer</title>
+  <title>Aero — Airport Traffic Analyzer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
-      --bg: #0a0c10;
-      --surface: #111318;
-      --border: #1e2330;
-      --accent: #00d4ff;
-      --accent2: #00ff9d;
-      --warn: #ff6b35;
-      --text: #c8d0e0;
-      --text-dim: #4a5568;
-      --text-bright: #e8edf5;
-      --mono: 'IBM Plex Mono', monospace;
-      --sans: 'IBM Plex Sans', sans-serif;
+      --bg: #07080b;
+      --bg2: #0d0f14;
+      --surface: #111520;
+      --surface2: #161b27;
+      --border: #1c2235;
+      --border2: #252d42;
+      --accent: #4f8eff;
+      --accent-glow: rgba(79,142,255,0.15);
+      --green: #2ecc8a;
+      --green-glow: rgba(46,204,138,0.12);
+      --orange: #ff7043;
+      --yellow: #ffc107;
+      --text: #8a95b0;
+      --text2: #c2cce0;
+      --text-bright: #edf0f7;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Syne', sans-serif;
+      --radius: 6px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
-      color: var(--text);
+      color: var(--text2);
       font-family: var(--sans);
       min-height: 100vh;
-      padding: 0;
+      overflow-x: hidden;
     }
 
-    /* Scanline overlay */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0,0,0,0.03) 2px,
-        rgba(0,0,0,0.03) 4px
-      );
+      background-image:
+        linear-gradient(rgba(79,142,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,142,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
       pointer-events: none;
-      z-index: 1000;
+      z-index: 0;
     }
 
     header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(7,8,11,0.92);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
-      padding: 20px 32px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      background: var(--surface);
+      padding: 0 32px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
     }
 
-    .logo {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--accent);
-      letter-spacing: 3px;
-      text-transform: uppercase;
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--accent); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+    .logo-text { font-family: var(--sans); font-weight: 800; font-size: 17px; color: var(--text-bright); letter-spacing: -0.5px; }
+    .logo-sub  { font-family: var(--mono); font-size: 10px; color: var(--text); letter-spacing: 1px; }
+
+    .header-right { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; color: var(--text); }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: blink 2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .main { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 32px 32px 64px; }
+
+    .hero { margin-bottom: 28px; }
+    .hero h1 { font-size: 34px; font-weight: 800; color: var(--text-bright); letter-spacing: -1px; line-height: 1.1; margin-bottom: 6px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { font-family: var(--mono); font-size: 11px; color: var(--text); letter-spacing: 0.5px; }
+
+    .search-panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 24px;
+      display: flex; gap: 14px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap;
     }
 
-    .logo span {
-      color: var(--text-dim);
-      font-weight: 400;
-    }
+    .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 110px; }
+    .field.wide { flex: 2; }
 
-    .header-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent2);
-      box-shadow: 0 0 8px var(--accent2);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent2); }
-      50% { opacity: 0.4; box-shadow: 0 0 2px var(--accent2); }
-    }
-
-    .main {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 32px;
-    }
-
-    h1 {
-      font-family: var(--mono);
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--text-bright);
-      letter-spacing: -0.5px;
-      margin-bottom: 4px;
-    }
-
-    .subtitle {
-      font-size: 13px;
-      color: var(--text-dim);
-      font-family: var(--mono);
-      margin-bottom: 32px;
-    }
-
-    /* Controls */
-    .controls {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 24px;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr auto;
-      gap: 16px;
-      align-items: end;
-      margin-bottom: 24px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    label {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 500;
-      color: var(--text-dim);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
+    label { font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text); }
 
     input, select {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      color: var(--text-bright);
-      font-family: var(--mono);
-      font-size: 14px;
-      padding: 9px 12px;
-      outline: none;
-      transition: border-color 0.15s;
-      width: 100%;
+      background: var(--bg2); border: 1px solid var(--border2); border-radius: 4px;
+      color: var(--text-bright); font-family: var(--mono); font-size: 13px;
+      padding: 9px 12px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; width: 100%;
     }
-
-    input:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent)22;
-    }
-
-    input::placeholder { color: var(--text-dim); }
-
-    select option {
-      background: var(--surface);
-    }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    input::placeholder { color: var(--text); opacity: 0.5; }
+    select option { background: var(--surface); }
 
     .btn-fetch {
-      background: var(--accent);
-      color: #000;
-      border: none;
-      border-radius: 3px;
-      font-family: var(--mono);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      padding: 10px 24px;
-      cursor: pointer;
-      transition: all 0.15s;
-      white-space: nowrap;
+      background: var(--accent); color: #fff; border: none; border-radius: 4px;
+      font-family: var(--sans); font-size: 13px; font-weight: 700;
+      padding: 10px 28px; cursor: pointer; transition: all 0.15s;
+      white-space: nowrap; display: flex; align-items: center; gap: 8px;
     }
+    .btn-fetch:hover { background: #6ba3ff; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(79,142,255,0.3); }
+    .btn-fetch:active { transform: translateY(0); }
+    .btn-fetch:disabled { background: var(--border2); color: var(--text); cursor: not-allowed; transform: none; box-shadow: none; }
 
-    .btn-fetch:hover { background: #33ddff; }
-    .btn-fetch:active { transform: scale(0.98); }
-    .btn-fetch:disabled {
-      background: var(--border);
-      color: var(--text-dim);
-      cursor: not-allowed;
+    .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 20px; }
+    .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; position: relative; overflow: hidden; }
+    .stat::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: var(--accent); opacity:0.5; }
+    .stat.green::before { background: var(--green); }
+    .stat.orange::before { background: var(--orange); }
+    .stat.yellow::before { background: var(--yellow); }
+    .stat-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text); margin-bottom: 8px; }
+    .stat-value { font-family: var(--mono); font-size: 26px; font-weight: 600; color: var(--text-bright); line-height: 1; }
+    .stat-value.blue   { color: var(--accent); }
+    .stat-value.green  { color: var(--green); }
+    .stat-value.orange { color: var(--orange); }
+    .stat-value.yellow { color: var(--yellow); }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+    .toolbar-left  { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .toolbar-right { display: flex; gap: 8px; }
+
+    .search-box { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; gap: 8px; padding: 0 12px; }
+    .search-box input { background: transparent; border: none; padding: 8px 0; font-size: 12px; width: 200px; box-shadow: none !important; }
+    .search-icon { color: var(--text); font-size: 13px; }
+
+    .filter-sel { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text2); font-family: var(--mono); font-size: 11px; padding: 7px 10px; outline: none; cursor: pointer; }
+    .filter-sel:focus { border-color: var(--accent); }
+
+    .row-count { font-family: var(--mono); font-size: 11px; color: var(--text); }
+
+    .btn-sm { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text2); font-family: var(--mono); font-size: 11px; padding: 7px 14px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-excel { background: rgba(46,204,138,0.1); border: 1px solid rgba(46,204,138,0.3); border-radius: 4px; color: var(--green); font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 7px 16px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn-excel:hover { background: rgba(46,204,138,0.2); border-color: var(--green); box-shadow: 0 0 16px var(--green-glow); }
+    .btn-excel:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
+
+    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+
+    .loading-bar { width:100%; height:2px; background: var(--border); position:relative; overflow:hidden; }
+    .loading-bar::after { content:''; position:absolute; left:-40%; width:40%; height:100%; background: linear-gradient(90deg,transparent,var(--accent),transparent); animation: shimmer 1s ease-in-out infinite; }
+    @keyframes shimmer { to { left:140%; } }
+
+    .table-scroll { overflow-x: auto; max-height: 580px; overflow-y: auto; }
+    .table-scroll::-webkit-scrollbar { width:6px; height:6px; }
+    .table-scroll::-webkit-scrollbar-track { background: var(--bg); }
+    .table-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+    .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+
+    thead { position: sticky; top: 0; z-index: 10; }
+    thead tr:first-child { background: var(--bg2); }
+    thead tr:first-child th {
+      font-family: var(--mono); font-size: 9px; font-weight: 600;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--text);
+      padding: 12px 12px 8px; text-align: left; white-space: nowrap;
+      border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; transition: color 0.15s;
     }
+    thead tr:first-child th:hover { color: var(--accent); }
+    .th-inner { display: flex; align-items: center; gap: 4px; }
+    .sort-icon { opacity: 0.3; font-size: 8px; }
+    .sort-icon.active { opacity: 1; color: var(--accent); }
 
-    /* Status bar */
-    .status-bar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-bottom: 16px;
-      min-height: 20px;
-    }
+    thead tr:last-child th { padding: 4px 6px 8px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+    .col-filter { width:100%; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; color: var(--text2); font-family: var(--mono); font-size: 10px; padding: 4px 6px; outline: none; }
+    .col-filter:focus { border-color: var(--accent); box-shadow: none; }
+    .col-filter::placeholder { color: var(--text); opacity: 0.4; }
 
-    .status-bar.loading { color: var(--accent); }
-    .status-bar.success { color: var(--accent2); }
-    .status-bar.error { color: var(--warn); }
-
-    /* Stats row */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 14px 16px;
-    }
-
-    .stat-label {
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 6px;
-    }
-
-    .stat-value {
-      font-family: var(--mono);
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--text-bright);
-    }
-
-    .stat-value.accent { color: var(--accent); }
-    .stat-value.green { color: var(--accent2); }
-    .stat-value.orange { color: var(--warn); }
-
-    /* Table */
-    .table-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .table-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .table-title {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-
-    .btn-export {
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      color: var(--text-dim);
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      padding: 5px 12px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .btn-export:hover {
-      border-color: var(--accent2);
-      color: var(--accent2);
-    }
-
-    .table-scroll {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-
-    thead tr {
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-    }
-
-    th {
-      font-family: var(--mono);
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      padding: 10px 12px;
-      text-align: left;
-      white-space: nowrap;
-    }
-
-    tbody tr {
-      border-bottom: 1px solid var(--border)88;
-      transition: background 0.1s;
-    }
-
+    tbody tr { border-bottom: 1px solid rgba(28,34,53,0.7); transition: background 0.1s; }
+    tbody tr:hover { background: rgba(79,142,255,0.04); }
     tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: rgba(0,212,255,0.03); }
 
-    td {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--text);
-      padding: 9px 12px;
-      white-space: nowrap;
-    }
-
+    td { font-family: var(--mono); font-size: 11px; color: var(--text2); padding: 9px 12px; white-space: nowrap; }
     td.bright { color: var(--text-bright); font-weight: 500; }
+    td.dim    { color: var(--text); }
 
-    .badge {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 2px;
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 500; }
+    .badge::before { content:''; width:4px; height:4px; border-radius:50%; background: currentColor; }
+    .badge-active    { background: rgba(46,204,138,0.1);  color: var(--green);  border: 1px solid rgba(46,204,138,0.2); }
+    .badge-scheduled { background: rgba(79,142,255,0.1);  color: var(--accent); border: 1px solid rgba(79,142,255,0.2); }
+    .badge-landed    { background: rgba(138,149,176,0.1); color: var(--text2);  border: 1px solid var(--border); }
+    .badge-cancelled { background: rgba(255,112,67,0.1);  color: var(--orange); border: 1px solid rgba(255,112,67,0.2); }
+    .badge-diverted  { background: rgba(255,193,7,0.1);   color: var(--yellow); border: 1px solid rgba(255,193,7,0.2); }
+    .badge-other     { background: rgba(28,34,53,0.5);    color: var(--text);   border: 1px solid var(--border); }
 
-    .badge-active    { background: rgba(0,255,157,0.1); color: var(--accent2); border: 1px solid rgba(0,255,157,0.2); }
-    .badge-scheduled { background: rgba(0,212,255,0.1); color: var(--accent);  border: 1px solid rgba(0,212,255,0.2); }
-    .badge-landed    { background: rgba(200,208,224,0.1); color: var(--text);  border: 1px solid var(--border); }
-    .badge-cancelled { background: rgba(255,107,53,0.1); color: var(--warn);  border: 1px solid rgba(255,107,53,0.2); }
-    .badge-diverted  { background: rgba(255,200,0,0.1);  color: #ffc800;      border: 1px solid rgba(255,200,0,0.2); }
-    .badge-other     { background: rgba(74,85,104,0.2); color: var(--text-dim); border: 1px solid var(--border); }
+    .chip { display:inline-block; padding:1px 7px; border-radius:20px; font-size:9px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; }
+    .chip-commercial { background: rgba(79,142,255,0.12); color: var(--accent); }
+    .chip-business   { background: rgba(255,193,7,0.12);  color: var(--yellow); }
+    .chip-small      { background: rgba(46,204,138,0.12); color: var(--green); }
+    .chip-other      { background: rgba(28,34,53,0.6);    color: var(--text); }
 
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 64px 32px;
-      color: var(--text-dim);
-      font-family: var(--mono);
-      font-size: 12px;
-      letter-spacing: 1px;
-      text-align: center;
-      gap: 12px;
-    }
+    .pagination { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-top:1px solid var(--border); font-family:var(--mono); font-size:11px; color:var(--text); }
+    .page-btns { display:flex; gap:4px; }
+    .page-btn { background: var(--surface2); border:1px solid var(--border); border-radius:3px; color:var(--text2); font-family:var(--mono); font-size:11px; padding:4px 10px; cursor:pointer; transition:all 0.15s; }
+    .page-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .page-btn.active { background: var(--accent); border-color: var(--accent); color:#fff; }
+    .page-btn:disabled { opacity:0.3; cursor:not-allowed; }
 
-    .empty-icon { font-size: 32px; opacity: 0.3; }
+    .empty { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 32px; gap:12px; color:var(--text); font-family:var(--mono); font-size:12px; }
+    .empty-plane { font-size:40px; opacity:0.2; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 
-    .spinner {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border: 1.5px solid var(--accent)44;
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
+    .statusbar { font-family:var(--mono); font-size:10px; color:var(--text); margin-bottom:10px; display:flex; align-items:center; gap:8px; min-height:18px; }
+    .statusbar.ok   { color: var(--green); }
+    .statusbar.err  { color: var(--orange); }
+    .statusbar.busy { color: var(--accent); }
+    .spin { display:inline-block; width:9px; height:9px; border:1.5px solid var(--accent)44; border-top-color:var(--accent); border-radius:50%; animation:spin .6s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    @media (max-width: 768px) {
-      .controls { grid-template-columns: 1fr 1fr; }
-      .stats { grid-template-columns: 1fr 1fr; }
-      .main { padding: 16px; }
+    @media(max-width:900px){
+      .stats{grid-template-columns:repeat(3,1fr);}
+      .search-panel{flex-direction:column;}
+      .main{padding:16px;}
     }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="header-dot"></div>
-  <div class="logo">ATC <span>// Airport Traffic Analyzer</span></div>
+  <div class="logo">
+    <div class="logo-icon">✈</div>
+    <div>
+      <div class="logo-text">AERO</div>
+      <div class="logo-sub">TRAFFIC ANALYZER</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-dot"></div>
+    <span id="clock"></span>
+  </div>
 </header>
 
 <div class="main">
-  <h1>Flight Data Terminal</h1>
-  <div class="subtitle">// powered by aviationstack api</div>
 
-  <div class="controls">
-    <div class="field">
+  <div class="hero">
+    <h1>Airport <span>Flight</span> Intelligence</h1>
+    <p>// real-time arrivals & departures · sort · filter every column · export to excel</p>
+  </div>
+
+  <div class="search-panel">
+    <div class="field wide">
       <label>Airport IATA Code</label>
       <input id="airport" type="text" placeholder="JFK, LHE, DXB..." maxlength="4" />
     </div>
@@ -400,198 +264,293 @@
       <input id="maxRows" type="number" value="100" min="10" max="200" />
     </div>
     <div class="field">
-      <label>Aircraft Type Filter</label>
-      <input id="typeFilter" type="text" placeholder="A32, B738..." maxlength="10" />
+      <label>Aircraft Filter</label>
+      <input id="typeFilter" type="text" placeholder="A320, B738..." maxlength="10" />
     </div>
-    <button class="btn-fetch" id="fetchBtn" onclick="fetchFlights()">Fetch →</button>
-  </div>
-
-  <div class="status-bar" id="statusBar">
-    <span>// ready</span>
+    <button class="btn-fetch" id="fetchBtn" onclick="fetchFlights()">
+      ⚡ <span id="btnTxt">Fetch Flights</span>
+    </button>
   </div>
 
   <div class="stats" id="statsRow" style="display:none">
-    <div class="stat-card">
-      <div class="stat-label">Total Flights</div>
-      <div class="stat-value accent" id="statTotal">0</div>
+    <div class="stat">       <div class="stat-label">Total</div>     <div class="stat-value blue"   id="sTot">0</div></div>
+    <div class="stat green"> <div class="stat-label">Active</div>    <div class="stat-value green"  id="sAct">0</div></div>
+    <div class="stat">       <div class="stat-label">Scheduled</div> <div class="stat-value"        id="sSch">0</div></div>
+    <div class="stat orange"><div class="stat-label">Cancelled</div> <div class="stat-value orange" id="sCan">0</div></div>
+    <div class="stat yellow"><div class="stat-label">Classes</div>   <div class="stat-value yellow" id="sCls">—</div></div>
+  </div>
+
+  <div class="statusbar" id="sb">// ready — enter an airport code to begin</div>
+
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input id="gSearch" placeholder="Search all columns..." oninput="applyFilters()" />
+      </div>
+      <select class="filter-sel" id="fStatus" onchange="applyFilters()">
+        <option value="">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="scheduled">Scheduled</option>
+        <option value="landed">Landed</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="diverted">Diverted</option>
+      </select>
+      <select class="filter-sel" id="fClass" onchange="applyFilters()">
+        <option value="">All Classes</option>
+        <option value="Commercial Jet">Commercial Jet</option>
+        <option value="Business Jet">Business Jet</option>
+        <option value="Small GA">Small GA</option>
+        <option value="Unknown">Unknown</option>
+      </select>
+      <span class="row-count" id="rowCount"></span>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Active / En Route</div>
-      <div class="stat-value green" id="statActive">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Cancelled</div>
-      <div class="stat-value orange" id="statCancelled">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Aircraft Classes</div>
-      <div class="stat-value" id="statClasses">—</div>
+    <div class="toolbar-right">
+      <button class="btn-sm" onclick="clearFilters()">✕ Clear</button>
+      <button class="btn-excel" id="xlBtn" onclick="exportExcel()" disabled>⬇ Download Excel</button>
     </div>
   </div>
 
   <div class="table-wrap">
-    <div class="table-header">
-      <div class="table-title">Flight Records</div>
-      <button class="btn-export" onclick="exportCSV()">Export CSV</button>
-    </div>
+    <div id="ldBar" style="display:none"><div class="loading-bar"></div></div>
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
-            <th>Flight</th>
-            <th>Registration</th>
-            <th>Type</th>
-            <th>Class</th>
-            <th>Operator</th>
-            <th>Origin</th>
-            <th>Dest</th>
-            <th>Date</th>
-            <th>Sched In</th>
-            <th>Actual In</th>
-            <th>Sched Out</th>
-            <th>Status</th>
+            <th onclick="sortBy('flight_ident')">  <div class="th-inner">Flight   <span class="sort-icon" id="si-flight_ident">▲</span></div></th>
+            <th onclick="sortBy('registration')">  <div class="th-inner">Reg      <span class="sort-icon" id="si-registration">▲</span></div></th>
+            <th onclick="sortBy('aircraft_type')"> <div class="th-inner">Type     <span class="sort-icon" id="si-aircraft_type">▲</span></div></th>
+            <th onclick="sortBy('aircraft_class')"><div class="th-inner">Class    <span class="sort-icon" id="si-aircraft_class">▲</span></div></th>
+            <th onclick="sortBy('operator')">      <div class="th-inner">Operator <span class="sort-icon" id="si-operator">▲</span></div></th>
+            <th onclick="sortBy('origin')">        <div class="th-inner">Origin   <span class="sort-icon" id="si-origin">▲</span></div></th>
+            <th onclick="sortBy('destination')">   <div class="th-inner">Dest     <span class="sort-icon" id="si-destination">▲</span></div></th>
+            <th onclick="sortBy('flight_date')">   <div class="th-inner">Date     <span class="sort-icon" id="si-flight_date">▲</span></div></th>
+            <th onclick="sortBy('scheduled_in')">  <div class="th-inner">Sched In <span class="sort-icon" id="si-scheduled_in">▲</span></div></th>
+            <th onclick="sortBy('actual_in')">     <div class="th-inner">Actual In<span class="sort-icon" id="si-actual_in">▲</span></div></th>
+            <th onclick="sortBy('scheduled_out')"> <div class="th-inner">Sched Out<span class="sort-icon" id="si-scheduled_out">▲</span></div></th>
+            <th onclick="sortBy('status')">        <div class="th-inner">Status   <span class="sort-icon" id="si-status">▲</span></div></th>
+          </tr>
+          <tr>
+            <th><input class="col-filter" placeholder="Filter..." id="cf-flight_ident"  oninput="applyFilters()"/></th>
+            <th><input class="col-filter" placeholder="Filter..." id="cf-registration"  oninput="applyFilters()"/></th>
+            <th><input class="col-filter" placeholder="Filter..." id="cf-aircraft_type" oninput="applyFilters()"/></th>
+            <th><input class="col-filter" placeholder="Filter..." id="cf-aircraft_class"oninput="applyFilters()"/></th>
+            <th><input class="col-filter" placeholder="Filter..." id="cf-operator"      oninput="applyFilters()"/></th>
+            <th><input class="col-filter" placeholder="Filter..." id="cf-origin"        oninput="applyFilters()"/></th>
+            <th><input class="col-filter" placeholder="Filter..." id="cf-destination"   oninput="applyFilters()"/></th>
+            <th><input class="col-filter" placeholder="Filter..." id="cf-flight_date"   oninput="applyFilters()"/></th>
+            <th></th><th></th><th></th>
+            <th><input class="col-filter" placeholder="Filter..." id="cf-status"        oninput="applyFilters()"/></th>
           </tr>
         </thead>
-        <tbody id="flightTable">
-          <tr>
-            <td colspan="12">
-              <div class="empty-state">
-                <div class="empty-icon">✈</div>
-                <div>Enter an airport code and press Fetch to load flight data</div>
-              </div>
-            </td>
-          </tr>
+        <tbody id="tbody">
+          <tr><td colspan="12"><div class="empty"><div class="empty-plane">✈</div><div>Enter an airport code above and click Fetch Flights</div></div></td></tr>
         </tbody>
       </table>
     </div>
+    <div class="pagination" id="pgBar" style="display:none">
+      <span id="pgInfo"></span>
+      <div class="page-btns" id="pgBtns"></div>
+    </div>
   </div>
+
 </div>
 
 <script>
-  let flightData = [];
+  let allFlights = [], filtered = [], sortCol = '', sortDir = 1, page = 1;
+  const PG = 50;
 
-  function setStatus(msg, type = '') {
-    const bar = document.getElementById('statusBar');
-    bar.className = `status-bar ${type}`;
-    bar.innerHTML = type === 'loading'
-      ? `<span class="spinner"></span><span>${msg}</span>`
-      : `<span>${msg}</span>`;
-  }
+  // Clock
+  setInterval(() => {
+    document.getElementById('clock').textContent =
+      new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }, 1000);
 
-  function getBadgeClass(status) {
-    const s = (status || '').toLowerCase();
-    if (s === 'active') return 'badge-active';
-    if (s === 'scheduled') return 'badge-scheduled';
-    if (s === 'landed') return 'badge-landed';
-    if (s === 'cancelled') return 'badge-cancelled';
-    if (s === 'diverted') return 'badge-diverted';
-    return 'badge-other';
-  }
-
-  function fmtTime(iso) {
-    if (!iso) return '<span style="color:var(--text-dim)">—</span>';
-    try {
-      const d = new Date(iso);
-      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } catch { return iso; }
-  }
-
-  function renderTable(flights) {
-    const tbody = document.getElementById('flightTable');
-
-    if (!flights.length) {
-      tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">✈</div><div>No flights match the current filters</div></div></td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = flights.map(f => `
-      <tr>
-        <td class="bright">${f.flight_ident || '—'}</td>
-        <td>${f.registration || '<span style="color:var(--text-dim)">—</span>'}</td>
-        <td>${f.aircraft_type || '<span style="color:var(--text-dim)">—</span>'}</td>
-        <td>${f.aircraft_class}</td>
-        <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis">${f.operator || '<span style="color:var(--text-dim)">—</span>'}</td>
-        <td class="bright">${f.origin || '—'}</td>
-        <td class="bright">${f.destination || '—'}</td>
-        <td>${f.flight_date || '<span style="color:var(--text-dim)">—</span>'}</td>
-        <td>${fmtTime(f.scheduled_in)}</td>
-        <td>${fmtTime(f.actual_in)}</td>
-        <td>${fmtTime(f.scheduled_out)}</td>
-        <td><span class="badge ${getBadgeClass(f.status)}">${f.status || 'unknown'}</span></td>
-      </tr>
-    `).join('');
-  }
-
-  function updateStats(flights) {
-    const active = flights.filter(f => f.status?.toLowerCase() === 'active').length;
-    const cancelled = flights.filter(f => f.status?.toLowerCase() === 'cancelled').length;
-    const classes = [...new Set(flights.map(f => f.aircraft_class).filter(Boolean))];
-
-    document.getElementById('statTotal').textContent = flights.length;
-    document.getElementById('statActive').textContent = active;
-    document.getElementById('statCancelled').textContent = cancelled;
-    document.getElementById('statClasses').textContent = classes.length;
-    document.getElementById('statsRow').style.display = 'grid';
+  function setStatus(msg, type='') {
+    const el = document.getElementById('sb');
+    el.className = 'statusbar ' + type;
+    el.innerHTML = type==='busy' ? `<span class="spin"></span><span>${msg}</span>` : `<span>${msg}</span>`;
   }
 
   async function fetchFlights() {
-    const airport = document.getElementById('airport').value.trim().toUpperCase();
-    const mode = document.getElementById('mode').value;
-    const maxRows = document.getElementById('maxRows').value;
+    const airport    = document.getElementById('airport').value.trim().toUpperCase();
+    const mode       = document.getElementById('mode').value;
+    const maxRows    = document.getElementById('maxRows').value;
     const typeFilter = document.getElementById('typeFilter').value.trim();
-
-    if (!airport) {
-      setStatus('// error: airport code required', 'error');
-      return;
-    }
+    if (!airport) { setStatus('// error: airport code required', 'err'); return; }
 
     const btn = document.getElementById('fetchBtn');
     btn.disabled = true;
-    setStatus(`// fetching ${mode} for ${airport}...`, 'loading');
+    document.getElementById('btnTxt').textContent = 'Fetching...';
+    document.getElementById('ldBar').style.display = 'block';
+    setStatus(`// fetching ${mode} for ${airport}...`, 'busy');
 
-    const params = new URLSearchParams({ airport, mode, maxRows });
-    if (typeFilter) params.set('typeFilter', typeFilter);
+    const p = new URLSearchParams({airport, mode, maxRows});
+    if (typeFilter) p.set('typeFilter', typeFilter);
 
     try {
-      const res = await fetch(`/api/flights?${params}`);
+      const res  = await fetch(`/api/flights?${p}`);
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || 'Unknown error');
-
-      flightData = data.flights;
-      renderTable(flightData);
-      updateStats(flightData);
-      setStatus(`// loaded ${data.total_returned} flights from ${airport} (${data.total_fetched} fetched) — ${new Date().toLocaleTimeString()}`, 'success');
-    } catch (err) {
-      setStatus(`// error: ${err.message}`, 'error');
+      allFlights = data.flights;
+      clearFilters(false);
+      applyFilters();
+      updateStats(allFlights);
+      document.getElementById('statsRow').style.display = 'grid';
+      document.getElementById('xlBtn').disabled = false;
+      setStatus(`// ✓ ${data.total_returned} flights · ${airport} ${mode} · ${new Date().toLocaleTimeString()}`, 'ok');
+    } catch(e) {
+      setStatus(`// error: ${e.message}`, 'err');
     } finally {
       btn.disabled = false;
+      document.getElementById('btnTxt').textContent = 'Fetch Flights';
+      document.getElementById('ldBar').style.display = 'none';
     }
   }
 
-  function exportCSV() {
-    if (!flightData.length) return;
-
-    const headers = Object.keys(flightData[0]);
-    const rows = [
-      headers.join(','),
-      ...flightData.map(f =>
-        headers.map(h => JSON.stringify(f[h] ?? '')).join(',')
-      )
-    ];
-
-    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `flights_${document.getElementById('airport').value || 'export'}_${Date.now()}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+  function updateStats(f) {
+    document.getElementById('sTot').textContent = f.length;
+    document.getElementById('sAct').textContent = f.filter(x=>x.status?.toLowerCase()==='active').length;
+    document.getElementById('sSch').textContent = f.filter(x=>x.status?.toLowerCase()==='scheduled').length;
+    document.getElementById('sCan').textContent = f.filter(x=>x.status?.toLowerCase()==='cancelled').length;
+    document.getElementById('sCls').textContent = [...new Set(f.map(x=>x.aircraft_class).filter(Boolean))].length;
   }
 
-  // Allow Enter key to trigger fetch
+  function sortBy(col) {
+    sortDir = sortCol===col ? sortDir*-1 : 1;
+    sortCol = col;
+    document.querySelectorAll('.sort-icon').forEach(e=>e.classList.remove('active'));
+    const ic = document.getElementById(`si-${col}`);
+    if(ic){ ic.classList.add('active'); ic.textContent = sortDir===1?'▲':'▼'; }
+    applyFilters();
+  }
+
+  const CF_KEYS = ['flight_ident','registration','aircraft_type','aircraft_class','operator','origin','destination','flight_date','status'];
+
+  function applyFilters() {
+    const g  = document.getElementById('gSearch').value.toLowerCase();
+    const st = document.getElementById('fStatus').value.toLowerCase();
+    const cl = document.getElementById('fClass').value;
+    const cf = {};
+    CF_KEYS.forEach(k => { cf[k] = (document.getElementById(`cf-${k}`)?.value||'').toLowerCase(); });
+
+    filtered = allFlights.filter(f => {
+      if (st && f.status?.toLowerCase()!==st) return false;
+      if (cl && f.aircraft_class!==cl)         return false;
+      for (const k of CF_KEYS) if (cf[k] && !String(f[k]||'').toLowerCase().includes(cf[k])) return false;
+      if (g && !Object.values(f).join(' ').toLowerCase().includes(g)) return false;
+      return true;
+    });
+
+    if (sortCol) filtered.sort((a,b)=>String(a[sortCol]||'').localeCompare(String(b[sortCol]||''))*sortDir);
+
+    page = 1;
+    render();
+  }
+
+  function clearFilters(re=true) {
+    document.getElementById('gSearch').value='';
+    document.getElementById('fStatus').value='';
+    document.getElementById('fClass').value='';
+    CF_KEYS.forEach(k=>{ const e=document.getElementById(`cf-${k}`); if(e) e.value=''; });
+    if(re) applyFilters();
+  }
+
+  function fmtTime(iso) {
+    if(!iso) return '<span style="opacity:.35">—</span>';
+    try { return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); } catch{ return iso; }
+  }
+
+  function badge(s) {
+    const m = {'active':'badge-active','scheduled':'badge-scheduled','landed':'badge-landed','cancelled':'badge-cancelled','diverted':'badge-diverted'};
+    return m[(s||'').toLowerCase()]||'badge-other';
+  }
+
+  function chip(c) {
+    if(!c) return 'chip-other';
+    if(c.includes('Commercial')) return 'chip-commercial';
+    if(c.includes('Business'))   return 'chip-business';
+    if(c.includes('Small'))      return 'chip-small';
+    return 'chip-other';
+  }
+
+  function render() {
+    const tbody = document.getElementById('tbody');
+    const total = filtered.length;
+    const pages = Math.max(1, Math.ceil(total/PG));
+    page = Math.min(page, pages);
+    const rows  = filtered.slice((page-1)*PG, page*PG);
+
+    document.getElementById('rowCount').textContent = total ? `${total} result${total!==1?'s':''}` : '';
+
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="12"><div class="empty"><div class="empty-plane">✈</div><div>${allFlights.length?'No flights match your filters':'Enter an airport code above and click Fetch Flights'}</div></div></td></tr>`;
+      document.getElementById('pgBar').style.display='none';
+      return;
+    }
+
+    tbody.innerHTML = rows.map(f=>`
+      <tr>
+        <td class="bright">${f.flight_ident||'—'}</td>
+        <td class="dim">${f.registration||'—'}</td>
+        <td>${f.aircraft_type||'<span style="opacity:.4">—</span>'}</td>
+        <td><span class="chip ${chip(f.aircraft_class)}">${f.aircraft_class||'—'}</span></td>
+        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${f.operator||'<span style="opacity:.4">—</span>'}</td>
+        <td class="bright">${f.origin||'—'}</td>
+        <td class="bright">${f.destination||'—'}</td>
+        <td class="dim">${f.flight_date||'—'}</td>
+        <td>${fmtTime(f.scheduled_in)}</td>
+        <td>${fmtTime(f.actual_in)}</td>
+        <td>${fmtTime(f.scheduled_out)}</td>
+        <td><span class="badge ${badge(f.status)}">${f.status||'unknown'}</span></td>
+      </tr>`).join('');
+
+    const pgBar = document.getElementById('pgBar');
+    if (pages>1) {
+      pgBar.style.display='flex';
+      document.getElementById('pgInfo').textContent=`Page ${page} of ${pages} · ${total} rows`;
+      const btns = document.getElementById('pgBtns');
+      btns.innerHTML='';
+      const add = (lbl,pg,dis=false)=>{
+        const b=document.createElement('button');
+        b.className='page-btn'+(pg===page?' active':'');
+        b.textContent=lbl; b.disabled=dis;
+        b.onclick=()=>{page=pg;render();};
+        btns.appendChild(b);
+      };
+      add('«',1,page===1); add('‹',page-1,page===1);
+      let s=Math.max(1,page-2), e=Math.min(pages,s+4); s=Math.max(1,e-4);
+      for(let i=s;i<=e;i++) add(i,i);
+      add('›',page+1,page===pages); add('»',pages,page===pages);
+    } else {
+      pgBar.style.display='none';
+    }
+  }
+
+  function exportExcel() {
+    if (!allFlights.length) return;
+    const airport = document.getElementById('airport').value.toUpperCase()||'FLIGHTS';
+    const mode    = document.getElementById('mode').value;
+    const date    = new Date().toISOString().split('T')[0];
+
+    const wb  = XLSX.utils.book_new();
+
+    // Sheet 1: current filtered/sorted view
+    const ws1 = XLSX.utils.json_to_sheet(filtered.length ? filtered : allFlights);
+    ws1['!cols'] = Object.keys(allFlights[0]).map(k=>({wch:Math.max(k.length+2,14)}));
+    XLSX.utils.book_append_sheet(wb, ws1, 'Results');
+
+    // Sheet 2: full unfiltered data
+    const ws2 = XLSX.utils.json_to_sheet(allFlights);
+    ws2['!cols'] = ws1['!cols'];
+    XLSX.utils.book_append_sheet(wb, ws2, 'All Flights');
+
+    XLSX.writeFile(wb, `${airport}_${mode}_${date}.xlsx`);
+  }
+
+  // Enter key in search panel triggers fetch
   document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') fetchFlights();
+    if (e.key==='Enter' && e.target.closest('.search-panel')) fetchFlights();
   });
 </script>
 </body>
