@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaveNest API — Developer Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Unbounded:wght@300;400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f0a;
+  --surface: #111811;
+  --surface2: #162016;
+  --surface3: #1a251a;
+  --border: #1e2e1e;
+  --border2: #162016;
+  --green: #2dff6e;
+  --green-dim: #1a9940;
+  --green-glow: rgba(45,255,110,0.10);
+  --green-faint: rgba(45,255,110,0.04);
+  --amber: #ffb347;
+  --red: #ff5f5f;
+  --teal: #38d9c0;
+  --text: #e8f5e8;
+  --text2: #9ab89a;
+  --muted: #6b8f6b;
+  --muted2: #3d5c3d;
+  --code: #080d08;
+  --sidebar-w: 272px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+/* Grid bg */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(45,255,110,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45,255,110,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events:none; z-index:0;
+}
+
+/* ══ SIDEBAR ══ */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top:0; left:0;
+  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar::-webkit-scrollbar { width:3px; }
+.sidebar::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+.sidebar-logo {
+  padding: 26px 22px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.logo-icon {
+  width: 38px; height: 38px;
+  background: var(--green);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink:0;
+  box-shadow: 0 0 16px rgba(45,255,110,0.35);
+}
+.logo-text-wrap {}
+.logo-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.88rem; font-weight: 700;
+  color: var(--text); letter-spacing: -0.01em;
+}
+.logo-name span { color: var(--green); }
+.logo-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem; color: var(--muted);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.sidebar-search {
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.search-wrap { position:relative; }
+.search-wrap::before {
+  content:'⌕'; position:absolute; left:10px; top:50%;
+  transform:translateY(-50%); color:var(--muted2); font-size:1rem;
+  pointer-events:none;
+}
+.search-input {
+  width:100%; background:var(--bg); border:1px solid var(--border);
+  border-radius:7px; padding:8px 10px 8px 32px;
+  color:var(--text); font-family:'Space Mono',monospace; font-size:0.72rem;
+  outline:none; transition:border-color .2s;
+}
+.search-input:focus { border-color:var(--green-dim); }
+.search-input::placeholder { color:var(--muted2); }
+
+.nav-group { padding: 16px 12px 4px; }
+.nav-label {
+  font-family:'Space Mono',monospace; font-size:0.58rem;
+  text-transform:uppercase; letter-spacing:0.18em;
+  color:var(--muted2); padding:0 8px; margin-bottom:5px;
+}
+.nav-item {
+  display:flex; align-items:center; gap:8px;
+  padding:7px 9px; border-radius:7px;
+  cursor:pointer; font-size:0.84rem; color:var(--text2);
+  transition:all .15s; text-decoration:none;
+  border:1px solid transparent; margin-bottom:2px;
+  position:relative;
+}
+.nav-item:hover { background:var(--surface2); color:var(--text); }
+.nav-item.active {
+  background:var(--green-glow);
+  border-color:rgba(45,255,110,0.2);
+  color:var(--green);
+}
+.nav-item.active::before {
+  content:''; position:absolute; left:-1px; top:22%; bottom:22%;
+  width:3px; background:var(--green); border-radius:0 2px 2px 0;
+}
+.nav-icon { font-size:0.85rem; opacity:.7; flex-shrink:0; }
+.nav-badge {
+  margin-left:auto; font-family:'Space Mono',monospace; font-size:0.56rem;
+  padding:2px 6px; border-radius:8px;
+  background:var(--green-glow); color:var(--green);
+  border:1px solid rgba(45,255,110,0.2);
+}
+.nav-badge.get { background:rgba(56,217,192,.1); color:var(--teal); border-color:rgba(56,217,192,.2); }
+
+.sidebar-footer {
+  margin-top:auto; padding:16px 14px;
+  border-top:1px solid var(--border);
+}
+.ver {
+  font-family:'Space Mono',monospace; font-size:0.62rem; color:var(--muted);
+  display:flex; align-items:center; gap:6px;
+}
+.live-dot {
+  width:6px; height:6px; background:var(--green); border-radius:50%;
+  box-shadow:0 0 6px var(--green); animation:pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+/* ══ MAIN ══ */
+.main { margin-left:var(--sidebar-w); flex:1; min-height:100vh; position:relative; z-index:1; }
+
+.topbar {
+  position:sticky; top:0;
+  background:rgba(10,15,10,0.9); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  padding:13px 44px; display:flex; align-items:center; gap:14px; z-index:50;
+}
+.breadcrumb {
+  font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--muted);
+  display:flex; align-items:center; gap:7px;
+}
+.breadcrumb span { color:var(--text2); }
+.topbar-right { margin-left:auto; display:flex; gap:9px; align-items:center; }
+.tbtn {
+  font-family:'Space Mono',monospace; font-size:0.66rem;
+  padding:5px 13px; border-radius:7px;
+  border:1px solid var(--border); background:transparent;
+  color:var(--text2); cursor:pointer; transition:all .15s;
+  text-decoration:none; display:flex; align-items:center; gap:5px;
+}
+.tbtn:hover { border-color:var(--green-dim); color:var(--green); }
+.tbtn.back { border-color:rgba(45,255,110,0.25); color:var(--green); }
+.tbtn.back:hover { background:var(--green-glow); }
+.tbtn.primary { background:var(--green); color:var(--bg); border-color:var(--green); font-weight:700; }
+.tbtn.primary:hover { background:#50ff88; }
+
+.content { max-width:840px; margin:0 auto; padding:52px 44px 100px; }
+
+/* ══ SECTIONS ══ */
+.section { display:none; animation:fadeUp .3s ease; }
+.section.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+/* ── HERO ── */
+.eyebrow {
+  font-family:'Space Mono',monospace; font-size:0.66rem;
+  text-transform:uppercase; letter-spacing:0.2em; color:var(--green);
+  margin-bottom:18px; display:flex; align-items:center; gap:10px;
+}
+.eyebrow::before { content:''; width:28px; height:1px; background:var(--green); }
+
+.page-title {
+  font-family:'Unbounded',sans-serif;
+  font-size:clamp(2rem,4vw,3rem); font-weight:700;
+  line-height:1.15; letter-spacing:-0.03em; margin-bottom:18px;
+}
+.page-title em { font-style:normal; color:var(--green); }
+
+.page-desc { font-size:1rem; color:var(--text2); line-height:1.8; max-width:600px; margin-bottom:32px; }
+
+.stats-grid {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:44px;
+}
+.stat-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:11px; padding:16px 18px; transition:border-color .2s;
+}
+.stat-card:hover { border-color:var(--green-dim); }
+.stat-n {
+  font-family:'Unbounded',sans-serif; font-size:1.7rem; font-weight:700;
+  color:var(--green); line-height:1; margin-bottom:4px;
+}
+.stat-l { font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; }
+
+/* ── TYPOGRAPHY ── */
+h2 {
+  font-family:'Unbounded',sans-serif; font-size:1.3rem; font-weight:600;
+  letter-spacing:-0.02em; color:var(--text);
+  margin:48px 0 14px; padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:10px;
+}
+h3 {
+  font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:600;
+  color:var(--text); margin:24px 0 10px;
+}
+p { font-size:0.93rem; color:var(--text2); line-height:1.8; margin-bottom:14px; }
+
+/* ── CALLOUTS ── */
+.callout {
+  border-radius:10px; padding:16px 20px; margin:20px 0;
+  display:flex; gap:12px; font-size:0.88rem; line-height:1.7;
+}
+.callout-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+.callout.info { background:rgba(45,255,110,.06); border:1px solid rgba(45,255,110,.2); color:var(--text2); }
+.callout.warn { background:rgba(255,179,71,.07); border:1px solid rgba(255,179,71,.25); color:var(--text2); }
+.callout.danger { background:rgba(255,95,95,.07); border:1px solid rgba(255,95,95,.25); color:var(--text2); }
+.callout strong { color:var(--text); }
+
+/* ── CODE ── */
+.code-wrap { position:relative; margin:18px 0; }
+.code-lang {
+  font-family:'Space Mono',monospace; font-size:0.6rem;
+  text-transform:uppercase; letter-spacing:0.12em; color:var(--muted);
+  background:var(--surface2); border:1px solid var(--border); border-bottom:none;
+  padding:5px 13px; border-radius:7px 7px 0 0; display:inline-block;
+}
+pre {
+  background:var(--code); border:1px solid var(--border);
+  border-radius:0 7px 7px 7px; padding:18px 22px;
+  overflow-x:auto; font-family:'Space Mono',monospace;
+  font-size:0.79rem; line-height:1.75; color:#7ec47e;
+}
+pre::-webkit-scrollbar { height:3px; }
+pre::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.copy-btn {
+  position:absolute; top:34px; right:10px;
+  font-family:'Space Mono',monospace; font-size:0.6rem;
+  padding:3px 9px; border:1px solid var(--border);
+  border-radius:5px; background:var(--surface2); color:var(--muted);
+  cursor:pointer; transition:all .15s;
+}
+.copy-btn:hover { border-color:var(--green-dim); color:var(--green); }
+code {
+  font-family:'Space Mono',monospace; font-size:0.82em;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:4px; padding:2px 6px; color:var(--green);
+}
+
+/* ── ENDPOINT CARDS ── */
+.ep {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; margin:16px 0; overflow:hidden; transition:border-color .2s;
+}
+.ep:hover { border-color:var(--green-dim); }
+.ep-head {
+  padding:16px 22px; display:flex; align-items:center; gap:12px; cursor:pointer;
+}
+.method {
+  font-family:'Space Mono',monospace; font-size:0.66rem; font-weight:700;
+  padding:3px 10px; border-radius:5px; letter-spacing:.05em; flex-shrink:0;
+}
+.method.GET { background:rgba(56,217,192,.1); color:var(--teal); border:1px solid rgba(56,217,192,.25); }
+.method.POST { background:var(--green-glow); color:var(--green); border:1px solid rgba(45,255,110,.25); }
+.ep-path { font-family:'Space Mono',monospace; font-size:0.9rem; color:var(--text); }
+.ep-desc { font-size:0.8rem; color:var(--muted); margin-left:auto; }
+.chevron { color:var(--muted2); transition:transform .2s; font-size:0.78rem; }
+.ep.open .chevron { transform:rotate(180deg); }
+.ep-body { display:none; padding:0 22px 22px; border-top:1px solid var(--border); }
+.ep.open .ep-body { display:block; }
+
+/* ── PARAM TABLE ── */
+.ptable { width:100%; border-collapse:collapse; margin:16px 0; font-size:.83rem; }
+.ptable th {
+  font-family:'Space Mono',monospace; font-size:.6rem;
+  text-transform:uppercase; letter-spacing:.14em; color:var(--muted2);
+  text-align:left; padding:7px 11px; border-bottom:1px solid var(--border);
+}
+.ptable td { padding:10px 11px; border-bottom:1px solid rgba(30,46,30,.5); vertical-align:top; }
+.ptable tr:last-child td { border-bottom:none; }
+.pn { font-family:'Space Mono',monospace; color:var(--teal); font-size:.8rem; }
+.pt { font-family:'Space Mono',monospace; color:var(--amber); font-size:.76rem; }
+.req { font-size:.58rem; padding:2px 5px; border-radius:3px; background:rgba(255,95,95,.12); color:var(--red); border:1px solid rgba(255,95,95,.25); margin-left:4px; }
+.opt { font-size:.58rem; padding:2px 5px; border-radius:3px; background:rgba(107,143,107,.12); color:var(--muted); border:1px solid var(--border); margin-left:4px; }
+.pd { color:var(--text2); font-size:.83rem; }
+
+/* ── RESPONSE FIELDS ── */
+.rf { display:flex; gap:12px; padding:9px 0; border-bottom:1px solid var(--border); font-size:.83rem; }
+.rf:last-child { border-bottom:none; }
+.rn { font-family:'Space Mono',monospace; color:var(--teal); min-width:150px; flex-shrink:0; }
+.rt { font-family:'Space Mono',monospace; color:var(--amber); min-width:75px; flex-shrink:0; font-size:.76rem; }
+.rd { color:var(--text2); }
+
+/* ── STORE GRID ── */
+.store-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin:18px 0; }
+.store-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:14px 16px;
+  display:flex; align-items:center; gap:10px; transition:border-color .2s;
+}
+.store-card:hover { border-color:var(--green-dim); }
+.sdot { width:7px; height:7px; background:var(--green); border-radius:50%; box-shadow:0 0 5px var(--green); flex-shrink:0; }
+.sname { font-size:.88rem; color:var(--text); }
+.skey { font-family:'Space Mono',monospace; font-size:.66rem; color:var(--muted); margin-left:auto; }
+
+/* ── STEPS ── */
+.steps { counter-reset:step; margin:18px 0; }
+.step { display:flex; gap:14px; padding:16px 0; border-bottom:1px solid var(--border); }
+.step:last-child { border-bottom:none; }
+.step-n {
+  font-family:'Unbounded',sans-serif; font-size:1.3rem; font-weight:700;
+  color:var(--green); opacity:.35; line-height:1; flex-shrink:0; min-width:24px;
+}
+.step-c h4 { font-size:.9rem; font-weight:600; color:var(--text); margin-bottom:5px; }
+.step-c p { font-size:.83rem; margin:0; }
+
+/* ── FEATURE LIST ── */
+.flist { list-style:none; margin:14px 0; }
+.flist li {
+  display:flex; align-items:flex-start; gap:9px;
+  padding:8px 0; border-bottom:1px solid rgba(30,46,30,.4);
+  font-size:.88rem; color:var(--text2); line-height:1.6;
+}
+.flist li:last-child { border-bottom:none; }
+.flist li::before { content:'▸'; color:var(--green); font-size:.6rem; margin-top:5px; flex-shrink:0; }
+
+/* ── PROPOSAL BOX ── */
+.proposal-box {
+  background:linear-gradient(135deg,rgba(45,255,110,.05) 0%,rgba(56,217,192,.03) 100%);
+  border:1px solid rgba(45,255,110,.25); border-radius:14px;
+  padding:28px 32px; margin:28px 0; position:relative; overflow:hidden;
+}
+.proposal-box::after {
+  content:'🕷️'; position:absolute; top:18px; right:22px;
+  font-size:1.8rem; opacity:.15;
+}
+.proposal-box h3 { margin-top:0; color:var(--green); }
+
+/* ── ERROR ROWS ── */
+.er { display:flex; align-items:flex-start; gap:14px; padding:12px 0; border-bottom:1px solid var(--border); font-size:.83rem; }
+.er:last-child { border-bottom:none; }
+.ec { font-family:'Space Mono',monospace; font-size:.8rem; padding:3px 9px; border-radius:5px; flex-shrink:0; min-width:48px; text-align:center; }
+.ec.e400 { background:rgba(255,179,71,.12); color:var(--amber); border:1px solid rgba(255,179,71,.25); }
+.ec.e422 { background:rgba(255,179,71,.12); color:var(--amber); border:1px solid rgba(255,179,71,.25); }
+.ec.e500 { background:rgba(255,95,95,.12); color:var(--red); border:1px solid rgba(255,95,95,.25); }
+
+/* ── DIVIDER ── */
+.divider { height:1px; background:var(--border); margin:36px 0; }
+
+/* ── TAGS ── */
+.tags { display:flex; flex-wrap:wrap; gap:7px; margin:14px 0; }
+.tag {
+  font-family:'Space Mono',monospace; font-size:.68rem;
+  padding:4px 11px; border-radius:16px;
+  border:1px solid var(--border); color:var(--text2); background:var(--surface);
+}
+
+/* ── MOBILE ── */
+.mob-toggle {
+  display:none; position:fixed; top:13px; left:13px; z-index:200;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:7px; padding:7px 11px; cursor:pointer; font-size:.95rem;
+}
+@media(max-width:800px){
+  .sidebar { transform:translateX(-100%); transition:transform .3s; }
+  .sidebar.open { transform:translateX(0); }
+  .main { margin-left:0; }
+  .content { padding:36px 22px 80px; }
+  .topbar { padding:12px 22px; }
+  .stats-grid { grid-template-columns:1fr 1fr; }
+  .mob-toggle { display:block; }
+}
+</style>
+</head>
+<body>
+
+<button class="mob-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🛒</div>
+    <div class="logo-text-wrap">
+      <div class="logo-name">Save<span>Nest</span></div>
+      <div class="logo-sub">API Docs</div>
+    </div>
+  </div>
+
+  <div class="sidebar-search">
+    <div class="search-wrap">
+      <input class="search-input" type="text" placeholder="Search docs…" oninput="searchNav(this.value)">
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-group">
+      <div class="nav-label">Getting Started</div>
+      <a class="nav-item active" onclick="show('overview')"><span class="nav-icon">◈</span> Overview</a>
+      <a class="nav-item" onclick="show('quickstart')"><span class="nav-icon">⚡</span> Quick Start</a>
+      <a class="nav-item" onclick="show('stores')"><span class="nav-icon">🏪</span> Supported Stores</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">API Reference</div>
+      <a class="nav-item" onclick="show('search')"><span class="nav-icon">🔍</span> /search <span class="nav-badge get">GET</span></a>
+      <a class="nav-item" onclick="show('crawl')"><span class="nav-icon">🕷️</span> /crawl <span class="nav-badge get">GET</span></a>
+      <a class="nav-item" onclick="show('health')"><span class="nav-icon">💚</span> /health <span class="nav-badge get">GET</span></a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Concepts</div>
+      <a class="nav-item" onclick="show('sitemap')"><span class="nav-icon">🗺️</span> Sitemap & BFS</a>
+      <a class="nav-item" onclick="show('parsing')"><span class="nav-icon">🔬</span> Product Parsing</a>
+      <a class="nav-item" onclick="show('pagination')"><span class="nav-icon">📄</span> Pagination</a>
+      <a class="nav-item" onclick="show('playwright')"><span class="nav-icon">🎭</span> JS Rendering</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Integration</div>
+      <a class="nav-item" onclick="show('flutter')"><span class="nav-icon">📱</span> Flutter Guide</a>
+      <a class="nav-item" onclick="show('errors')"><span class="nav-icon">⚠️</span> Error Handling</a>
+      <a class="nav-item" onclick="show('upwork')"><span class="nav-icon">💼</span> Upwork Proposal</a>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="ver"><span class="live-dot"></span> v2.0 · FastAPI · Playwright</div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">Docs <span>›</span> <span id="bc">Overview</span></div>
+    <div class="topbar-right">
+      <a class="tbtn back" href="/">← Back to App</a>
+      <a class="tbtn" href="/docs" target="_blank">⎋ Swagger</a>
+      <a class="tbtn" href="/health" target="_blank">💚 Health</a>
+      <a class="tbtn primary" href="https://frnklnwrld-savenest-api.hf.space/" target="_blank">↗ Live API</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ OVERVIEW ══ -->
+    <section id="sec-overview" class="section active">
+      <div class="eyebrow">Price Intelligence API</div>
+      <h1 class="page-title">SaveNest <em>Crawler</em></h1>
+      <p class="page-desc">Real-time product price scraping across Pakistan's top grocery stores. Sitemap enumeration, BFS fallback, JSON-LD parsing, and optional Playwright JS rendering — all in one FastAPI backend.</p>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-n">5</div><div class="stat-l">Stores</div></div>
+        <div class="stat-card"><div class="stat-n">500</div><div class="stat-l">Max / Call</div></div>
+        <div class="stat-card"><div class="stat-n">3</div><div class="stat-l">Endpoints</div></div>
+        <div class="stat-card"><div class="stat-n">PKR</div><div class="stat-l">Currency</div></div>
+      </div>
+
+      <h2>What is this API?</h2>
+      <p>The SaveNest Crawler API is a stateless scraping backend. It enumerates product URLs via sitemaps (Shopify / WooCommerce / generic), falls back to bounded BFS crawling when no sitemap is available, and scrapes product details using JSON-LD structured data with CSS selector fallbacks.</p>
+      <p>The API is designed to be consumed by Flutter apps, web dashboards, or Firestore pipelines. All state lives on the client — use <code>cursor</code> to paginate and persist results in your own database.</p>
+
+      <h2>Architecture</h2>
+      <ul class="flist">
+        <li><strong>FastAPI</strong> — async Python backend on Hugging Face Spaces (free tier)</li>
+        <li><strong>Sitemap discovery</strong> — robots.txt parsing + store-specific hints + default paths</li>
+        <li><strong>BFS fallback</strong> — bounded breadth-first crawl (max 50 pages) when no sitemap exists</li>
+        <li><strong>JSON-LD first</strong> — parses <code>application/ld+json</code> Product schema; CSS selectors as fallback</li>
+        <li><strong>Playwright (Firefox)</strong> — optional JS rendering for dynamic sites like Daraz</li>
+        <li><strong>In-memory TTL cache</strong> — 3-minute page cache per URL, per-request isolation for /search</li>
+        <li><strong>Rate limiter</strong> — per-host politeness gap (default 2s) to avoid bans</li>
+        <li><strong>CORS enabled</strong> — open to all origins, ready for any client</li>
+      </ul>
+
+      <div class="callout info">
+        <span class="callout-icon">ℹ️</span>
+        <div><strong>Base URL:</strong> <code>https://frnklnwrld-savenest-api.hf.space</code><br>
+        All endpoints return JSON. No auth required from clients.</div>
+      </div>
+    </section>
+
+    <!-- ══ QUICK START ══ -->
+    <section id="sec-quickstart" class="section">
+      <div class="eyebrow">Getting Started</div>
+      <h1 class="page-title">Quick <em>Start</em></h1>
+      <p class="page-desc">Search for prices or crawl a full store in under 2 minutes.</p>
+
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-c"><h4>Search across all stores</h4><p>Hit <code>/search?q=milk</code> — the API queries all 5 stores simultaneously and returns deduplicated, price-sorted results.</p></div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-c"><h4>Crawl a specific store</h4><p>Hit <code>/crawl?store=alfatah.pk&mode=urls</code> to enumerate all product URLs. Add <code>mode=full</code> to also scrape prices.</p></div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-c"><h4>Paginate large stores</h4><p>Use <code>cursor=next_cursor</code> from each response to fetch the next batch. Repeat until <code>next_cursor</code> is <code>null</code>.</p></div></div>
+      </div>
+
+      <h3>cURL — Search</h3>
+      <div class="code-wrap">
+        <div class="code-lang">bash</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>curl "https://frnklnwrld-savenest-api.hf.space/search?q=milk&limit=10"</pre>
+      </div>
+
+      <h3>cURL — Crawl (URL mode)</h3>
+      <div class="code-wrap">
+        <div class="code-lang">bash</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>curl "https://frnklnwrld-savenest-api.hf.space/crawl?store=alfatah.pk&mode=urls&limit=50"</pre>
+      </div>
+
+      <h3>JavaScript</h3>
+      <div class="code-wrap">
+        <div class="code-lang">javascript</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>// Search across all stores
+const res = await fetch(
+  'https://frnklnwrld-savenest-api.hf.space/search?q=olpers+milk&limit=20'
+);
+const data = await res.json();
+
+data.offers.forEach(item => {
+  console.log(`${item.source}: ${item.title} — PKR ${item.price}`);
+  // Al-Fatah: Olpers Full Cream Milk 1L — PKR 285
+});</pre>
+      </div>
+
+      <h3>Sample Search Response</h3>
+      <div class="code-wrap">
+        <div class="code-lang">json</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>{
+  "query": "milk",
+  "count": 4,
+  "offers": [
+    {
+      "source": "Al-Fatah",
+      "title": "Olpers Full Cream Milk 1L",
+      "price": 285.0,
+      "currency": "PKR",
+      "url": "https://alfatah.pk/products/olpers-milk-1l",
+      "image": "https://cdn.shopify.com/...",
+      "in_stock": true
+    },
+    {
+      "source": "Springs Store",
+      "title": "Nestle Milkpak UHT Milk 1L",
+      "price": 290.0,
+      "currency": "PKR",
+      "url": "https://springs.com.pk/product/...",
+      "image": null,
+      "in_stock": null
+    }
+  ]
+}</pre>
+      </div>
+    </section>
+
+    <!-- ══ STORES ══ -->
+    <section id="sec-stores" class="section">
+      <div class="eyebrow">Coverage</div>
+      <h1 class="page-title">Supported <em>Stores</em></h1>
+
+      <div class="store-grid">
+        <div class="store-card"><div class="sdot"></div><span class="sname">Al-Fatah</span><span class="skey">alfatah.pk</span></div>
+        <div class="store-card"><div class="sdot"></div><span class="sname">QnE</span><span class="skey">qne.com.pk</span></div>
+        <div class="store-card"><div class="sdot"></div><span class="sname">Springs Store</span><span class="skey">springs.com.pk</span></div>
+        <div class="store-card"><div class="sdot"></div><span class="sname">Vmart</span><span class="skey">vmart.pk</span></div>
+        <div class="store-card"><div class="sdot"></div><span class="sname">GrocerApp</span><span class="skey">grocerapp.pk</span></div>
+      </div>
+
+      <h2>Platform Details</h2>
+      <div style="margin:16px 0">
+        <div class="rf"><span class="rn">alfatah.pk</span><span class="rt">Shopify</span><span class="rd">Uses <code>/search/suggest.json</code> API + <code>/products/{handle}</code> URLs. Full JSON-LD support.</span></div>
+        <div class="rf"><span class="rn">qne.com.pk</span><span class="rt">Custom</span><span class="rd">WooCommerce-style. CSS fallback selectors configured. HTML search scraping.</span></div>
+        <div class="rf"><span class="rn">springs.com.pk</span><span class="rt">WooCommerce</span><span class="rd">Standard WooCommerce product URLs (<code>/product/slug</code>). Sitemap-based enumeration.</span></div>
+        <div class="rf"><span class="rn">vmart.pk</span><span class="rt">Custom</span><span class="rd">Generic search URL template. CSS fallback for title/price/image extraction.</span></div>
+        <div class="rf"><span class="rn">grocerapp.pk</span><span class="rt">Custom</span><span class="rd">Custom sitemap hints configured. Product URLs match <code>/products/slug-id</code> pattern.</span></div>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">💡</span>
+        <div>To add a new store, add an entry to the <code>STORES</code> list in <code>app.py</code> with <code>base</code>, <code>platform</code>, and optional <code>product_link_patterns</code>, <code>sitemap_hints</code>, and <code>product_fallback</code> CSS selectors.</div>
+      </div>
+    </section>
+
+    <!-- ══ /search ══ -->
+    <section id="sec-search" class="section">
+      <div class="eyebrow">API Reference</div>
+      <h1 class="page-title"><em>/search</em></h1>
+      <p class="page-desc">Live product search across all registered stores simultaneously.</p>
+
+      <div class="ep open">
+        <div class="ep-head" onclick="toggleEp(this.parentElement)">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/search</span>
+          <span class="ep-desc">Search all stores</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="ep-body">
+          <h3>Query Parameters</h3>
+          <table class="ptable">
+            <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><span class="pn">q</span><span class="req">required</span></td><td><span class="pt">string</span></td><td class="pd">Product keyword. E.g. <code>"milk"</code>, <code>"bread"</code>, <code>"rice 5kg"</code>.</td></tr>
+              <tr><td><span class="pn">limit</span><span class="opt">optional</span></td><td><span class="pt">integer</span></td><td class="pd">Max results to return (1–100, default: 40).</td></tr>
+            </tbody>
+          </table>
+
+          <h3>How it works</h3>
+          <p>For each store the API uses the most appropriate search strategy: Shopify stores use <code>/search/suggest.json</code>, WooCommerce uses <code>/?s=query&post_type=product</code>, and custom stores use their configured <code>search_url_template</code>. Product page URLs are collected, scraped in parallel (max 5 concurrent), and deduplicated by title+source keeping the cheapest price.</p>
+
+          <h3>Response Fields</h3>
+          <div style="margin:14px 0">
+            <div class="rf"><span class="rn">query</span><span class="rt">string</span><span class="rd">The search query as received.</span></div>
+            <div class="rf"><span class="rn">count</span><span class="rt">integer</span><span class="rd">Number of results returned.</span></div>
+            <div class="rf"><span class="rn">offers</span><span class="rt">array</span><span class="rd">Array of product objects sorted by price ascending.</span></div>
+            <div class="rf"><span class="rn">offers[].source</span><span class="rt">string</span><span class="rd">Store display name (e.g. <code>"Al-Fatah"</code>).</span></div>
+            <div class="rf"><span class="rn">offers[].title</span><span class="rt">string</span><span class="rd">Product name.</span></div>
+            <div class="rf"><span class="rn">offers[].price</span><span class="rt">float</span><span class="rd">Price as a number.</span></div>
+            <div class="rf"><span class="rn">offers[].currency</span><span class="rt">string</span><span class="rd">Currency code, default <code>"PKR"</code>.</span></div>
+            <div class="rf"><span class="rn">offers[].url</span><span class="rt">string</span><span class="rd">Direct product page URL.</span></div>
+            <div class="rf"><span class="rn">offers[].image</span><span class="rt">string?</span><span class="rd">Product image URL. May be null if not found.</span></div>
+            <div class="rf"><span class="rn">offers[].in_stock</span><span class="rt">bool?</span><span class="rd">Stock status from JSON-LD availability. Null if not available.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ /crawl ══ -->
+    <section id="sec-crawl" class="section">
+      <div class="eyebrow">API Reference</div>
+      <h1 class="page-title"><em>/crawl</em></h1>
+      <p class="page-desc">Enumerate all product URLs for a store and optionally scrape full details. Supports pagination via cursor.</p>
+
+      <div class="ep open">
+        <div class="ep-head" onclick="toggleEp(this.parentElement)">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/crawl</span>
+          <span class="ep-desc">Full store enumeration</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="ep-body">
+          <h3>Query Parameters</h3>
+          <table class="ptable">
+            <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><span class="pn">store</span><span class="req">required</span></td><td><span class="pt">string</span></td><td class="pd">Domain key, e.g. <code>"alfatah.pk"</code>. Must match a registered store.</td></tr>
+              <tr><td><span class="pn">limit</span><span class="opt">optional</span></td><td><span class="pt">integer</span></td><td class="pd">Items per call (1–500, default: 100).</td></tr>
+              <tr><td><span class="pn">cursor</span><span class="opt">optional</span></td><td><span class="pt">integer</span></td><td class="pd">Resume offset. Pass <code>next_cursor</code> from previous response. Default: 0.</td></tr>
+              <tr><td><span class="pn">mode</span><span class="opt">optional</span></td><td><span class="pt">string</span></td><td class="pd"><code>"urls"</code> — enumerate only (fast). <code>"full"</code> — enumerate + scrape prices. Default: <code>"full"</code>.</td></tr>
+              <tr><td><span class="pn">use_js</span><span class="opt">optional</span></td><td><span class="pt">0 | 1</span></td><td class="pd">Override Playwright JS rendering for this request.</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Response Fields</h3>
+          <div style="margin:14px 0">
+            <div class="rf"><span class="rn">store</span><span class="rt">string</span><span class="rd">Store domain key as provided.</span></div>
+            <div class="rf"><span class="rn">count</span><span class="rt">integer</span><span class="rd">Number of items in this batch.</span></div>
+            <div class="rf"><span class="rn">items</span><span class="rt">array</span><span class="rd">Array of product objects (same structure as /search offers). In <code>urls</code> mode: <code>[{url: string}]</code>.</span></div>
+            <div class="rf"><span class="rn">next_cursor</span><span class="rt">int?</span><span class="rd">Pass as <code>cursor</code> in next call to get next batch. <code>null</code> when all items fetched.</span></div>
+            <div class="rf"><span class="rn">total_urls</span><span class="rt">integer</span><span class="rd">Total product URLs found in store (before pagination).</span></div>
+            <div class="rf"><span class="rn">enumeration</span><span class="rt">string</span><span class="rd"><code>"sitemap_or_bfs"</code> or <code>"none"</code>.</span></div>
+            <div class="rf"><span class="rn">js_fallback</span><span class="rt">bool</span><span class="rd">Whether Playwright JS rendering was active.</span></div>
+          </div>
+
+          <h3>Paginating a full store</h3>
+          <div class="code-wrap">
+            <div class="code-lang">javascript</div>
+            <button class="copy-btn" onclick="doCopy(this)">copy</button>
+            <pre>let cursor = 0;
+const allProducts = [];
+
+while (cursor !== null) {
+  const res = await fetch(
+    `/crawl?store=alfatah.pk&mode=full&limit=100&cursor=${cursor}`
+  );
+  const data = await res.json();
+  allProducts.push(...data.items);
+  cursor = data.next_cursor;  // null when done
+  console.log(`Fetched ${allProducts.length} / ${data.total_urls}`);
+}
+// Save allProducts to Firestore</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ /health ══ -->
+    <section id="sec-health" class="section">
+      <div class="eyebrow">API Reference</div>
+      <h1 class="page-title"><em>/health</em></h1>
+      <div class="ep open">
+        <div class="ep-head" onclick="toggleEp(this.parentElement)">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/health</span>
+          <span class="ep-desc">Status check</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="ep-body">
+          <p>Simple liveness check. Returns immediately with no external calls.</p>
+          <div class="code-wrap">
+            <div class="code-lang">json</div>
+            <button class="copy-btn" onclick="doCopy(this)">copy</button>
+            <pre>{ "ok": true }</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SITEMAP ══ -->
+    <section id="sec-sitemap" class="section">
+      <div class="eyebrow">Concepts</div>
+      <h1 class="page-title">Sitemap <em>& BFS</em></h1>
+      <p class="page-desc">How the API discovers every product URL in a store.</p>
+
+      <h2>Discovery Order</h2>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-c"><h4>robots.txt</h4><p>Fetches <code>/robots.txt</code> and parses any <code>Sitemap:</code> directives.</p></div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-c"><h4>Store-specific hints</h4><p>Each store entry can declare <code>sitemap_hints</code> — custom sitemap URLs tested before defaults.</p></div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-c"><h4>Default paths</h4><p>Tries <code>/sitemap.xml</code>, <code>/sitemap_index.xml</code>, <code>/sitemap-index.xml</code> in order.</p></div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-c"><h4>BFS fallback</h4><p>If no sitemap yields product URLs, a bounded BFS crawl (max 50 pages, max 8000 URLs) follows category/listing links to find products.</p></div></div>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">ℹ️</span>
+        <div>Sitemap index files (containing child <code>.xml</code> URLs) are followed recursively up to 5000 nodes. All discovered URLs are filtered to the store's domain and matched against <code>product_link_patterns</code>.</div>
+      </div>
+    </section>
+
+    <!-- ══ PARSING ══ -->
+    <section id="sec-parsing" class="section">
+      <div class="eyebrow">Concepts</div>
+      <h1 class="page-title">Product <em>Parsing</em></h1>
+      <p class="page-desc">How price, title and image are extracted from each product page.</p>
+
+      <h2>Extraction Order</h2>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-c"><h4>JSON-LD structured data</h4><p>Parses all <code>&lt;script type="application/ld+json"&gt;</code> blocks looking for <code>@type: "Product"</code>. Handles nested offers, aggregateOffer, and priceSpecification.</p></div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-c"><h4>CSS selector fallback</h4><p>If no JSON-LD Product found, uses platform-specific CSS selectors for title, price, and image. Custom stores can define their own <code>product_fallback</code> selectors.</p></div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-c"><h4>OG image fallback</h4><p>If no product image found via CSS, checks <code>&lt;meta property="og:image"&gt;</code> and <code>&lt;link rel="image_src"&gt;</code>.</p></div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-c"><h4>Service filter</h4><p>Titles containing service keywords (installation, repair, cleaning, etc.) are discarded — only physical products are returned.</p></div></div>
+      </div>
+
+      <h3>Price Cleaning</h3>
+      <p>Raw price strings like <code>"Rs. 1,285.00"</code> or <code>"PKR 285"</code> are normalized using regex extraction of the first numeric value, stripping commas and currency symbols.</p>
+    </section>
+
+    <!-- ══ PAGINATION ══ -->
+    <section id="sec-pagination" class="section">
+      <div class="eyebrow">Concepts</div>
+      <h1 class="page-title"><em>Pagination</em></h1>
+      <p class="page-desc">The /crawl endpoint is designed for paginated calls to avoid HuggingFace Spaces timeouts.</p>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div><strong>HF Spaces timeout:</strong> Free tier Spaces have a 60s request timeout. Keep <code>limit</code> at 50–100 for <code>mode=full</code> (scraping) and up to 500 for <code>mode=urls</code> (enumeration only).</div>
+      </div>
+
+      <h3>Pagination Flow</h3>
+      <div class="code-wrap">
+        <div class="code-lang">python</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>import requests, time
+
+BASE = "https://frnklnwrld-savenest-api.hf.space"
+cursor = 0
+all_items = []
+
+while cursor is not None:
+    res = requests.get(f"{BASE}/crawl", params={
+        "store": "alfatah.pk",
+        "mode": "full",
+        "limit": 50,
+        "cursor": cursor
+    })
+    data = res.json()
+    all_items.extend(data["items"])
+    cursor = data["next_cursor"]
+    
+    print(f"Got {len(all_items)} / {data['total_urls']}")
+    time.sleep(1)  # be polite
+
+print(f"Done. Total: {len(all_items)} products")</pre>
+      </div>
+    </section>
+
+    <!-- ══ PLAYWRIGHT ══ -->
+    <section id="sec-playwright" class="section">
+      <div class="eyebrow">Concepts</div>
+      <h1 class="page-title">JS <em>Rendering</em></h1>
+      <p class="page-desc">Optional Playwright (Firefox) rendering for JavaScript-heavy sites.</p>
+
+      <p>Some stores (particularly Daraz) render product data entirely via JavaScript — a plain HTTP fetch returns an empty shell. The API includes optional Playwright Firefox rendering to handle these cases.</p>
+
+      <h2>How to enable</h2>
+      <ul class="flist">
+        <li>Set <code>USE_PLAYWRIGHT=1</code> in your HF Space environment variables (enabled by default)</li>
+        <li>Per-request override: add <code>use_js=1</code> or <code>use_js=0</code> to any <code>/crawl</code> request</li>
+        <li>Daraz.pk is automatically detected and uses JS rendering when Playwright is enabled</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div><strong>Performance:</strong> JS rendering adds ~3-5s per page. Use sparingly and only for stores that require it. Plain HTTP is always tried first; Playwright is only invoked as a fallback when the plain fetch returns no usable HTML.</div>
+      </div>
+
+      <h3>Playwright install (for local dev)</h3>
+      <div class="code-wrap">
+        <div class="code-lang">bash</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>pip install playwright
+playwright install firefox</pre>
+      </div>
+    </section>
+
+    <!-- ══ FLUTTER ══ -->
+    <section id="sec-flutter" class="section">
+      <div class="eyebrow">Integration</div>
+      <h1 class="page-title">Flutter <em>Guide</em></h1>
+      <p class="page-desc">Complete Dart service class and widget patterns for the SaveNest API.</p>
+
+      <h3>Service Class</h3>
+      <div class="code-wrap">
+        <div class="code-lang">dart</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+class SaveNestService {
+  static const String base = 'https://frnklnwrld-savenest-api.hf.space';
+
+  /// Search for a product across all stores
+  Future&lt;List&lt;Map&gt;&gt; search(String query, {int limit = 20}) async {
+    final uri = Uri.parse('$base/search')
+        .replace(queryParameters: {'q': query, 'limit': '$limit'});
+    final res = await http.get(uri);
+    if (res.statusCode != 200) throw Exception('Search failed: ${res.statusCode}');
+    final data = jsonDecode(res.body);
+    return List&lt;Map&gt;.from(data['offers']);
+  }
+
+  /// Get product URLs from a store (paginated)
+  Future&lt;Map&gt; crawlUrls(String store, {int limit = 100, int cursor = 0}) async {
+    final uri = Uri.parse('$base/crawl').replace(queryParameters: {
+      'store': store, 'mode': 'urls',
+      'limit': '$limit', 'cursor': '$cursor'
+    });
+    final res = await http.get(uri);
+    if (res.statusCode != 200) throw Exception('Crawl failed');
+    return jsonDecode(res.body) as Map;
+  }
+}</pre>
+      </div>
+
+      <h3>Price Comparison Widget</h3>
+      <div class="code-wrap">
+        <div class="code-lang">dart</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>final service = SaveNestService();
+final results = await service.search('olpers milk');
+
+// Sort by price (already sorted, but just in case)
+results.sort((a, b) => (a['price'] ?? 999999).compareTo(b['price'] ?? 999999));
+
+// Render
+ListView.builder(
+  itemCount: results.length,
+  itemBuilder: (ctx, i) {
+    final item = results[i];
+    return ListTile(
+      leading: item['image'] != null
+        ? Image.network(item['image'], width: 48, errorBuilder: (_,__,___) =&gt; Icon(Icons.shopping_bag))
+        : Icon(Icons.shopping_bag),
+      title: Text(item['title']),
+      subtitle: Text(item['source']),
+      trailing: Text(
+        'PKR ${item['price']}',
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+      ),
+      onTap: () =&gt; launchUrl(Uri.parse(item['url'])),
+    );
+  }
+)</pre>
+      </div>
+    </section>
+
+    <!-- ══ ERRORS ══ -->
+    <section id="sec-errors" class="section">
+      <div class="eyebrow">Integration</div>
+      <h1 class="page-title">Error <em>Handling</em></h1>
+
+      <div class="divider"></div>
+      <div class="er"><span class="ec e400">400</span><div><strong style="color:var(--text)">Bad Request</strong><br><span style="color:var(--text2);font-size:.82rem">Unknown store key in <code>/crawl</code>, or missing <code>q</code> param in <code>/search</code>. Check the <code>detail</code> field in the response.</span></div></div>
+      <div class="er"><span class="ec e422">422</span><div><strong style="color:var(--text)">Validation Error</strong><br><span style="color:var(--text2);font-size:.82rem">Invalid parameter type or out-of-range value (e.g. <code>limit=600</code>). FastAPI returns detailed validation errors.</span></div></div>
+      <div class="er"><span class="ec e500">500</span><div><strong style="color:var(--text)">Server Error</strong><br><span style="color:var(--text2);font-size:.82rem">Unexpected scraping error. Common causes: store changed HTML structure, Playwright unavailable, network timeout. Check HF Space logs.</span></div></div>
+      <div class="divider"></div>
+
+      <h3>Recommended retry pattern</h3>
+      <div class="code-wrap">
+        <div class="code-lang">javascript</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>async function safeSearch(query, retries = 2) {
+  for (let i = 0; i &lt;= retries; i++) {
+    try {
+      const res = await fetch(`/search?q=${encodeURIComponent(query)}&amp;limit=20`);
+      if (res.ok) return await res.json();
+      if (res.status === 400) throw new Error('Bad query');
+      // 500 — retry
+      if (i &lt; retries) await new Promise(r =&gt; setTimeout(r, 2000 * (i + 1)));
+    } catch(e) {
+      if (i === retries) throw e;
+    }
+  }
+}</pre>
+      </div>
+    </section>
+
+    <!-- ══ UPWORK ══ -->
+    <section id="sec-upwork" class="section">
+      <div class="eyebrow">Upwork Proposal Materials</div>
+      <h1 class="page-title">Proposal <em>Kit</em></h1>
+      <p class="page-desc">Ready-to-copy templates for hiring on Upwork — Flutter developers, backend engineers, and data engineers.</p>
+
+      <div class="proposal-box">
+        <h3>Flutter Developer — Price Comparison App</h3>
+        <p style="color:var(--text2);font-size:.88rem;margin-top:10px">Complete job post for a Flutter dev to build the mobile UI.</p>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-lang">Upwork Job Post — Flutter Developer</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>Title: Flutter Developer — Grocery Price Comparison App (Pakistan)
+
+We're building SaveNest, a Flutter app that shows real-time grocery prices
+across Pakistan's top stores. The backend API is live and production-ready.
+We need an experienced Flutter developer to build the mobile UI.
+
+=== LIVE BACKEND ===
+API: https://frnklnwrld-savenest-api.hf.space
+Swagger: https://frnklnwrld-savenest-api.hf.space/docs
+Docs: https://frnklnwrld-savenest-api.hf.space/documentation
+
+=== BACKEND CAPABILITIES ===
+• GET /search?q=milk  — search all 5 stores, returns price-sorted results
+• GET /crawl?store=alfatah.pk — enumerate + scrape entire store (paginated)
+• Stores: Al-Fatah, QnE, Springs, Vmart, GrocerApp
+• Returns: title, price (PKR), image URL, product URL, in_stock status
+
+=== YOUR RESPONSIBILITIES ===
+1. Home screen: search bar + recent searches
+2. Results screen: price comparison cards sorted cheapest first
+   - Show: store name, product title, price, image, in-stock badge
+   - "View Product" button opens product URL in browser
+3. Store browser: crawl mode screen with infinite scroll (paginated cursor)
+4. Price history chart (local storage, compare prices over time)
+5. Loading/error states with retry UX
+6. State management: Riverpod or Provider
+7. Offline cache: last search results
+
+=== API INTEGRATION NOTES ===
+• /search returns immediately, ~5-15s depending on store response times
+• /crawl supports cursor pagination: pass next_cursor back as cursor param
+• next_cursor is null when all products fetched
+• Images may be null — handle gracefully with placeholder
+
+=== REQUIREMENTS ===
+• 3+ years Flutter experience
+• REST API integration (Dio or http package)
+• Experience with pagination / infinite scroll
+• Price/comparison app UI portfolio preferred
+
+Please share 2-3 examples of e-commerce or comparison apps you've built.
+Budget: [your budget] | Timeline: 2-3 weeks</pre>
+      </div>
+
+      <div class="proposal-box">
+        <h3>Backend / Scraping Engineer</h3>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-lang">Upwork Job Post — Backend Engineer</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>Title: Python/FastAPI Developer — Improve Grocery Scraping API
+
+We have a working FastAPI web scraper for Pakistan grocery stores.
+Core is functional. Need improvements and more store coverage.
+
+=== CURRENT STACK ===
+• FastAPI + Python 3.10, hosted on HuggingFace Spaces
+• Live: https://frnklnwrld-savenest-api.hf.space
+• Docs: https://frnklnwrld-savenest-api.hf.space/documentation
+
+=== CURRENT FEATURES ===
+• Sitemap enumeration (Shopify, WooCommerce, custom)
+• BFS fallback crawler (bounded, 50-page cap)
+• JSON-LD product parsing + CSS selector fallback
+• Playwright (Firefox) for JS-heavy stores
+• In-memory TTL cache with per-request isolation
+• 5 stores: alfatah.pk, qne.com.pk, springs.com.pk, vmart.pk, grocerapp.pk
+
+=== TASKS ===
+1. Add 5 more Pakistani grocery stores (daraz.pk groceries, imtiaz.pk,
+   metro.pk, carrefour.pk, naheed.pk) with correct platform configs
+2. Improve Daraz scraping — currently blocked, needs better JS/header handling
+3. Add Redis caching (replace in-memory) for multi-worker deployment
+4. Add /products/{store} endpoint to list cached products without re-scraping
+5. Improve price parsing for edge cases (sale prices, per-kg pricing)
+6. Add async Playwright support (currently sync fallback, blocks event loop)
+7. Write pytest suite for parsing functions
+
+=== REQUIREMENTS ===
+• Strong Python async (asyncio, httpx)
+• Web scraping experience (BeautifulSoup, Playwright, Selenium)
+• Understanding of JSON-LD / schema.org product markup
+• Experience scraping Pakistani/South Asian e-commerce sites preferred
+
+GitHub or scraping portfolio required.
+Budget: [your budget] | Timeline: 1-2 weeks</pre>
+      </div>
+
+      <div class="proposal-box">
+        <h3>Technical Spec Sheet</h3>
+        <p style="color:var(--text2);font-size:.88rem;margin-top:10px">Share with any developer you're interviewing.</p>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-lang">Technical Spec</div>
+        <button class="copy-btn" onclick="doCopy(this)">copy</button>
+        <pre>=== SAVENEST CRAWLER API — TECHNICAL SPEC ===
+
+LIVE
+  API:    https://frnklnwrld-savenest-api.hf.space
+  Docs:   https://frnklnwrld-savenest-api.hf.space/documentation
+  Swagger: https://frnklnwrld-savenest-api.hf.space/docs
+
+ENDPOINTS
+  GET /search?q={query}&limit={n}
+      → searches all stores, returns deduplicated price-sorted offers
+  GET /crawl?store={domain}&mode={urls|full}&limit={n}&cursor={n}
+      → enumerates entire store, paginates via cursor
+  GET /health
+      → {"ok": true}
+
+RESPONSE STRUCTURE (offers array)
+  source:    string   — store display name
+  title:     string   — product name
+  price:     float    — numeric price
+  currency:  string   — "PKR"
+  url:       string   — product page URL
+  image:     string?  — image URL (may be null)
+  in_stock:  bool?    — availability (may be null)
+
+CRAWL PAGINATION
+  Pass next_cursor from response as cursor in next call.
+  next_cursor is null when all products fetched.
+
+SUPPORTED STORES
+  alfatah.pk   → Shopify   (suggest.json + JSON-LD)
+  qne.com.pk   → Custom    (HTML search + CSS fallback)
+  springs.com.pk → WooCommerce (sitemap + JSON-LD)
+  vmart.pk     → Custom    (search template + CSS)
+  grocerapp.pk → Custom    (sitemap hints + CSS)
+
+ENV VARS (HF Space Settings)
+  USE_PLAYWRIGHT=1         enable Firefox JS rendering
+  PER_HOST_GAP=2           politeness delay seconds
+  REQUEST_TIMEOUT=30       HTTP timeout
+  MAX_CONCURRENCY=5        parallel fetches
+  CRAWL_LIMIT_CAP=500      max items per /crawl call
+
+TECH STACK
+  Python 3.10, FastAPI, httpx, BeautifulSoup4
+  rapidfuzz, playwright (optional), uvicorn
+  CORS: open (*)</pre>
+      </div>
+
+      <div class="tags">
+        <span class="tag">FastAPI</span>
+        <span class="tag">Python</span>
+        <span class="tag">Web Scraping</span>
+        <span class="tag">Flutter</span>
+        <span class="tag">Playwright</span>
+        <span class="tag">BeautifulSoup</span>
+        <span class="tag">JSON-LD</span>
+        <span class="tag">Pakistan E-commerce</span>
+        <span class="tag">Price Comparison</span>
+        <span class="tag">HuggingFace</span>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script>
+const SECS = {
+  overview:   {el:'sec-overview',   label:'Overview'},
+  quickstart: {el:'sec-quickstart', label:'Quick Start'},
+  stores:     {el:'sec-stores',     label:'Supported Stores'},
+  search:     {el:'sec-search',     label:'/search'},
+  crawl:      {el:'sec-crawl',      label:'/crawl'},
+  health:     {el:'sec-health',     label:'/health'},
+  sitemap:    {el:'sec-sitemap',    label:'Sitemap & BFS'},
+  parsing:    {el:'sec-parsing',    label:'Product Parsing'},
+  pagination: {el:'sec-pagination', label:'Pagination'},
+  playwright: {el:'sec-playwright', label:'JS Rendering'},
+  flutter:    {el:'sec-flutter',    label:'Flutter Guide'},
+  errors:     {el:'sec-errors',     label:'Error Handling'},
+  upwork:     {el:'sec-upwork',     label:'Upwork Proposal Kit'},
+};
+
+function show(key) {
+  const def = SECS[key]; if (!def) return;
+  Object.values(SECS).forEach(s => {
+    const el = document.getElementById(s.el);
+    if (el) el.classList.remove('active');
+  });
+  const t = document.getElementById(def.el);
+  if (t) t.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (event && event.currentTarget) event.currentTarget.classList.add('active');
+  document.getElementById('bc').textContent = def.label;
+  document.querySelector('.main').scrollTo({top:0, behavior:'smooth'});
+  document.querySelector('.sidebar').classList.remove('open');
+}
+
+function toggleEp(card) { card.classList.toggle('open'); }
+
+function doCopy(btn) {
+  const pre = btn.nextElementSibling;
+  navigator.clipboard.writeText((pre.innerText || '').trim()).then(() => {
+    btn.textContent = '\u2713 copied';
+    setTimeout(() => btn.textContent = 'copy', 2000);
+  }).catch(() => {});
+}
+
+function searchNav(q) {
+  const v = (q || '').toLowerCase().trim();
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.style.display = (!v || n.textContent.toLowerCase().includes(v)) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
