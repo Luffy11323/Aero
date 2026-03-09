@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abdullah Bot API — Developer Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0a0c10;
+  --ink2: #1a1d26;
+  --ink3: #252836;
+  --border: #2a2e40;
+  --border2: #1e2130;
+  --gold: #c9a84c;
+  --gold2: #e8c97a;
+  --gold-dim: rgba(201,168,76,0.15);
+  --gold-glow: rgba(201,168,76,0.08);
+  --teal: #3ecfb2;
+  --teal-dim: rgba(62,207,178,0.12);
+  --red: #e05c5c;
+  --muted: #6b7090;
+  --muted2: #4a4f6a;
+  --text: #dde0ee;
+  --text2: #a8adc8;
+  --code: #0d1018;
+  --sidebar-w: 280px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: 'Cabinet Grotesk', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+/* ── NOISE TEXTURE ── */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:9999;
+  opacity:0.4;
+}
+
+/* ══════════════════════════════
+   SIDEBAR
+══════════════════════════════ */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--ink2);
+  border-right: 1px solid var(--border2);
+  position: fixed;
+  top: 0; left: 0;
+  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid var(--border2);
+}
+.logo-moon { font-size: 1.4rem; display: block; margin-bottom: 10px; }
+.logo-name {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold2);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.logo-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.sidebar-search {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--border2);
+}
+.search-input {
+  width: 100%;
+  background: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px 9px 34px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  outline: none;
+  transition: border-color 0.2s;
+  position: relative;
+}
+.search-wrap { position: relative; }
+.search-wrap::before {
+  content: '⌕';
+  position: absolute;
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted2);
+  font-size: 1rem;
+  pointer-events: none;
+  z-index:1;
+}
+.search-input:focus { border-color: var(--gold); }
+.search-input::placeholder { color: var(--muted2); }
+
+.nav-section {
+  padding: 20px 16px 4px;
+}
+.nav-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--muted2);
+  padding: 0 8px;
+  margin-bottom: 6px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.86rem;
+  color: var(--text2);
+  transition: all 0.15s;
+  text-decoration: none;
+  border: 1px solid transparent;
+  margin-bottom: 2px;
+  position: relative;
+}
+.nav-item:hover { background: var(--ink3); color: var(--text); }
+.nav-item.active {
+  background: var(--gold-dim);
+  border-color: rgba(201,168,76,0.25);
+  color: var(--gold2);
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -1px; top: 20%; bottom: 20%;
+  width: 3px;
+  background: var(--gold);
+  border-radius: 0 2px 2px 0;
+}
+.nav-icon { font-size: 0.9rem; opacity: 0.7; }
+.nav-badge {
+  margin-left: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: var(--teal-dim);
+  color: var(--teal);
+  border: 1px solid rgba(62,207,178,0.2);
+}
+.nav-badge.post { background: var(--gold-dim); color: var(--gold); border-color: rgba(201,168,76,0.2); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 20px 16px;
+  border-top: 1px solid var(--border2);
+}
+.version-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.version-dot { width:6px; height:6px; background: var(--teal); border-radius:50%; box-shadow: 0 0 6px var(--teal); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ══════════════════════════════
+   MAIN CONTENT
+══════════════════════════════ */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  background: rgba(10,12,16,0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border2);
+  padding: 14px 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 50;
+}
+.breadcrumb {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.breadcrumb span { color: var(--text2); }
+.topbar-actions { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.topbar-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  padding: 6px 14px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  display: flex; align-items: center; gap: 6px;
+}
+.topbar-btn:first-child {
+  border-color: rgba(201,168,76,0.3);
+  color: #c9a84c;
+}
+.topbar-btn:first-child:hover {
+  background: rgba(201,168,76,0.08);
+  border-color: #c9a84c;
+}
+.topbar-btn:hover { border-color: var(--gold); color: var(--gold); }
+.topbar-btn.primary { background: var(--gold); color: var(--ink); border-color: var(--gold); font-weight: 700; }
+.topbar-btn.primary:hover { background: var(--gold2); }
+
+.content {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 56px 48px 100px;
+}
+
+/* ══════════════════════════════
+   SECTIONS
+══════════════════════════════ */
+.section { display: none; animation: fadeIn 0.3s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+/* ── HERO SECTION ── */
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow::before { content:''; width:32px; height:1px; background:var(--gold); display:inline-block; }
+
+.page-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.4rem, 4vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+.page-title em { font-style: italic; color: var(--gold2); }
+
+.page-desc {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.75;
+  max-width: 640px;
+  margin-bottom: 36px;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 48px;
+}
+.stat-card {
+  background: var(--ink2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: var(--gold); }
+.stat-num {
+  font-family: 'Fraunces', serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--gold2);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label { font-size: 0.78rem; color: var(--muted); }
+
+/* ── HEADINGS ── */
+h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 52px 0 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border2);
+  display: flex; align-items: center; gap: 12px;
+}
+h2 .h2-icon { font-size: 1.2rem; }
+h3 {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 28px 0 12px;
+}
+
+p {
+  font-size: 0.95rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+/* ── CALLOUT BOXES ── */
+.callout {
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin: 24px 0;
+  display: flex;
+  gap: 14px;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.callout-icon { font-size: 1.2rem; flex-shrink:0; margin-top:1px; }
+.callout.info { background: rgba(62,207,178,0.07); border: 1px solid rgba(62,207,178,0.2); color: var(--text2); }
+.callout.warning { background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.25); color: var(--text2); }
+.callout.danger { background: rgba(224,92,92,0.08); border: 1px solid rgba(224,92,92,0.25); color: var(--text2); }
+.callout strong { color: var(--text); }
+
+/* ── CODE BLOCKS ── */
+.code-wrap {
+  position: relative;
+  margin: 20px 0;
+}
+.code-lang {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  background: var(--ink3);
+  border: 1px solid var(--border2);
+  border-bottom: none;
+  padding: 6px 14px;
+  border-radius: 8px 8px 0 0;
+  display: inline-block;
+}
+pre {
+  background: var(--code);
+  border: 1px solid var(--border2);
+  border-radius: 0 8px 8px 8px;
+  padding: 20px 24px;
+  overflow-x: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.75;
+  color: #98c9a3;
+}
+pre::-webkit-scrollbar { height:4px; }
+pre::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+.copy-btn {
+  position: absolute;
+  top: 36px; right: 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--ink3);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+code {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.83em;
+  background: var(--ink3);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  padding: 2px 7px;
+  color: var(--gold2);
+}
+
+/* ── ENDPOINT CARDS ── */
+.endpoint {
+  background: var(--ink2);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  margin: 20px 0;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.endpoint:hover { border-color: var(--border); }
+.endpoint-head {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+.method {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 4px 11px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.method.GET { background: rgba(62,207,178,0.1); color: var(--teal); border: 1px solid rgba(62,207,178,0.25); }
+.method.POST { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(201,168,76,0.25); }
+.endpoint-path {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+.endpoint-summary { font-size: 0.82rem; color: var(--muted); margin-left: auto; }
+.chevron { color: var(--muted2); transition: transform 0.2s; font-size:0.8rem; }
+.endpoint.open .chevron { transform: rotate(180deg); }
+.endpoint-body { display:none; padding: 0 24px 24px; border-top: 1px solid var(--border2); }
+.endpoint.open .endpoint-body { display: block; }
+
+/* ── PARAMS TABLE ── */
+.param-table { width:100%; border-collapse:collapse; margin:18px 0; font-size:.85rem; }
+.param-table th {
+  font-family:'DM Mono',monospace; font-size:.62rem;
+  text-transform:uppercase; letter-spacing:.14em;
+  color:var(--muted2); text-align:left;
+  padding:8px 12px; border-bottom:1px solid var(--border2);
+}
+.param-table td { padding:11px 12px; border-bottom:1px solid rgba(42,46,64,0.5); vertical-align:top; }
+.param-table tr:last-child td { border-bottom:none; }
+.pname { font-family:'DM Mono',monospace; color:var(--teal); font-size:.82rem; }
+.ptype { font-family:'DM Mono',monospace; color:var(--gold); font-size:.78rem; }
+.req { font-size:.6rem; padding:2px 6px; border-radius:4px; background:rgba(224,92,92,.12); color:var(--red); border:1px solid rgba(224,92,92,.25); margin-left:5px; }
+.opt { font-size:.6rem; padding:2px 6px; border-radius:4px; background:rgba(107,112,144,.12); color:var(--muted); border:1px solid var(--border2); margin-left:5px; }
+.pdesc { color: var(--text2); font-size:.84rem; }
+
+/* ── RESPONSE OBJECT ── */
+.resp-field { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--border2); font-size:.85rem; }
+.resp-field:last-child { border-bottom:none; }
+.rname { font-family:'DM Mono',monospace; color:var(--teal); min-width:160px; flex-shrink:0; }
+.rtype { font-family:'DM Mono',monospace; color:var(--gold); min-width:80px; flex-shrink:0; font-size:.78rem; }
+.rdesc { color:var(--text2); }
+
+/* ── TONE TABLE ── */
+.tone-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:20px 0; }
+.tone-card {
+  background:var(--ink2); border:1px solid var(--border2);
+  border-radius:10px; padding:14px 16px;
+  transition: border-color .15s;
+}
+.tone-card:hover { border-color:var(--gold); }
+.tone-name { font-family:'DM Mono',monospace; font-size:.78rem; color:var(--gold2); margin-bottom:4px; }
+.tone-desc { font-size:.78rem; color:var(--muted); line-height:1.5; }
+
+/* ── ERROR TABLE ── */
+.error-row { display:flex; align-items:flex-start; gap:16px; padding:14px 0; border-bottom:1px solid var(--border2); font-size:.85rem; }
+.error-row:last-child { border-bottom:none; }
+.ecode { font-family:'DM Mono',monospace; font-size:.82rem; padding:3px 10px; border-radius:6px; flex-shrink:0; min-width:52px; text-align:center; }
+.ecode.e400 { background:rgba(201,168,76,.12); color:var(--gold); border:1px solid rgba(201,168,76,.25); }
+.ecode.e500 { background:rgba(224,92,92,.12); color:var(--red); border:1px solid rgba(224,92,92,.25); }
+.ecode.e503 { background:rgba(62,207,178,.12); color:var(--teal); border:1px solid rgba(62,207,178,.25); }
+
+/* ── STEP LIST ── */
+.steps { counter-reset: step; margin: 20px 0; }
+.step {
+  display: flex; gap: 16px;
+  padding: 18px 0; border-bottom: 1px solid var(--border2);
+  counter-increment: step;
+}
+.step:last-child { border-bottom: none; }
+.step-num {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem; font-weight: 700;
+  color: var(--gold2); opacity:.4;
+  line-height:1; flex-shrink:0;
+  min-width:28px;
+}
+.step-content h4 { font-size:.92rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+.step-content p { font-size:.85rem; margin-bottom:0; }
+
+/* ── FEATURE LIST ── */
+.feature-list { list-style:none; margin:16px 0; }
+.feature-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid rgba(42,46,64,0.4);
+  font-size:.9rem; color:var(--text2); line-height:1.6;
+}
+.feature-list li:last-child { border-bottom:none; }
+.feature-list li::before { content:'◆'; color:var(--gold); font-size:.5rem; margin-top:6px; flex-shrink:0; }
+
+/* ── PROPOSAL HIGHLIGHT ── */
+.proposal-box {
+  background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, rgba(62,207,178,0.04) 100%);
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 16px;
+  padding: 32px 36px;
+  margin: 32px 0;
+  position: relative;
+  overflow: hidden;
+}
+.proposal-box::before {
+  content: '✦';
+  position: absolute;
+  top: 20px; right: 24px;
+  font-size: 2rem;
+  color: var(--gold);
+  opacity: 0.2;
+}
+.proposal-box h3 { margin-top:0; color:var(--gold2); }
+
+/* ── DIVIDER ── */
+.divider { height:1px; background:var(--border2); margin:40px 0; }
+
+/* ── TAG ROW ── */
+.tag-row { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; }
+.tag {
+  font-family:'DM Mono',monospace; font-size:.7rem;
+  padding:5px 12px; border-radius:20px;
+  border:1px solid var(--border); color:var(--text2);
+  background:var(--ink2);
+}
+
+/* ── MOBILE TOGGLE ── */
+.mobile-toggle {
+  display:none;
+  position:fixed; top:14px; left:14px;
+  z-index:200;
+  background:var(--ink2); border:1px solid var(--border);
+  border-radius:8px; padding:8px 12px;
+  cursor:pointer; font-size:1rem;
+}
+
+@media(max-width:820px){
+  .sidebar { transform: translateX(-100%); transition:transform .3s; }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left:0; }
+  .content { padding:40px 24px 80px; }
+  .topbar { padding:14px 24px; }
+  .stats-row { grid-template-columns:1fr 1fr; }
+  .tone-grid { grid-template-columns:1fr; }
+  .mobile-toggle { display:block; }
+}
+</style>
+</head>
+<body>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-moon">🌙</span>
+    <div class="logo-name">Abdullah Bot API</div>
+    <div class="logo-sub">Developer Documentation</div>
+  </div>
+
+  <div class="sidebar-search">
+    <div class="search-wrap">
+      <input class="search-input" type="text" placeholder="Search docs…" oninput="searchDocs(this.value)">
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-label">Getting Started</div>
+      <a class="nav-item active" onclick="show('overview')">
+        <span class="nav-icon">◈</span> Overview
+      </a>
+      <a class="nav-item" onclick="show('quickstart')">
+        <span class="nav-icon">⚡</span> Quick Start
+      </a>
+      <a class="nav-item" onclick="show('auth')">
+        <span class="nav-icon">🔑</span> Authentication
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">API Reference</div>
+      <a class="nav-item" onclick="show('chat')">
+        <span class="nav-icon">💬</span> /chat
+        <span class="nav-badge post">POST</span>
+      </a>
+      <a class="nav-item" onclick="show('journey')">
+        <span class="nav-icon">📊</span> /journey
+        <span class="nav-badge">GET</span>
+      </a>
+      <a class="nav-item" onclick="show('categories')">
+        <span class="nav-icon">📚</span> /categories
+        <span class="nav-badge">GET</span>
+      </a>
+      <a class="nav-item" onclick="show('reset')">
+        <span class="nav-icon">🔄</span> /reset-journey
+        <span class="nav-badge post">POST</span>
+      </a>
+      <a class="nav-item" onclick="show('health')">
+        <span class="nav-icon">💚</span> /health
+        <span class="nav-badge">GET</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Concepts</div>
+      <a class="nav-item" onclick="show('tones')">
+        <span class="nav-icon">🎭</span> Tone Detection
+      </a>
+      <a class="nav-item" onclick="show('journey-flow')">
+        <span class="nav-icon">🛤️</span> Journey Flow
+      </a>
+      <a class="nav-item" onclick="show('multilingual')">
+        <span class="nav-icon">🌍</span> Multilingual
+      </a>
+      <a class="nav-item" onclick="show('fallback')">
+        <span class="nav-icon">🔄</span> Model Fallback
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Integration</div>
+      <a class="nav-item" onclick="show('flutter')">
+        <span class="nav-icon">📱</span> Flutter Guide
+      </a>
+      <a class="nav-item" onclick="show('errors')">
+        <span class="nav-icon">⚠️</span> Error Handling
+      </a>
+      <a class="nav-item" onclick="show('upwork')">
+        <span class="nav-icon">💼</span> Upwork Proposal
+      </a>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="version-chip">
+      <span class="version-dot"></span>
+      v2.1 · Llama-3 · Live
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      Docs <span>›</span> <span id="breadcrumb-current">Overview</span>
+    </div>
+    <div class="topbar-actions">
+        <a class="topbar-btn" href="/" style="gap:6px">← Back to App</a>
+        <a class="topbar-btn" href="https://frnklnwrld-me.hf.space/docs" target="_blank">⎋ Swagger</a>
+        <a class="topbar-btn" href="https://frnklnwrld-me.hf.space/health" target="_blank">💚 Health</a>
+        <a class="topbar-btn primary" href="https://frnklnwrld-me.hf.space/" target="_blank">↗ Live API</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ OVERVIEW ══ -->
+    <section id="sec-overview" class="section active">
+      <div class="hero-eyebrow">Islamic AI Companion</div>
+      <h1 class="page-title">Abdullah Bot <em>API</em></h1>
+      <p class="page-desc">
+        A spiritually-grounded conversational API built on Meta's Llama-3 models. 
+        Designed for Muslim lifestyle apps — combines tone detection, journey tracking,
+        Quranic references and multilingual support in a single, deployable FastAPI backend.
+      </p>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num">3</div>
+          <div class="stat-label">Llama-3 Fallback Models</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">13</div>
+          <div class="stat-label">Tone Detection Modes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">11</div>
+          <div class="stat-label">MCQ Categories</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">3</div>
+          <div class="stat-label">Languages Supported</div>
+        </div>
+      </div>
+
+      <h2><span class="h2-icon">◈</span> What is this API?</h2>
+      <p>
+        The Abdullah Bot API is a production-ready backend that powers Islamic AI companions. 
+        It wraps Hugging Face's Router API with a 3-tier model fallback system, integrates 
+        Supabase for persistent journey tracking, and delivers structured, tone-aware responses 
+        grounded in Quranic wisdom.
+      </p>
+      <p>
+        The API is designed to be consumed by Flutter mobile apps, web frontends, or any 
+        HTTP client. Every response includes a <code>voice_answer</code>, optional 
+        <code>middle_section</code> detail, <code>follow_up</code> prompt, and 
+        <code>next_action_guidance</code> — making it trivial to build rich, structured UIs.
+      </p>
+
+      <h2><span class="h2-icon">◈</span> Architecture</h2>
+      <ul class="feature-list">
+        <li><strong>FastAPI</strong> backend hosted on Hugging Face Spaces (free tier)</li>
+        <li><strong>Llama-3-8B → Llama-3.1-8B → Llama-3.2-1B</strong> automatic fallback chain</li>
+        <li><strong>Supabase</strong> Postgres for users, journeys, MCQ answers, chat history</li>
+        <li><strong>Al-Quran Cloud API</strong> for real-time Quranic verse fetching</li>
+        <li><strong>Tone & language detection</strong> — 13 tones, Arabic / Urdu / Roman-Urdu / English</li>
+        <li><strong>Retry logic</strong> with exponential backoff on DB cold starts</li>
+        <li>Structured response format optimised for voice + text hybrid UIs</li>
+      </ul>
+
+      <div class="callout info">
+        <span class="callout-icon">ℹ️</span>
+        <div><strong>Base URL:</strong> <code>https://frnklnwrld-me.hf.space</code><br>
+        All endpoints return JSON. No API key required from clients — the HF token is server-side only.</div>
+      </div>
+    </section>
+
+    <!-- ══ QUICK START ══ -->
+    <section id="sec-quickstart" class="section">
+      <div class="hero-eyebrow">Getting Started</div>
+      <h1 class="page-title">Quick <em>Start</em></h1>
+      <p class="page-desc">Send your first message in under 2 minutes.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h4>Send a POST to /chat</h4>
+            <p>The only required fields are <code>message</code> and <code>user_id</code>. The API handles everything else automatically.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h4>Receive a structured response</h4>
+            <p>Every response contains <code>voice_answer</code> (short, speakable), <code>middle_section</code> (detail), and <code>follow_up</code> (next prompt).</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h4>Start a journey (optional)</h4>
+            <p>Send <code>"start journey"</code> to begin MCQ-based self-assessment. The API tracks progress per user per category in Supabase.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>cURL Example</h3>
+      <div class="code-wrap">
+        <div class="code-lang">bash</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>curl -X POST https://frnklnwrld-me.hf.space/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "What is the meaning of patience in Islam?",
+    "user_id": "Abdullah123",
+    "category": "Religious Self"
+  }'</pre>
+      </div>
+
+      <h3>JavaScript (fetch)</h3>
+      <div class="code-wrap">
+        <div class="code-lang">javascript</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>const response = await fetch('https://frnklnwrld-me.hf.space/chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    message: 'What is sabr?',
+    user_id: 'user_abc123',
+    category: 'Religious Self'
+  })
+});
+
+const data = await response.json();
+console.log(data.voice_answer);   // Short spoken response
+console.log(data.middle_section); // Detailed notes
+console.log(data.follow_up);      // Next conversation prompt</pre>
+      </div>
+
+      <h3>Python (requests)</h3>
+      <div class="code-wrap">
+        <div class="code-lang">python</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>import requests
+
+res = requests.post(
+    "https://frnklnwrld-me.hf.space/chat",
+    json={
+        "message": "I feel sad today",
+        "user_id": "testuser",
+        "category": "Emotional Self"
+    }
+)
+data = res.json()
+print(data["voice_answer"])
+print(data["model_used"])   # Which Llama model responded</pre>
+      </div>
+
+      <h3>Sample Response</h3>
+      <div class="code-wrap">
+        <div class="code-lang">json</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>{
+  "status": "insight_only",
+  "voice_answer": "SubhanAllah, I hear the weight in your words. Remember, after hardship comes ease (Quran 94:5). You are not alone — Allah is closer to you than your jugular vein.",
+  "middle_section": "Sadness is a human experience acknowledged in the Quran. The Prophet ﷺ himself experienced grief deeply. Allowing yourself to feel is not weakness — it is honesty before Allah.",
+  "middle_label": "Detailed Notes",
+  "follow_up": "Would you like to explore what specifically is weighing on your heart today?",
+  "references": "Quran 94:5 — Indeed, with hardship comes ease.",
+  "model_used": "Llama-3-8B-Instruct",
+  "next_action_guidance": {
+    "type": "general_chat",
+    "message": "Assalamu alaikum. How fares your heart today?",
+    "suggested_delay_hours": 6,
+    "islamic_reminder": "Quranic Principle: Do not despair of Allah's mercy (39:53)."
+  }
+}</pre>
+      </div>
+    </section>
+
+    <!-- ══ AUTH ══ -->
+    <section id="sec-auth" class="section">
+      <div class="hero-eyebrow">Security</div>
+      <h1 class="page-title">Authenti<em>cation</em></h1>
+
+      <div class="callout info">
+        <span class="callout-icon">✅</span>
+        <div><strong>No client-side API key needed.</strong> The API is publicly accessible. All sensitive credentials (HF token, Supabase keys) are stored as server-side secrets on Hugging Face Spaces.</div>
+      </div>
+
+      <h2><span class="h2-icon">◈</span> Server-Side Secrets</h2>
+      <p>The following environment variables must be set in your HF Space <strong>Settings → Secrets</strong>:</p>
+
+      <div class="code-wrap">
+        <div class="code-lang">env</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>HF_TOKEN=hf_xxxxxxxxxxxxxxxxxx          # Hugging Face token with Inference API access
+SUPABASE_URL=https://xxxx.supabase.co   # Your Supabase project URL
+SUPABASE_SERVICE_KEY=sbp_xxxxxxxxxxxx   # Service role key (NOT anon key)</pre>
+      </div>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div><strong>Never commit credentials to code.</strong> Use the HF Spaces Secrets UI. If a key was ever hardcoded, regenerate it immediately in Supabase Dashboard → Settings → API → Regenerate.</div>
+      </div>
+
+      <h2><span class="h2-icon">◈</span> User Identity</h2>
+      <p>
+        Users are identified by <code>user_id</code> (display name string) in every request. 
+        There is no JWT/session auth — the API trusts the client-provided <code>user_id</code>. 
+        For production apps, validate identity in your own middleware before hitting this API.
+      </p>
+    </section>
+
+    <!-- ══ /chat ══ -->
+    <section id="sec-chat" class="section">
+      <div class="hero-eyebrow">API Reference</div>
+      <h1 class="page-title"><em>/chat</em></h1>
+      <p class="page-desc">The core endpoint. Handles all conversation, journey flow, and MCQ submission.</p>
+
+      <div class="endpoint open">
+        <div class="endpoint-head" onclick="toggleEndpoint(this.parentElement)">
+          <span class="method POST">POST</span>
+          <span class="endpoint-path">/chat</span>
+          <span class="endpoint-summary">Main conversation endpoint</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+
+          <h3>Request Body</h3>
+          <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><span class="pname">message</span><span class="req">required</span></td><td><span class="ptype">string</span></td><td class="pdesc">User's message. Max 1000 characters. Supports English, Urdu (script + Roman), Arabic.</td></tr>
+              <tr><td><span class="pname">user_id</span><span class="req">required</span></td><td><span class="ptype">string</span></td><td class="pdesc">Unique user identifier / display name. Used to look up journey and chat history in Supabase.</td></tr>
+              <tr><td><span class="pname">category</span><span class="opt">optional</span></td><td><span class="ptype">string</span></td><td class="pdesc">Journey category context. Default: <code>"General"</code>. Use values from <code>/categories</code>.</td></tr>
+              <tr><td><span class="pname">previous_summary</span><span class="opt">optional</span></td><td><span class="ptype">object</span></td><td class="pdesc">Previously returned <code>cumulative_summary</code> object to carry session context forward.</td></tr>
+              <tr><td><span class="pname">answers</span><span class="opt">optional</span></td><td><span class="ptype">array</span></td><td class="pdesc">MCQ answer submission array. Each item: <code>{question_num, answer, score}</code>.</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Response Fields</h3>
+          <div style="margin:16px 0">
+            <div class="resp-field"><span class="rname">status</span><span class="rtype">string</span><span class="rdesc">One of: <code>insight_only</code>, <code>asking_questions</code>, <code>need_more_answers</code>, <code>session_complete</code>, <code>meta_response</code></span></div>
+            <div class="resp-field"><span class="rname">voice_answer</span><span class="rtype">string</span><span class="rdesc">Short, conversational response — designed for TTS / display as primary message.</span></div>
+            <div class="resp-field"><span class="rname">middle_section</span><span class="rtype">string?</span><span class="rdesc">Extended detail, practical takeaway, or reflective content. May be null for simple exchanges.</span></div>
+            <div class="resp-field"><span class="rname">middle_label</span><span class="rtype">string?</span><span class="rdesc">Label for middle_section, e.g. "Detailed Notes", "Practical Takeaway", "Progress Summary".</span></div>
+            <div class="resp-field"><span class="rname">current_mcqs</span><span class="rtype">array?</span><span class="rdesc">Array of MCQ objects to display. Each: <code>{question: string, options: string[]}</code>.</span></div>
+            <div class="resp-field"><span class="rname">answers_summary</span><span class="rtype">object?</span><span class="rdesc">Summary of just-submitted answers: <code>{batch_avg: number}</code>.</span></div>
+            <div class="resp-field"><span class="rname">cumulative_summary</span><span class="rtype">object?</span><span class="rdesc">Full journey progress object. Persist and send back as <code>previous_summary</code>.</span></div>
+            <div class="resp-field"><span class="rname">follow_up</span><span class="rtype">string?</span><span class="rdesc">Suggested next question or action to continue the conversation.</span></div>
+            <div class="resp-field"><span class="rname">references</span><span class="rtype">string?</span><span class="rdesc">Quranic/Hadith reference when the message is Islamic in nature.</span></div>
+            <div class="resp-field"><span class="rname">next_action_guidance</span><span class="rtype">object</span><span class="rdesc">Always present. Contains <code>{type, message, suggested_delay_hours, islamic_reminder}</code>.</span></div>
+            <div class="resp-field"><span class="rname">model_used</span><span class="rtype">string?</span><span class="rdesc">Which model responded: <code>Llama-3-8B-Instruct</code>, <code>Llama-3.1-8B-Instruct</code>, <code>Llama-3.2-1B-Instruct</code>, or <code>fallback</code>.</span></div>
+          </div>
+
+          <h3>Status Values Explained</h3>
+          <table class="param-table">
+            <thead><tr><th>Status</th><th>Meaning</th><th>UI Action</th></tr></thead>
+            <tbody>
+              <tr><td><code>insight_only</code></td><td class="pdesc">General AI response</td><td class="pdesc">Display voice_answer + optional middle_section</td></tr>
+              <tr><td><code>asking_questions</code></td><td class="pdesc">MCQ journey started</td><td class="pdesc">Render <code>current_mcqs</code> as a form</td></tr>
+              <tr><td><code>need_more_answers</code></td><td class="pdesc">More answers needed</td><td class="pdesc">Show remaining MCQs</td></tr>
+              <tr><td><code>session_complete</code></td><td class="pdesc">All MCQs answered</td><td class="pdesc">Show progress summary + celebrate</td></tr>
+              <tr><td><code>meta_response</code></td><td class="pdesc">User asked about bot behavior</td><td class="pdesc">Display explanation</td></tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ /journey ══ -->
+    <section id="sec-journey" class="section">
+      <div class="hero-eyebrow">API Reference</div>
+      <h1 class="page-title"><em>/journey</em></h1>
+
+      <div class="endpoint open">
+        <div class="endpoint-head" onclick="toggleEndpoint(this.parentElement)">
+          <span class="method GET">GET</span>
+          <span class="endpoint-path">/journey/{user_id}</span>
+          <span class="endpoint-summary">Fetch user progress</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <h3>Path & Query Parameters</h3>
+          <table class="param-table">
+            <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><span class="pname">user_id</span><span class="req">path</span></td><td><span class="ptype">string</span></td><td class="pdesc">The user's display name / identifier.</td></tr>
+              <tr><td><span class="pname">category</span><span class="opt">query</span></td><td><span class="ptype">string</span></td><td class="pdesc">Filter to a specific journey category. Default: <code>"General"</code>.</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Example</h3>
+          <div class="code-wrap">
+            <div class="code-lang">bash</div>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre>GET /journey/Abdullah123?category=Religious+Self</pre>
+          </div>
+
+          <h3>Response</h3>
+          <div class="code-wrap">
+            <div class="code-lang">json</div>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre>{
+  "user_id": "Abdullah123",
+  "category": "Religious Self",
+  "total_sessions": 12,
+  "spiritual_stage": "developing",
+  "member_since": "2025-01-15",
+  "cumulative_summary": {
+    "overall_avg": 3.8,
+    "progress_note": "Recent avg: 4.2/5 | Improving MashaAllah"
+  },
+  "main_loopholes": ["Low in Q3", "Low in Q7"],
+  "pending_questions": 3,
+  "recent_activity": [...]
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ /categories ══ -->
+    <section id="sec-categories" class="section">
+      <div class="hero-eyebrow">API Reference</div>
+      <h1 class="page-title"><em>/categories</em></h1>
+
+      <div class="endpoint open">
+        <div class="endpoint-head" onclick="toggleEndpoint(this.parentElement)">
+          <span class="method GET">GET</span>
+          <span class="endpoint-path">/categories</span>
+          <span class="endpoint-summary">List all MCQ journey categories</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Returns all available self-assessment journey categories with question counts. Use these values in the <code>category</code> field of other requests.</p>
+          <div class="code-wrap">
+            <div class="code-lang">json</div>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre>{
+  "categories": [
+    "Religious Self",
+    "Emotional Self",
+    "Intellectual Self",
+    "Social Self",
+    "Physical Self",
+    "Financial Self",
+    "Family Self",
+    "Professional Self",
+    "Creative Self",
+    "Community Self",
+    "General"
+  ],
+  "total_questions": {
+    "Religious Self": 12,
+    "Emotional Self": 10,
+    "General": 8
+  },
+  "description": "Categories for spiritual and personal development journeys"
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ /reset ══ -->
+    <section id="sec-reset" class="section">
+      <div class="hero-eyebrow">API Reference</div>
+      <h1 class="page-title"><em>/reset-journey</em></h1>
+
+      <div class="endpoint open">
+        <div class="endpoint-head" onclick="toggleEndpoint(this.parentElement)">
+          <span class="method POST">POST</span>
+          <span class="endpoint-path">/reset-journey/{user_id}</span>
+          <span class="endpoint-summary">Reset journey in a category</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Clears all journey progress (MCQ answers, summary, loopholes, pending questions) for a user in a specific category. The user record and chat history are preserved.</p>
+          <table class="param-table">
+            <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><span class="pname">user_id</span><span class="req">path</span></td><td><span class="ptype">string</span></td><td class="pdesc">User to reset.</td></tr>
+              <tr><td><span class="pname">category</span><span class="opt">query</span></td><td><span class="ptype">string</span></td><td class="pdesc">Category to reset. Default: <code>"General"</code>.</td></tr>
+            </tbody>
+          </table>
+          <div class="code-wrap">
+            <div class="code-lang">json — Response</div>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre>{
+  "status": "success",
+  "message": "Journey reset for Abdullah123 in Religious Self. Ready to start fresh, insha'Allah!",
+  "islamic_reminder": "Quranic Principle: Indeed, with hardship comes ease (94:5)."
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ /health ══ -->
+    <section id="sec-health" class="section">
+      <div class="hero-eyebrow">API Reference</div>
+      <h1 class="page-title"><em>/health</em></h1>
+
+      <div class="endpoint open">
+        <div class="endpoint-head" onclick="toggleEndpoint(this.parentElement)">
+          <span class="method GET">GET</span>
+          <span class="endpoint-path">/health</span>
+          <span class="endpoint-summary">API status & model config</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Use this to verify the API is running and which models are configured. Recommended for Flutter app startup checks.</p>
+          <div class="code-wrap">
+            <div class="code-lang">json</div>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre>{
+  "status": "OK",
+  "mode": "HF Router API (Free Tier)",
+  "models": [
+    "Llama-3-8B-Instruct",
+    "Llama-3.1-8B-Instruct",
+    "Llama-3.2-1B-Instruct"
+  ],
+  "api_url": "https://router.huggingface.co/v1/chat/completions",
+  "token_configured": true
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ TONES ══ -->
+    <section id="sec-tones" class="section">
+      <div class="hero-eyebrow">Concepts</div>
+      <h1 class="page-title">Tone <em>Detection</em></h1>
+      <p class="page-desc">The API automatically detects the emotional tone of every message and adjusts response style, persona, and language accordingly.</p>
+
+      <p>Tone is detected via multilingual keyword matching across 13 emotional states. The detected tone shapes the system prompt, persona, and Islamic framing of the response — no configuration required from the client.</p>
+
+      <div class="tone-grid">
+        <div class="tone-card"><div class="tone-name">sad</div><div class="tone-desc">Gentle, Quranic comfort. Validates feelings, offers 1-2 grounded steps.</div></div>
+        <div class="tone-card"><div class="tone-name">anxious</div><div class="tone-desc">Soothing, tawakkul-based grounding. 3 practical steps.</div></div>
+        <div class="tone-card"><div class="tone-name">angry</div><div class="tone-desc">Calm, de-escalating. Short sentences, prophetic patience.</div></div>
+        <div class="tone-card"><div class="tone-name">energetic</div><div class="tone-desc">High-energy, motivating. Islamic encouragement + action prompts.</div></div>
+        <div class="tone-card"><div class="tone-name">curious</div><div class="tone-desc">Engaging, instructive. Concise explanation + follow-up question.</div></div>
+        <div class="tone-card"><div class="tone-name">confused</div><div class="tone-desc">Supportive, numbered steps. Asks one clarifying question.</div></div>
+        <div class="tone-card"><div class="tone-name">grateful</div><div class="tone-desc">Warm, reflective. Acknowledges with Alhamdulillah.</div></div>
+        <div class="tone-card"><div class="tone-name">reflective</div><div class="tone-desc">Introspective. Quranic metaphor + one practical takeaway.</div></div>
+        <div class="tone-card"><div class="tone-name">urgent</div><div class="tone-desc">Direct, numbered steps (1-3). Safety check when relevant.</div></div>
+        <div class="tone-card"><div class="tone-name">dive_deep</div><div class="tone-desc">Structured sections: Summary / Details / Example.</div></div>
+        <div class="tone-card"><div class="tone-name">humorous</div><div class="tone-desc">Playful, kind. Maintains adab (respect).</div></div>
+        <div class="tone-card"><div class="tone-name">skeptical</div><div class="tone-desc">Evidence-focused. Islamic sources + counterexample.</div></div>
+        <div class="tone-card"><div class="tone-name">neutral</div><div class="tone-desc">Balanced, friendly. Default for all unmatched messages.</div></div>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">💡</span>
+        <div>Tone keywords work in <strong>English</strong>, <strong>Roman Urdu</strong> (e.g. <code>dukhi</code>, <code>ghussa</code>), and <strong>Urdu script</strong> (e.g. <code>افسردہ</code>, <code>غصہ</code>). The <code>model_used</code> field in the response won't tell you the tone — but <code>next_action_guidance.message</code> will reflect the tone persona used.</div>
+      </div>
+    </section>
+
+    <!-- ══ JOURNEY FLOW ══ -->
+    <section id="sec-journey-flow" class="section">
+      <div class="hero-eyebrow">Concepts</div>
+      <h1 class="page-title">Journey <em>Flow</em></h1>
+      <p class="page-desc">The journey system enables longitudinal self-assessment across 11 spiritual and personal development categories.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>User sends "start journey"</h4>
+            <p>API generates 6 MCQs from the selected category (or resumes pending questions). Returns <code>status: "asking_questions"</code> with <code>current_mcqs</code> array.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>User submits answers</h4>
+            <p>Send answers in <code>answers</code> array: <code>[{question_num: 1, answer: "Often", score: 4}]</code>. Or inline in message text: <code>"1. Often 2. Rarely 3. Always"</code>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Progress computed & saved</h4>
+            <p>Scores averaged with exponential smoothing (30% new / 70% historical). Low-scoring answers recorded as "loopholes" for targeted follow-up.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Session complete</h4>
+            <p>Returns <code>status: "session_complete"</code> with <code>cumulative_summary</code>. Store this and pass back as <code>previous_summary</code> in future requests.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>MCQ Options & Score Map</h3>
+      <div class="code-wrap">
+        <div class="code-lang">json</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>{
+  "options": ["Always", "Often", "Sometimes", "Rarely", "Never"],
+  "scores":  [   5,       4,        3,          2,        1   ]
+}</pre>
+      </div>
+    </section>
+
+    <!-- ══ MULTILINGUAL ══ -->
+    <section id="sec-multilingual" class="section">
+      <div class="hero-eyebrow">Concepts</div>
+      <h1 class="page-title"><em>Multi</em>lingual</h1>
+      <p class="page-desc">The API detects and mirrors the user's language automatically — no configuration needed.</p>
+
+      <h2><span class="h2-icon">◈</span> Supported Languages</h2>
+      <ul class="feature-list">
+        <li><strong>English</strong> — default, full feature support</li>
+        <li><strong>Urdu script</strong> (نستعلیق) — detected via Unicode range <code>U+0600–U+06FF</code> + Urdu-specific characters</li>
+        <li><strong>Roman Urdu</strong> — detected via keyword matching (ap, kya, kyun, bhai, alaikum, hain…)</li>
+        <li><strong>Arabic</strong> — detected via Unicode; uses Arabic Islamic terminology</li>
+      </ul>
+
+      <h3>Example — Urdu Input</h3>
+      <div class="code-wrap">
+        <div class="code-lang">json — Request</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>{
+  "message": "آج میں بہت اداس ہوں",
+  "user_id": "user123"
+}</pre>
+      </div>
+      <p>The API detects Urdu script, sets <code>detected_lang: "ur"</code>, and responds in Urdu with culturally relevant Islamic phrasing and dua.</p>
+    </section>
+
+    <!-- ══ FALLBACK ══ -->
+    <section id="sec-fallback" class="section">
+      <div class="hero-eyebrow">Concepts</div>
+      <h1 class="page-title">Model <em>Fallback</em></h1>
+      <p class="page-desc">A 3-tier automatic fallback ensures the API stays responsive even when primary models are rate-limited or unavailable.</p>
+
+      <h2><span class="h2-icon">◈</span> Fallback Chain</h2>
+      <div class="code-wrap">
+        <div class="code-lang">priority order</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>1. meta-llama/Meta-Llama-3-8B-Instruct    → Best quality
+2. meta-llama/Llama-3.1-8B-Instruct       → Latest stable  
+3. meta-llama/Llama-3.2-1B-Instruct       → Fastest / lightest</pre>
+      </div>
+
+      <p>Each model is tried with up to 2 retries and exponential backoff on rate limits (429). If all 3 models fail, a graceful Islamic fallback message is returned rather than a 500 error.</p>
+
+      <h3>Retry Logic</h3>
+      <div class="code-wrap">
+        <div class="code-lang">python</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>for model in MODELS:           # Try each model in priority order
+    for attempt in range(2):   # Up to 2 retries per model
+        if status == 429:
+            time.sleep(2 ** attempt)   # 1s, then 2s backoff
+            continue
+        if status == 200:
+            return answer, model_name  # Success — stop here
+        break                  # Other error — try next model</pre>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">ℹ️</span>
+        <div>The <code>model_used</code> field in every response tells you which model actually answered. Values: <code>Llama-3-8B-Instruct</code>, <code>Llama-3.1-8B-Instruct</code>, <code>Llama-3.2-1B-Instruct</code>, <code>fallback</code>, or <code>emergency_fallback</code>.</div>
+      </div>
+    </section>
+
+    <!-- ══ FLUTTER ══ -->
+    <section id="sec-flutter" class="section">
+      <div class="hero-eyebrow">Integration</div>
+      <h1 class="page-title">Flutter <em>Guide</em></h1>
+      <p class="page-desc">A complete example for integrating Abdullah Bot into a Flutter/Dart app.</p>
+
+      <h3>Service Class</h3>
+      <div class="code-wrap">
+        <div class="code-lang">dart</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+class AbdullahBotService {
+  static const String baseUrl = 'https://frnklnwrld-me.hf.space';
+
+  Future sendMessage({
+    required String message,
+    required String userId,
+    String category = 'General',
+    Map? previousSummary,
+    List? answers,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/chat'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'message': message,
+        'user_id': userId,
+        'category': category,
+        if (previousSummary != null) 'previous_summary': previousSummary,
+        if (answers != null) 'answers': answers,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 503) {
+      throw Exception('Service waking up — please retry in a moment');
+    } else {
+      throw Exception('API error: ${response.statusCode}');
+    }
+  }
+
+  Future getJourney(String userId, {String category = 'General'}) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/journey/$userId?category=$category'),
+    );
+    return jsonDecode(response.body);
+  }
+}</pre>
+      </div>
+
+      <h3>Widget Usage</h3>
+      <div class="code-wrap">
+        <div class="code-lang">dart</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>// In your chat widget:
+final bot = AbdullahBotService();
+final data = await bot.sendMessage(
+  message: userInput,
+  userId: currentUser.id,
+  category: selectedCategory,
+);
+
+// Render the structured response:
+Text(data['voice_answer'])          // Primary message bubble
+Text(data['middle_section'] ?? '')  // Expandable detail card
+Text(data['follow_up'] ?? '')       // Suggested reply chip
+Text(data['references'] ?? '')      // Quranic reference footer</pre>
+      </div>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div><strong>Cold start handling:</strong> On first request after inactivity, Supabase may take 3-7s to wake. Show a loading indicator and handle <code>503</code> responses with a "Waking up…" message and auto-retry after 5s.</div>
+      </div>
+    </section>
+
+    <!-- ══ ERRORS ══ -->
+    <section id="sec-errors" class="section">
+      <div class="hero-eyebrow">Integration</div>
+      <h1 class="page-title">Error <em>Handling</em></h1>
+
+      <div class="divider"></div>
+      <div class="error-row">
+        <span class="ecode e400">400</span>
+        <div><strong style="color:var(--text)">Bad Request</strong><br><span style="color:var(--text2);font-size:.85rem">Missing required fields. Check that <code>message</code> and <code>user_id</code> are present and non-empty.</span></div>
+      </div>
+      <div class="error-row">
+        <span class="ecode e503">503</span>
+        <div><strong style="color:var(--text)">Service Unavailable</strong><br><span style="color:var(--text2);font-size:.85rem">Supabase cold start. Retry after 5 seconds. The API returns a human-readable <code>detail</code> message: <code>"Database is waking up — please retry in a few seconds."</code></span></div>
+      </div>
+      <div class="error-row">
+        <span class="ecode e500">500</span>
+        <div><strong style="color:var(--text)">Internal Server Error</strong><br><span style="color:var(--text2);font-size:.85rem">Unexpected error. Check HF Space logs. Common causes: missing secrets, Supabase schema mismatch, all 3 Llama models failed simultaneously.</span></div>
+      </div>
+      <div class="divider"></div>
+
+      <h3>Recommended Client Pattern</h3>
+      <div class="code-wrap">
+        <div class="code-lang">javascript</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>async function chatWithRetry(message, userId, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, user_id: userId })
+      });
+
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); }
+      catch { throw new Error('Server error: ' + text.slice(0, 100)); }
+
+      if (res.status === 503) {
+        // Supabase cold start — wait and retry
+        await new Promise(r => setTimeout(r, 5000));
+        continue;
+      }
+      if (!res.ok) throw new Error(data.detail || 'Request failed');
+      return data;
+
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await new Promise(r => setTimeout(r, 2000 * (i + 1)));
+    }
+  }
+}</pre>
+      </div>
+    </section>
+
+    <!-- ══ UPWORK ══ -->
+    <section id="sec-upwork" class="section">
+      <div class="hero-eyebrow">Upwork Proposal Materials</div>
+      <h1 class="page-title">Proposal <em>Kit</em></h1>
+      <p class="page-desc">Ready-to-use materials for hiring Flutter developers, backend engineers, or AI integration specialists on Upwork.</p>
+
+      <div class="proposal-box">
+        <h3>🎯 Proposal Template — Flutter Developer</h3>
+        <p style="color:var(--text2);font-size:.9rem;margin-top:12px">Copy, personalise, and post as a job or use as an opening message.</p>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-lang">Upwork Job Post — Flutter Developer</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>Title: Flutter Developer — Islamic AI Companion App (Abdullah Bot)
+
+We're building a Flutter mobile app powered by a live FastAPI backend
+(hosted on Hugging Face Spaces). The backend is complete and production-ready.
+We need an experienced Flutter developer to build the mobile UI.
+
+=== BACKEND OVERVIEW ===
+• Live API: https://frnklnwrld-me.hf.space
+• Swagger docs: https://frnklnwrld-me.hf.space/docs
+• AI Model: Meta Llama-3 (3-tier fallback)
+• Database: Supabase (Postgres)
+• Features: Tone detection (13 modes), Journey tracking, MCQ system,
+  Multilingual (English/Urdu/Arabic), Quranic references
+
+=== YOUR RESPONSIBILITIES ===
+1. Build Flutter chat UI consuming POST /chat endpoint
+2. Render structured responses: voice_answer + middle_section + follow_up
+3. Implement MCQ journey screen (render current_mcqs array as interactive form)
+4. Journey progress screen using GET /journey/{user_id}
+5. Category picker using GET /categories
+6. Handle cold-start 503 errors with graceful retry UX
+7. State management (Provider or Riverpod preferred)
+8. Local caching of cumulative_summary
+
+=== API RESPONSE STRUCTURE ===
+Every /chat response returns:
+- voice_answer (string): Primary message — display as main chat bubble
+- middle_section (string?): Detail card — collapsible
+- follow_up (string?): Suggested next message chip
+- current_mcqs (array?): MCQ questions to render as form
+- model_used (string): Which AI model responded
+- next_action_guidance (object): UI hints
+
+=== REQUIREMENTS ===
+• 3+ years Flutter experience
+• REST API integration (http or dio package)
+• Clean architecture preferred
+• Portfolio of chat/messaging UIs required
+• Islamic/Arabic UI experience is a strong plus
+
+=== DELIVERABLES ===
+• Complete Flutter project (clean code, well-commented)
+• APK for testing
+• README with setup instructions
+
+Please share 2-3 examples of chat apps you've built.
+Budget: [your budget] | Timeline: 2-3 weeks</pre>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">💡</span>
+        <div><strong>Pro tip:</strong> Attach the live API URL (<code>https://frnklnwrld-me.hf.space</code>) and Swagger docs link to your Upwork job post. Developers can test the API before applying, which filters for engineers who actually read the brief.</div>
+      </div>
+
+      <div class="proposal-box">
+        <h3>🎯 Proposal Template — Backend / DevOps</h3>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-lang">Upwork Job Post — Backend Engineer</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>Title: FastAPI / Python Developer — Enhance Islamic AI Bot Backend
+
+We have a production FastAPI backend for an Islamic AI companion app.
+The core is working. We need help with improvements and scaling.
+
+=== CURRENT STACK ===
+• FastAPI + Python 3.10
+• Hugging Face Spaces (hosting)
+• Supabase (Postgres + REST)
+• Meta Llama-3 via HF Router API (3-model fallback)
+• Live at: https://frnklnwrld-me.hf.space
+
+=== TASKS ===
+1. Add async support — convert sync DB calls to async (supabase-py async client)
+2. Add proper rate limiting middleware (slowapi)
+3. Implement background tasks for non-critical operations (chat logging)
+4. Add Redis caching layer for frequently fetched data (categories, user journeys)
+5. Improve error responses — standardise error schema across all endpoints
+6. Add /admin endpoints for analytics (total users, avg scores by category)
+7. Write pytest suite — target 80% coverage on business logic
+8. Add Pydantic v2 migration (currently v1 syntax)
+
+=== CODEBASE HIGHLIGHTS ===
+• Tone detection: 13 emotional tones, multilingual (EN/UR/AR)
+• Model fallback: 3-tier Llama-3 chain with exponential backoff
+• Journey tracking: MCQ system with score smoothing
+• Structured responses: voice_answer + middle_section + follow_up format
+
+=== REQUIREMENTS ===
+• Strong FastAPI & SQLAlchemy/PostgREST experience
+• Supabase or PostgreSQL background
+• Experience with async Python (asyncio, httpx)
+• Understanding of LLM API integration patterns
+
+Please share your GitHub or sample FastAPI project.
+Budget: [your budget] | Timeline: 1-2 weeks</pre>
+      </div>
+
+      <div class="proposal-box">
+        <h3>📋 Technical Spec Sheet</h3>
+        <p style="color:var(--text2);font-size:.9rem;margin-top:12px">Share this with any developer you're interviewing.</p>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-lang">Technical Spec — For Developer Interview</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre>=== ABDULLAH BOT API — TECHNICAL SPEC ===
+
+LIVE ENDPOINTS
+  Base: https://frnklnwrld-me.hf.space
+  Docs: https://frnklnwrld-me.hf.space/docs
+  Health: https://frnklnwrld-me.hf.space/health
+
+KEY ENDPOINTS
+  POST /chat          — Main AI conversation (requires: message, user_id)
+  GET  /journey/:id   — User progress stats
+  GET  /categories    — Available MCQ categories (11 total)
+  POST /reset-journey — Reset user journey in a category
+
+RESPONSE FORMAT (all /chat responses)
+  status:            "insight_only" | "asking_questions" | "session_complete"
+  voice_answer:      string  — short, speakable primary response
+  middle_section:    string? — extended detail or notes
+  follow_up:         string? — suggested next message
+  current_mcqs:      [{question, options[5]}]? — MCQ form data
+  model_used:        "Llama-3-8B-Instruct" | "fallback" | ...
+  next_action_guidance: {type, message, suggested_delay_hours, islamic_reminder}
+
+MCQ ANSWER SUBMISSION
+  Send in: answers: [{question_num: 1, answer: "Often", score: 4}]
+  Scores: Always=5, Often=4, Sometimes=3, Rarely=2, Never=1
+
+ERROR CODES
+  400 — Missing required fields
+  503 — Supabase cold start (retry after 5s)
+  500 — Server error (check HF Space logs)
+
+TECH STACK
+  Python 3.10, FastAPI, Uvicorn
+  supabase-py, httpx, requests
+  pydantic v1, python-dotenv
+
+SECRETS REQUIRED (HF Space Settings → Secrets)
+  HF_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_KEY</pre>
+      </div>
+
+      <div class="tag-row">
+        <span class="tag">FastAPI</span>
+        <span class="tag">Python</span>
+        <span class="tag">Flutter</span>
+        <span class="tag">Supabase</span>
+        <span class="tag">Llama-3</span>
+        <span class="tag">HuggingFace</span>
+        <span class="tag">Islamic App</span>
+        <span class="tag">Urdu/Arabic</span>
+        <span class="tag">REST API</span>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+const SECTIONS = {
+  'overview':      { el: 'sec-overview',      label: 'Overview' },
+  'quickstart':    { el: 'sec-quickstart',     label: 'Quick Start' },
+  'auth':          { el: 'sec-auth',           label: 'Authentication' },
+  'chat':          { el: 'sec-chat',           label: '/chat' },
+  'journey':       { el: 'sec-journey',        label: '/journey' },
+  'categories':    { el: 'sec-categories',     label: '/categories' },
+  'reset':         { el: 'sec-reset',          label: '/reset-journey' },
+  'health':        { el: 'sec-health',         label: '/health' },
+  'tones':         { el: 'sec-tones',          label: 'Tone Detection' },
+  'journey-flow':  { el: 'sec-journey-flow',   label: 'Journey Flow' },
+  'multilingual':  { el: 'sec-multilingual',   label: 'Multilingual' },
+  'fallback':      { el: 'sec-fallback',       label: 'Model Fallback' },
+  'flutter':       { el: 'sec-flutter',        label: 'Flutter Guide' },
+  'errors':        { el: 'sec-errors',         label: 'Error Handling' },
+  'upwork':        { el: 'sec-upwork',         label: 'Upwork Proposal Kit' },
+};
+
+function show(key) {
+  const def = SECTIONS[key];
+  if (!def) return;
+
+  // Hide all sections
+  Object.values(SECTIONS).forEach(s => {
+    const el = document.getElementById(s.el);
+    if (el) el.classList.remove('active');
+  });
+
+  // Show target
+  const target = document.getElementById(def.el);
+  if (target) target.classList.add('active');
+
+  // Update nav
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event?.currentTarget?.classList.add('active');
+
+  // Update breadcrumb
+  document.getElementById('breadcrumb-current').textContent = def.label;
+
+  // Scroll to top
+  document.querySelector('.main').scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Close mobile sidebar
+  document.querySelector('.sidebar').classList.remove('open');
+}
+
+function toggleEndpoint(card) {
+  card.classList.toggle('open');
+}
+
+function copyCode(btn) {
+  const pre = btn.nextElementSibling;
+  navigator.clipboard.writeText(pre.innerText.trim()).then(() => {
+    btn.textContent = '✓ copied';
+    setTimeout(() => btn.textContent = 'copy', 2000);
+  });
+}
+
+function searchDocs(query) {
+  if (!query.trim()) {
+    document.querySelectorAll('.nav-item').forEach(n => n.style.display = '');
+    return;
+  }
+  const q = query.toLowerCase();
+  document.querySelectorAll('.nav-item').forEach(n => {
+    const text = n.textContent.toLowerCase();
+    n.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
