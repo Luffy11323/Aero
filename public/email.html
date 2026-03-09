@@ -711,6 +711,22 @@ webhook_url       string
 // ── API base — points to HF Space backend ─────────────────────────────────
 const API_BASE = 'https://frnklnwrld-emailblast-pro.hf.space';
 
+// ── Pre-fill credentials from HF Space secrets on load ────────────────────
+(async () => {
+  try {
+    const r = await fetch(API_BASE + '/config');
+    const d = await r.json();
+    if (d.gmail_user) {
+      document.getElementById('gmail_user').value = d.gmail_user;
+      document.getElementById('gmail_user').style.color = 'var(--muted2)';
+    }
+    if (d.has_pass) {
+      document.getElementById('gmail_pass').placeholder = '●●●● ●●●● ●●●● ●●●● (secret loaded)';
+      document.getElementById('gmail_pass').style.borderColor = 'var(--g)';
+    }
+  } catch(e) { /* silently ignore if HF Space is cold-starting */ }
+})();
+
 // ── State ──────────────────────────────────────────────────────────────────
 let selectedTemplate = 'plain';
 let pollTimer = null;
