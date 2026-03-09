@@ -1,105 +1,42 @@
 {
-
   "version": 2,
-
   "functions": {
-
     "api/flights.js": {
-
       "maxDuration": 30
-
     }
-
   },
-
   "redirects": [
-
     {
-
       "source": "/(.*)",
-
       "has": [
-
         { "type": "host", "value": "emailblast.akatechsolution.com" }
-
       ],
-
-      "destination": "https://frnklnwrld-emailblast-pro.hf.space/$1",
-
+      "destination": "https://frnklnwrld-emailblast-pro.hf.space/",
       "permanent": false
-
     },
-
     {
-
       "source": "/(.*)",
-
       "has": [
-
         { "type": "host", "value": "savenest.akatechsolution.com" }
-
       ],
-
-      "destination": "https://frnklnwrld-savenest-api.hf.space/$1",
-
+      "destination": "https://frnklnwrld-savenest-api.hf.space/",
       "permanent": false
-
     },
-
     {
-
       "source": "/(.*)",
-
       "has": [
-
         { "type": "host", "value": "bot.akatechsolution.com" }
-
       ],
-
-      "destination": "https://frnklnwrld-me.hf.space/$1",
-
+      "destination": "https://frnklnwrld-me.hf.space/",
       "permanent": false
-
     },
-
     {
-
       "source": "/(.*)",
-
       "has": [
-
-        { "type": "host", "value": "flightsapl.akatechsolution.com" }
-
+        { "type": "host", "value": "flightsapi.akatechsolution.com" }
       ],
-
-      "destination": "https://aero-woad.vercel.app",  // add if you have one
-
+      "destination": "https://aero-woad.vercel.app/",
       "permanent": false
-
     }
-
-    // Add more rules here for other subdomains as needed
-
-  ],
-
-  "routes": [
-
-    {
-
-      "src": "/api/flights",
-
-      "dest": "/api/flights.js"
-
-    },
-
-    {
-
-      "src": "/(.*)",
-
-      "dest": "/public/$1"
-
-    }
-
   ]
-
 }
