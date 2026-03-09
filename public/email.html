@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EmailBlast Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06060a;
+  --s1:#0d0d14;
+  --s2:#12121c;
+  --border:#1c1c2b;
+  --border2:#252538;
+  --y:#d4f542;
+  --b:#42c8f5;
+  --o:#f57842;
+  --g:#42f59a;
+  --r:#f54242;
+  --text:#ddddf0;
+  --muted:#4a4a6a;
+  --muted2:#6a6a8a;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'JetBrains Mono',monospace;
+  min-height:100vh;
+  font-size:14px;
+}
+
+/* scanline overlay */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+  pointer-events:none;z-index:999;
+}
+
+/* dot grid */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:radial-gradient(circle,rgba(212,245,66,0.06) 1px,transparent 1px);
+  background-size:28px 28px;
+  pointer-events:none;z-index:0;
+}
+
+.wrap{
+  position:relative;z-index:1;
+  max-width:1000px;
+  margin:0 auto;
+  padding:0 20px 100px;
+}
+
+/* ── NAV ── */
+nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:24px 0 20px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:52px;
+}
+
+.wordmark{
+  font-family:'Clash Display',sans-serif;
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:-0.04em;
+  color:#fff;
+}
+.wordmark em{color:var(--y);font-style:normal}
+
+.nav-right{display:flex;align-items:center;gap:16px}
+
+.badge{
+  display:inline-flex;align-items:center;gap:7px;
+  border:1px solid var(--border2);
+  border-radius:6px;
+  padding:5px 12px;
+  font-size:11px;
+  color:var(--muted2);
+  letter-spacing:0.05em;
+}
+.badge .dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--g);
+  animation:blink 2s infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── HERO ── */
+.hero{
+  margin-bottom:56px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:24px;
+  align-items:start;
+}
+.hero-left h1{
+  font-family:'Clash Display',sans-serif;
+  font-size:clamp(2.4rem,5vw,4rem);
+  font-weight:700;
+  letter-spacing:-0.04em;
+  line-height:1.05;
+  color:#fff;
+  margin-bottom:16px;
+}
+.hero-left h1 .hi{color:var(--y)}
+.hero-left p{
+  color:var(--muted2);
+  font-size:13px;
+  line-height:1.7;
+  max-width:480px;
+}
+.hero-stats{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.stat-box{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px 20px;
+  text-align:right;
+  min-width:140px;
+}
+.stat-box .n{
+  font-family:'Clash Display',sans-serif;
+  font-size:24px;font-weight:700;
+  color:var(--y);
+  line-height:1;
+}
+.stat-box .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px}
+
+/* ── FEATURE STRIP ── */
+.features{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin-bottom:52px;
+}
+.feat{
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:6px 14px;
+  font-size:11px;
+  color:var(--muted2);
+  letter-spacing:0.04em;
+  background:var(--s1);
+  transition:border-color .2s,color .2s;
+}
+.feat:hover{border-color:var(--y);color:var(--y)}
+.feat b{color:var(--y);font-weight:500;margin-right:4px}
+
+/* ── SECTION HEADER ── */
+.sh{
+  font-family:'Clash Display',sans-serif;
+  font-size:11px;font-weight:600;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--y);
+  margin-bottom:16px;
+  display:flex;align-items:center;gap:12px;
+}
+.sh::after{content:'';flex:1;height:1px;background:var(--border)}
+
+section{margin-bottom:52px}
+
+/* ── CARD ── */
+.card{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:28px;
+}
+
+/* ── TABS ── */
+.tabs{
+  display:flex;gap:4px;
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:4px;
+  margin-bottom:28px;
+  width:fit-content;
+}
+.tab{
+  padding:8px 18px;
+  border-radius:7px;
+  font-size:11px;font-weight:500;
+  letter-spacing:0.06em;text-transform:uppercase;
+  cursor:pointer;color:var(--muted2);
+  transition:all .2s;border:none;background:transparent;
+  font-family:'JetBrains Mono',monospace;
+}
+.tab.active{background:var(--y);color:#06060a;font-weight:700}
+
+/* ── FORM ── */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg .full{grid-column:1/-1}
+
+label{
+  display:block;
+  font-size:10px;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px;
+}
+
+input,select,textarea{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  padding:10px 13px;
+  outline:none;
+  transition:border-color .18s;
+  appearance:none;
+}
+textarea{resize:vertical;min-height:72px}
+input:focus,select:focus,textarea:focus{border-color:var(--y)}
+input[type=range]{padding:6px 0;cursor:pointer}
+input[type=file]::file-selector-button{
+  background:var(--border2);border:none;color:var(--text);
+  padding:6px 12px;border-radius:5px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  cursor:pointer;margin-right:10px;
+}
+
+.hint{font-size:10px;color:var(--muted);margin-top:5px;letter-spacing:0.03em}
+
+/* warmup toggle */
+.toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.toggle{
+  position:relative;width:40px;height:22px;
+  flex-shrink:0;
+}
+.toggle input{opacity:0;width:0;height:0}
+.slider{
+  position:absolute;inset:0;background:var(--border2);border-radius:999px;
+  cursor:pointer;transition:.2s;
+}
+.slider:before{
+  content:'';position:absolute;
+  height:16px;width:16px;left:3px;bottom:3px;
+  background:#fff;border-radius:50%;transition:.2s;
+}
+.toggle input:checked+.slider{background:var(--y)}
+.toggle input:checked+.slider:before{transform:translateX(18px);background:#06060a}
+
+/* template preview */
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.tpl{
+  border:2px solid var(--border);
+  border-radius:10px;padding:16px 14px;
+  cursor:pointer;transition:all .18s;
+  text-align:center;
+}
+.tpl:hover{border-color:var(--border2)}
+.tpl.sel{border-color:var(--y);background:rgba(212,245,66,0.04)}
+.tpl .ico{font-size:22px;margin-bottom:8px}
+.tpl .name{font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text)}
+.tpl .desc{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* ── SMTP accounts ── */
+.smtp-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.smtp-row{
+  display:grid;grid-template-columns:1fr 1fr auto;
+  gap:10px;align-items:end;
+}
+.remove-btn{
+  background:transparent;border:1px solid var(--border);border-radius:7px;
+  color:var(--muted);padding:10px 12px;cursor:pointer;transition:.15s;
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+}
+.remove-btn:hover{border-color:var(--r);color:var(--r)}
+
+/* ── BUTTON ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--y);color:#06060a;
+  font-family:'Clash Display',sans-serif;
+  font-size:15px;font-weight:700;
+  letter-spacing:-0.01em;
+  padding:13px 28px;border-radius:9px;border:none;cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(212,245,66,.22)}
+.btn:active{transform:none}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+
+.btn-ghost{
+  background:transparent;border:1px solid var(--border2);color:var(--muted2);
+  font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:400;
+  padding:9px 16px;border-radius:8px;cursor:pointer;
+  transition:.15s;letter-spacing:0.03em;
+}
+.btn-ghost:hover{border-color:var(--y);color:var(--y)}
+
+.btn-row{margin-top:24px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* ── PROGRESS ── */
+#pw{display:none;margin-top:28px}
+.pb-bg{background:var(--border);border-radius:999px;height:5px;overflow:hidden;margin-bottom:12px}
+.pb-fill{height:100%;background:var(--y);border-radius:999px;width:0;transition:width .5s}
+.pm{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:12px}
+
+/* analytics row */
+.analytics-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+  margin-bottom:16px;
+}
+.ana-box{
+  background:var(--s2);border:1px solid var(--border);border-radius:9px;
+  padding:12px 14px;text-align:center;
+}
+.ana-box .an{
+  font-family:'Clash Display',sans-serif;font-size:22px;font-weight:700;
+  color:var(--y);line-height:1;
+}
+.ana-box .al{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px}
+
+#log{
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  padding:14px;font-size:11px;height:200px;overflow-y:auto;line-height:1.8;
+}
+#log .ok{color:var(--g)}
+#log .er{color:var(--r)}
+#log .in{color:var(--b)}
+#log .wm{color:var(--o)}
+
+/* ── ENDPOINT DOCS ── */
+.ep{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.eph{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 17px;cursor:pointer;background:var(--s1);
+  transition:background .15s;
+}
+.eph:hover{background:var(--s2)}
+.method{
+  font-family:'Clash Display',sans-serif;font-size:10px;font-weight:700;
+  padding:3px 9px;border-radius:4px;letter-spacing:0.06em;
+}
+.GET{background:rgba(66,200,245,.1);color:var(--b)}
+.POST{background:rgba(212,245,66,.1);color:var(--y)}
+.ep-path{font-size:13px;color:var(--text);flex:1}
+.ep-desc{font-size:11px;color:var(--muted)}
+.epb{display:none;padding:16px 17px;border-top:1px solid var(--border);background:var(--bg)}
+.epb.open{display:block}
+pre{
+  background:#040408;border:1px solid var(--border);border-radius:7px;
+  padding:14px;font-size:11px;overflow-x:auto;color:var(--b);line-height:1.7;
+}
+
+/* ── CSV FORMAT ── */
+.csv-table{width:100%;border-collapse:collapse;font-size:12px}
+.csv-table th{text-align:left;padding:8px 12px;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--y);border-bottom:1px solid var(--border)}
+.csv-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--muted2)}
+.csv-table td.req{color:var(--text)}
+.csv-table tr:last-child td{border-bottom:none}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--border);padding-top:24px;margin-top:48px;
+  display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;
+  font-size:11px;color:var(--muted);
+}
+footer a{color:var(--y);text-decoration:none}
+#back-link:hover{border-color:var(--y)!important;color:var(--y)!important}
+
+/* animations */
+.fade{animation:fadeup .5s ease both}
+.fade:nth-child(2){animation-delay:.08s}
+.fade:nth-child(3){animation-delay:.14s}
+.fade:nth-child(4){animation-delay:.2s}
+@keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── JOB TAG ── */
+#jobtag{font-size:11px;color:var(--muted);letter-spacing:.04em;display:none}
+
+@media(max-width:650px){
+  .fg{grid-template-columns:1fr}
+  .fg .full{grid-column:1}
+  .hero{grid-template-columns:1fr}
+  .tpl-grid{grid-template-columns:1fr}
+  .analytics-row{grid-template-columns:1fr 1fr}
+  .smtp-row{grid-template-columns:1fr 1fr;}.smtp-row button{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- NAV -->
+<nav class="fade">
+  <div class="wordmark">Email<em>Blast</em> <span style="color:var(--muted);font-size:13px;font-weight:400">Pro</span></div>
+  <div class="nav-right">
+    <a href="https://aero-woad.vercel.app" id="back-link" style="font-size:11px;color:var(--muted2);text-decoration:none;border:1px solid var(--border);padding:5px 12px;border-radius:6px;transition:border-color .15s,color .15s">← Back to site</a>
+    <div class="badge"><span class="dot"></span>Running · v2.0</div>
+    <a href="https://frnklnwrld-emailblast-pro.hf.space/docs" style="font-size:11px;color:var(--muted2);text-decoration:none;border:1px solid var(--border);padding:5px 12px;border-radius:6px">Swagger ↗</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero fade">
+  <div class="hero-left">
+    <h1>Bulk Email.<br><span class="hi">Fully Branded.</span></h1>
+    <p>Upload your list, configure branding per row, pick a template, and fire — with live open tracking, warm-up scheduling, multi-account round-robin, and webhook callbacks.</p>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-box"><div class="n">3</div><div class="l">Templates</div></div>
+    <div class="stat-box"><div class="n">∞</div><div class="l">SMTP accounts</div></div>
+    <div class="stat-box"><div class="n">📡</div><div class="l">Open tracking</div></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="features fade">
+  <div class="feat"><b>🏷</b>Per-row FromName</div>
+  <div class="feat"><b>↩</b>Reply-To override</div>
+  <div class="feat"><b>🎨</b>HTML templates</div>
+  <div class="feat"><b>📊</b>Open tracking pixel</div>
+  <div class="feat"><b>🔄</b>Round-robin SMTP</div>
+  <div class="feat"><b>🌡</b>Warm-up mode</div>
+  <div class="feat"><b>📡</b>Webhook callback</div>
+  <div class="feat"><b>🔗</b>CTA buttons</div>
+  <div class="feat"><b>🚫</b>Unsubscribe links</div>
+  <div class="feat"><b>📎</b>Excel + CSV</div>
+</div>
+
+<!-- BLAST FORM -->
+<section class="fade">
+  <div class="sh">Launch Campaign</div>
+  <div class="card">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('setup',this)">Setup</button>
+      <button class="tab" onclick="showTab('template',this)">Template</button>
+      <button class="tab" onclick="showTab('smtp',this)">SMTP</button>
+      <button class="tab" onclick="showTab('advanced',this)">Advanced</button>
+    </div>
+
+    <!-- TAB: SETUP -->
+    <div id="tab-setup">
+      <div class="fg">
+        <div class="full">
+          <label>Recipient file (.xlsx or .csv)</label>
+          <input type="file" id="file" accept=".xlsx,.csv"/>
+          <div class="hint">Required column: Email. Optional: FromName, ReplyTo, BodyExtra, CTAUrl</div>
+        </div>
+        <div>
+          <label>Email subject</label>
+          <input type="text" id="subject" value="Hello from Your Business"/>
+        </div>
+        <div>
+          <label>Default From name</label>
+          <input type="text" id="from_name" value="Your Business"/>
+        </div>
+        <div class="full">
+          <label>Email body (default)</label>
+          <textarea id="body_extra">We'd love to share our latest updates with you. Thank you for being part of our community.</textarea>
+          <div class="hint">Can be overridden per-row with a BodyExtra column in your file.</div>
+        </div>
+        <div class="full">
+          <label>Sender address (footer)</label>
+          <input type="text" id="sender_address" value="Your Business, City, Country"/>
+        </div>
+        <div>
+          <label>Max emails to send</label>
+          <input type="number" id="max_emails" value="10" min="1" max="400"/>
+        </div>
+        <div>
+          <label>Delay between emails (sec)</label>
+          <input type="number" id="sleep" value="5" min="1" max="300"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: TEMPLATE -->
+    <div id="tab-template" style="display:none">
+      <div class="tpl-grid">
+        <div class="tpl sel" onclick="selectTpl('plain',this)">
+          <div class="ico">📝</div>
+          <div class="name">Plain Text</div>
+          <div class="desc">Simple, high deliverability</div>
+        </div>
+        <div class="tpl" onclick="selectTpl('promo',this)">
+          <div class="ico">🚀</div>
+          <div class="name">Promo</div>
+          <div class="desc">Dark hero + CTA button</div>
+        </div>
+        <div class="tpl" onclick="selectTpl('newsletter',this)">
+          <div class="ico">📰</div>
+          <div class="name">Newsletter</div>
+          <div class="desc">Editorial serif layout</div>
+        </div>
+      </div>
+      <div class="fg" id="cta-fields">
+        <div>
+          <label>CTA button URL (Promo only)</label>
+          <input type="url" id="cta_url" placeholder="https://yourwebsite.com"/>
+        </div>
+        <div>
+          <label>CTA button text</label>
+          <input type="text" id="cta_text" value="Learn More"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: SMTP -->
+    <div id="tab-smtp" style="display:none">
+      <p style="font-size:12px;color:var(--muted2);margin-bottom:18px;line-height:1.7">
+        Add multiple Gmail accounts for round-robin sending — useful for distributing volume across accounts and avoiding per-account limits.
+      </p>
+      <div id="smtp-list" class="smtp-list">
+        <div class="smtp-row" id="smtp-primary">
+          <div>
+            <label>Gmail address (primary)</label>
+            <input type="email" id="gmail_user" placeholder="you@gmail.com"/>
+          </div>
+          <div>
+            <label>App password</label>
+            <input type="password" id="gmail_pass" placeholder="xxxx xxxx xxxx xxxx"/>
+          </div>
+          <div style="padding-top:20px">
+            <div style="font-size:10px;color:var(--g);padding:10px 12px;border:1px solid var(--border);border-radius:7px">Primary</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-ghost" onclick="addSMTP()">+ Add account</button>
+      <div class="hint" style="margin-top:10px">Use Gmail App Passwords — never your real password. Generate at myaccount.google.com/security</div>
+    </div>
+
+    <!-- TAB: ADVANCED -->
+    <div id="tab-advanced" style="display:none">
+      <div class="fg">
+        <div>
+          <div class="toggle-row">
+            <label class="toggle">
+              <input type="checkbox" id="warmup_enabled" onchange="toggleWarmup()"/>
+              <span class="slider"></span>
+            </label>
+            <span style="font-size:12px;color:var(--text)">Enable warm-up mode</span>
+          </div>
+          <div class="hint">Gradually ramps up send volume per day to build sender reputation.</div>
+        </div>
+        <div id="warmup-day-wrap" style="opacity:.35;pointer-events:none">
+          <label>Warm-up day number</label>
+          <input type="number" id="warmup_day" value="1" min="1" max="11"/>
+          <div class="hint">Day 1→5, Day 2→10, Day 3→20, Day 4→30… up to 400/day at day 11</div>
+        </div>
+        <div class="full">
+          <label>Webhook callback URL (optional)</label>
+          <input type="url" id="webhook_url" placeholder="https://your-n8n-or-zapier-hook.com"/>
+          <div class="hint">POST fired on job completion with job_id, sent count, errors. Connects to n8n, Zapier, Make, etc.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEND ROW -->
+    <div class="btn-row">
+      <button class="btn" id="send-btn" onclick="startBlast()">▶ Launch Blast</button>
+      <span id="jobtag"></span>
+    </div>
+
+    <!-- PROGRESS -->
+    <div id="pw">
+      <div class="analytics-row" style="margin-top:20px">
+        <div class="ana-box"><div class="an" id="a-sent">0</div><div class="al">Sent</div></div>
+        <div class="ana-box"><div class="an" id="a-total">0</div><div class="al">Total</div></div>
+        <div class="ana-box"><div class="an" id="a-opens">0</div><div class="al">Opens</div></div>
+        <div class="ana-box"><div class="an" id="a-rate">—</div><div class="al">Open rate</div></div>
+      </div>
+      <div class="pb-bg"><div class="pb-fill" id="pbf"></div></div>
+      <div class="pm"><span id="pm-text">—</span><span id="pm-status">—</span></div>
+      <div id="log"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- API DOCS -->
+<section class="fade">
+  <div class="sh">API Endpoints</div>
+
+  <div class="ep">
+    <div class="eph" onclick="tog(this)">
+      <span class="method GET">GET</span>
+      <span class="ep-path">/health</span>
+      <span class="ep-desc">Status + feature list</span>
+    </div>
+    <div class="epb">
+<pre>{
+  "ok": true,
+  "version": "2.0.0",
+  "features": ["html-templates","open-tracking","round-robin-smtp","warmup-mode","webhooks","per-row-branding"]
+}</pre>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="eph" onclick="tog(this)">
+      <span class="method POST">POST</span>
+      <span class="ep-path">/send</span>
+      <span class="ep-desc">Upload + launch blast job</span>
+    </div>
+    <div class="epb">
+<pre>// Multipart form fields
+file              .xlsx or .csv (required)
+gmail_user        string (required)
+gmail_pass        string (required)
+extra_accounts    JSON string: [{"user":"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="661e26010b070f0a4805090b">[email&#160;protected]</a>","pass":"xxxx"}]
+subject           string
+default_from_name string
+body_extra        string
+sender_address    string
+max_emails        int
+sleep_interval    float
+template_name     plain | promo | newsletter
+cta_url           string
+cta_text          string
+warmup_day        int (0 = disabled)
+webhook_url       string
+
+// Response
+{ "job_id": "a1b2c3d4", "total_rows": 120, "smtp_accounts": 2, "template": "promo" }</pre>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="eph" onclick="tog(this)">
+      <span class="method GET">GET</span>
+      <span class="ep-path">/status/{job_id}</span>
+      <span class="ep-desc">Live progress + analytics</span>
+    </div>
+    <div class="epb">
+<pre>{
+  "job_id": "a1b2c3d4",
+  "status": "running",
+  "sent": 24, "total": 100, "errors": 1,
+  "opens": 7, "open_rate": "29.2%",
+  "log": ["10:04:01 ✓ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8df8fee8ffcde8f5ece0fde1e8a3eee2e0">[email&#160;protected]</a> via franklnwrldd… as 'Ahmed's Shop'", ...]
+}</pre>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="eph" onclick="tog(this)">
+      <span class="method GET">GET</span>
+      <span class="ep-path">/analytics/{job_id}</span>
+      <span class="ep-desc">Full open event log</span>
+    </div>
+    <div class="epb">
+<pre>{
+  "job_id": "a1b2c3d4",
+  "sent": 100, "opens": 31, "open_rate": "31.0%",
+  "open_events": [{ "email": "<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="146167716654716c75796478713a777b79">[email&#160;protected]</a>", "ts": "2025-01-01T10:05:33" }, ...]
+}</pre>
+    </div>
+  </div>
+
+</section>
+
+<!-- COLUMN GUIDE -->
+<section class="fade">
+  <div class="sh">File Format Reference</div>
+  <div class="card">
+    <table class="csv-table">
+      <tr>
+        <th>Column</th><th>Required</th><th>Description</th><th>Example</th>
+      </tr>
+      <tr>
+        <td class="req">Email</td><td style="color:var(--r)">Yes</td>
+        <td>Recipient address</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="87e4f2f4f3e8eae2f5c7e0eae6eeeba9e4e8ea">[email&#160;protected]</a></td>
+      </tr>
+      <tr>
+        <td>FromName</td><td style="color:var(--muted)">Optional</td>
+        <td>Display name in inbox</td><td>Ahmed's Shop</td>
+      </tr>
+      <tr>
+        <td>ReplyTo</td><td style="color:var(--muted)">Optional</td>
+        <td>Where replies are directed</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="62030a0f070622110a0d124c1209">[email&#160;protected]</a></td>
+      </tr>
+      <tr>
+        <td>BodyExtra</td><td style="color:var(--muted)">Optional</td>
+        <td>Per-recipient body text override</td><td>Here's your custom offer…</td>
+      </tr>
+      <tr>
+        <td>CTAUrl</td><td style="color:var(--muted)">Optional</td>
+        <td>Per-row CTA link (Promo template)</td><td>https://shop.pk/offer</td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<footer class="fade">
+  <span>EmailBlast Pro · FastAPI · Gmail SMTP · v2.0.0</span>
+  <span><a href="https://frnklnwrld-emailblast-pro.hf.space/docs">Swagger</a> · <a href="https://frnklnwrld-emailblast-pro.hf.space/health">Health</a> · <a href="https://aero-woad.vercel.app">← Vercel site</a></span>
+</footer>
+
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── API base — points to HF Space backend ─────────────────────────────────
+const API_BASE = 'https://frnklnwrld-emailblast-pro.hf.space';
+
+// ── State ──────────────────────────────────────────────────────────────────
+let selectedTemplate = 'plain';
+let pollTimer = null;
+let currentJob = null;
+let extraAccounts = [];
+
+// ── Tabs ───────────────────────────────────────────────────────────────────
+function showTab(id, el) {
+  ['setup','template','smtp','advanced'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===id ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Template select ────────────────────────────────────────────────────────
+function selectTpl(name, el) {
+  selectedTemplate = name;
+  document.querySelectorAll('.tpl').forEach(t => t.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ── Warm-up toggle ─────────────────────────────────────────────────────────
+function toggleWarmup() {
+  const en = document.getElementById('warmup_enabled').checked;
+  const w = document.getElementById('warmup-day-wrap');
+  w.style.opacity = en ? '1' : '.35';
+  w.style.pointerEvents = en ? 'auto' : 'none';
+}
+
+// ── SMTP round-robin ───────────────────────────────────────────────────────
+function addSMTP() {
+  const idx = extraAccounts.length;
+  extraAccounts.push({user:'',pass:''});
+  const row = document.createElement('div');
+  row.className = 'smtp-row';
+  row.id = 'smtp-extra-'+idx;
+  row.innerHTML = `
+    <div>
+      <label>Gmail address</label>
+      <input type="email" id="ex-user-${idx}" placeholder="extra@gmail.com"
+        oninput="extraAccounts[${idx}].user=this.value"/>
+    </div>
+    <div>
+      <label>App password</label>
+      <input type="password" id="ex-pass-${idx}" placeholder="xxxx xxxx xxxx xxxx"
+        oninput="extraAccounts[${idx}].pass=this.value"/>
+    </div>
+    <div style="padding-top:20px">
+      <button class="remove-btn" onclick="removeSMTP(${idx},this.closest('.smtp-row'))">✕</button>
+    </div>`;
+  document.getElementById('smtp-list').appendChild(row);
+}
+
+function removeSMTP(idx, row) {
+  extraAccounts.splice(idx,1);
+  row.remove();
+}
+
+// ── Endpoint accordion ─────────────────────────────────────────────────────
+function tog(header) {
+  header.nextElementSibling.classList.toggle('open');
+}
+
+// ── Main send ──────────────────────────────────────────────────────────────
+async function startBlast() {
+  const fileEl = document.getElementById('file');
+  const gmail_user = document.getElementById('gmail_user').value.trim();
+  const gmail_pass = document.getElementById('gmail_pass').value.trim();
+
+  if (!fileEl.files[0]) return showTab('setup', document.querySelector('.tab')), alert('Please select a file.');
+  if (!gmail_user || !gmail_pass) return showTab('smtp', document.querySelectorAll('.tab')[2]), alert('Gmail credentials required (SMTP tab).');
+
+  const fd = new FormData();
+  fd.append('file', fileEl.files[0]);
+  fd.append('gmail_user', gmail_user);
+  fd.append('gmail_pass', gmail_pass);
+  fd.append('extra_accounts', JSON.stringify(extraAccounts.filter(a=>a.user&&a.pass)));
+  fd.append('subject', document.getElementById('subject').value);
+  fd.append('default_from_name', document.getElementById('from_name').value);
+  fd.append('body_extra', document.getElementById('body_extra').value);
+  fd.append('sender_address', document.getElementById('sender_address').value);
+  fd.append('max_emails', document.getElementById('max_emails').value);
+  fd.append('sleep_interval', document.getElementById('sleep').value);
+  fd.append('template_name', selectedTemplate);
+  fd.append('cta_url', document.getElementById('cta_url').value);
+  fd.append('cta_text', document.getElementById('cta_text').value);
+  const warmupOn = document.getElementById('warmup_enabled').checked;
+  fd.append('warmup_day', warmupOn ? document.getElementById('warmup_day').value : '0');
+  fd.append('webhook_url', document.getElementById('webhook_url').value);
+
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  btn.textContent = 'Queuing…';
+
+  try {
+    const res = await fetch(API_BASE+'/send', {method:'POST',body:fd});
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail||'Error');
+
+    currentJob = data.job_id;
+    const tag = document.getElementById('jobtag');
+    tag.textContent = `Job ${currentJob} · ${data.smtp_accounts} SMTP · ${data.template} template`;
+    tag.style.display = 'inline';
+    document.getElementById('pw').style.display = 'block';
+    document.getElementById('a-total').textContent = data.total_rows;
+    logLine('in', `Job ${currentJob} queued — ${data.total_rows} rows · ${data.smtp_accounts} SMTP account(s)`);
+    btn.textContent = 'Running…';
+    pollTimer = setInterval(poll, 2000);
+  } catch(e) {
+    alert('Error: '+e.message);
+    btn.disabled = false;
+    btn.textContent = '▶ Launch Blast';
+  }
+}
+
+async function poll() {
+  if (!currentJob) return;
+  try {
+    const r = await fetch(API_BASE+'/status/'+currentJob);
+    const d = await r.json();
+
+    const pct = d.total > 0 ? (d.sent/d.total)*100 : 0;
+    document.getElementById('pbf').style.width = pct+'%';
+    document.getElementById('pm-text').textContent = `${d.sent} / ${d.total}`;
+    document.getElementById('pm-status').textContent = d.status;
+    document.getElementById('a-sent').textContent = d.sent;
+    document.getElementById('a-opens').textContent = d.opens||0;
+    document.getElementById('a-rate').textContent = d.open_rate||'—';
+
+    const box = document.getElementById('log');
+    box.innerHTML = '';
+    for (const ln of d.log) {
+      const cls = ln.includes
