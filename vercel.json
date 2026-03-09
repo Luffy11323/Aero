@@ -1,75 +1,38 @@
 {
-
   "version": 2,
-
   "functions": {
-
     "api/flights.js": {
-
       "maxDuration": 30
-
     }
-
   },
-
   "redirects": [
-
     {
-
       "source": "/",
-
       "has": [{ "type": "host", "value": "email.akatechsolution.com" }],
-
       "destination": "https://frnklnwrld-emailblast-pro.hf.space/",
-
       "permanent": false
-
     },
-
     {
-
       "source": "/",
-
       "has": [{ "type": "host", "value": "savenest.akatechsolution.com" }],
-
       "destination": "https://frnklnwrld-savenest-api.hf.space/",
-
       "permanent": false
-
     },
-
     {
-
       "source": "/",
-
       "has": [{ "type": "host", "value": "bot.akatechsolution.com" }],
-
       "destination": "https://frnklnwrld-me.hf.space/",
-
       "permanent": false
-
     }
-
   ],
-
   "routes": [
-
     {
-
       "src": "/api/flights",
-
       "dest": "/api/flights.js"
-
     },
-
     {
-
       "src": "/(.*)",
-
       "dest": "/public/$1"
-
     }
-
   ]
-
 }
