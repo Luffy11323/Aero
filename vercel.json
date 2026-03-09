@@ -1,38 +1,105 @@
 {
+
   "version": 2,
+
   "functions": {
+
     "api/flights.js": {
+
       "maxDuration": 30
+
     }
+
   },
+
   "redirects": [
+
     {
-      "source": "/",
-      "has": [{ "type": "host", "value": "email.akatechsolution.com" }],
-      "destination": "https://frnklnwrld-emailblast-pro.hf.space/",
+
+      "source": "/(.*)",
+
+      "has": [
+
+        { "type": "host", "value": "emailblast.akatechsolution.com" }
+
+      ],
+
+      "destination": "https://frnklnwrld-emailblast-pro.hf.space/$1",
+
       "permanent": false
+
     },
+
     {
-      "source": "/",
-      "has": [{ "type": "host", "value": "savenest.akatechsolution.com" }],
-      "destination": "https://frnklnwrld-savenest-api.hf.space/",
+
+      "source": "/(.*)",
+
+      "has": [
+
+        { "type": "host", "value": "savenest.akatechsolution.com" }
+
+      ],
+
+      "destination": "https://frnklnwrld-savenest-api.hf.space/$1",
+
       "permanent": false
+
     },
+
     {
-      "source": "/",
-      "has": [{ "type": "host", "value": "bot.akatechsolution.com" }],
-      "destination": "https://frnklnwrld-me.hf.space/",
+
+      "source": "/(.*)",
+
+      "has": [
+
+        { "type": "host", "value": "bot.akatechsolution.com" }
+
+      ],
+
+      "destination": "https://frnklnwrld-me.hf.space/$1",
+
       "permanent": false
+
+    },
+
+    {
+
+      "source": "/(.*)",
+
+      "has": [
+
+        { "type": "host", "value": "flightsapl.akatechsolution.com" }
+
+      ],
+
+      "destination": "https://aero-woad.vercel.app",  // add if you have one
+
+      "permanent": false
+
     }
+
+    // Add more rules here for other subdomains as needed
+
   ],
+
   "routes": [
+
     {
+
       "src": "/api/flights",
+
       "dest": "/api/flights.js"
+
     },
+
     {
+
       "src": "/(.*)",
+
       "dest": "/public/$1"
+
     }
+
   ]
+
 }
