@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ERPNext AI Agent · Developer Docs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --bg:#0a0a0b;
+    --surface:#111114;
+    --surface2:#18181d;
+    --border:#222228;
+    --border2:#2e2e38;
+    --accent:#e8ff47;
+    --accent2:#ff6b35;
+    --accent3:#47c8ff;
+    --text:#f0f0f2;
+    --muted:#6b6b7a;
+    --muted2:#9090a0;
+    --green:#3dffa0;
+    --red:#ff4757;
+    --font-display:'Syne',sans-serif;
+    --font-mono:'DM Mono',monospace;
+    --font-serif:'Instrument Serif',serif;
+    --sidebar-w:260px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-mono);font-size:14px;line-height:1.6;overflow-x:hidden}
+
+  /* GRID BG */
+  body::before{
+    content:'';position:fixed;inset:0;
+    background-image:linear-gradient(rgba(232,255,71,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(232,255,71,.025) 1px,transparent 1px);
+    background-size:60px 60px;pointer-events:none;z-index:0
+  }
+
+  /* ─── TOP BAR ─── */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;height:56px;z-index:200;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 32px;
+    background:rgba(10,10,11,.95);border-bottom:1px solid var(--border);
+    backdrop-filter:blur(12px)
+  }
+  .topbar-left{display:flex;align-items:center;gap:16px}
+  .back-link{
+    display:flex;align-items:center;gap:6px;
+    color:var(--muted2);text-decoration:none;font-size:12px;letter-spacing:.04em;transition:.2s
+  }
+  .back-link:hover{color:var(--accent)}
+  .topbar-sep{color:var(--border2);font-size:18px;margin:0 4px}
+  .topbar-title{font-family:var(--font-display);font-weight:700;font-size:14px}
+  .topbar-right{display:flex;align-items:center;gap:16px}
+  .topbar-right a{
+    color:var(--muted2);text-decoration:none;font-size:12px;letter-spacing:.04em;transition:.2s
+  }
+  .topbar-right a:hover{color:var(--accent)}
+  .badge-live{
+    font-size:10px;padding:3px 10px;letter-spacing:.08em;
+    background:rgba(61,255,160,.1);color:var(--green);border:1px solid rgba(61,255,160,.2)
+  }
+
+  /* ─── LAYOUT ─── */
+  .layout{
+    display:flex;min-height:100vh;padding-top:56px;position:relative;z-index:1
+  }
+
+  /* SIDEBAR */
+  .sidebar{
+    width:var(--sidebar-w);flex-shrink:0;
+    position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;
+    border-right:1px solid var(--border);padding:32px 0;
+    scrollbar-width:thin;scrollbar-color:var(--border) transparent
+  }
+  .sidebar::-webkit-scrollbar{width:3px}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border2)}
+  .sidebar-section{margin-bottom:28px;padding:0 24px}
+  .sidebar-heading{
+    font-size:10px;color:var(--muted);letter-spacing:.14em;
+    text-transform:uppercase;margin-bottom:10px;padding-bottom:8px;
+    border-bottom:1px solid var(--border)
+  }
+  .sidebar-link{
+    display:flex;align-items:center;gap:8px;
+    padding:7px 12px;margin:0 -12px;
+    color:var(--muted2);text-decoration:none;font-size:12px;
+    letter-spacing:.02em;border-left:2px solid transparent;
+    transition:.15s;border-radius:0
+  }
+  .sidebar-link:hover{color:var(--text);border-left-color:var(--border2)}
+  .sidebar-link.active{color:var(--accent);border-left-color:var(--accent);background:rgba(232,255,71,.04)}
+  .sidebar-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.5;flex-shrink:0}
+
+  /* MAIN CONTENT */
+  main{flex:1;min-width:0;padding:60px 72px;max-width:900px}
+  @media(max-width:1100px){main{padding:40px 36px}}
+
+  /* SECTION */
+  .doc-section{margin-bottom:80px;scroll-margin-top:80px}
+  .doc-section + .doc-section{border-top:1px solid var(--border);padding-top:80px}
+
+  h1.doc-h1{
+    font-family:var(--font-display);font-weight:800;
+    font-size:clamp(32px,4vw,52px);letter-spacing:-.02em;
+    line-height:1.1;margin-bottom:16px
+  }
+  h1.doc-h1 span{color:var(--accent)}
+  .doc-lead{
+    font-family:var(--font-serif);font-style:italic;
+    font-size:20px;color:var(--muted2);line-height:1.5;margin-bottom:32px
+  }
+  h2.doc-h2{
+    font-family:var(--font-display);font-weight:700;
+    font-size:22px;letter-spacing:-.01em;margin-bottom:20px;margin-top:48px
+  }
+  h3.doc-h3{
+    font-family:var(--font-display);font-weight:600;
+    font-size:15px;letter-spacing:.02em;margin-bottom:12px;margin-top:32px;
+    color:var(--accent2)
+  }
+  p.doc-p{color:var(--muted2);line-height:1.85;margin-bottom:16px;font-size:13.5px}
+  p.doc-p code,li code{
+    background:var(--surface2);color:var(--accent3);
+    padding:1px 6px;font-size:12px;border:1px solid var(--border)
+  }
+  ul.doc-ul,ol.doc-ol{color:var(--muted2);padding-left:20px;margin-bottom:16px}
+  ul.doc-ul li,ol.doc-ol li{margin-bottom:6px;font-size:13px;line-height:1.7}
+
+  /* CODE BLOCKS */
+  .code-block{position:relative;margin:20px 0}
+  .code-label{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--surface2);border:1px solid var(--border);
+    border-bottom:none;padding:8px 16px
+  }
+  .code-lang{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+  .code-copy{
+    background:none;border:1px solid var(--border);color:var(--muted);
+    padding:3px 10px;font-size:11px;cursor:pointer;font-family:var(--font-mono);transition:.2s
+  }
+  .code-copy:hover{background:var(--accent);color:#000;border-color:var(--accent)}
+  pre.code{
+    background:var(--surface);border:1px solid var(--border);
+    padding:20px 24px;overflow-x:auto;
+    font-size:12.5px;line-height:1.8;color:var(--accent3);margin:0
+  }
+  pre.code .kw{color:var(--accent)}
+  pre.code .str{color:var(--green)}
+  pre.code .num{color:var(--accent2)}
+  pre.code .cm{color:var(--muted)}
+
+  /* CALLOUT BOXES */
+  .callout{
+    padding:16px 20px;margin:20px 0;
+    border-left:3px solid;font-size:13px;line-height:1.7
+  }
+  .callout-note{border-color:var(--accent3);background:rgba(71,200,255,.06);color:var(--accent3)}
+  .callout-warn{border-color:var(--accent2);background:rgba(255,107,53,.06);color:var(--accent2)}
+  .callout-danger{border-color:var(--red);background:rgba(255,71,87,.06);color:var(--red)}
+  .callout-title{font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+
+  /* TABLES */
+  .doc-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:12.5px}
+  .doc-table th{
+    text-align:left;padding:10px 16px;
+    background:var(--surface2);color:var(--muted2);
+    font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    border-bottom:1px solid var(--border)
+  }
+  .doc-table td{
+    padding:12px 16px;border-bottom:1px solid var(--border);
+    color:var(--muted2);vertical-align:top
+  }
+  .doc-table tr:last-child td{border-bottom:none}
+  .doc-table tr:hover td{background:var(--surface2)}
+  .doc-table td:first-child code{color:var(--accent3)}
+  .req{color:var(--red);font-size:10px;letter-spacing:.06em}
+  .opt{color:var(--green);font-size:10px;letter-spacing:.06em}
+
+  /* METHOD BADGES */
+  .method-badge{
+    display:inline-block;padding:2px 10px;font-size:11px;
+    letter-spacing:.06em;font-weight:500;margin-right:8px
+  }
+  .mb-get{background:rgba(61,255,160,.12);color:var(--green)}
+  .mb-post{background:rgba(255,107,53,.12);color:var(--accent2)}
+
+  /* RISK PILL */
+  .risk{display:inline-block;padding:2px 8px;font-size:10px;letter-spacing:.06em;margin-left:4px}
+  .r-low{background:rgba(61,255,160,.1);color:var(--green)}
+  .r-med{background:rgba(232,255,71,.1);color:var(--accent)}
+  .r-high{background:rgba(255,71,87,.1);color:var(--red)}
+
+  /* ENV TABLE */
+  .env-grid{display:grid;grid-template-columns:200px 60px 1fr;gap:0;background:var(--border)}
+  .env-row{
+    display:contents
+  }
+  .env-row div{
+    background:var(--surface);padding:12px 16px;font-size:12px;
+    border-bottom:1px solid var(--border)
+  }
+  .env-row:last-child div{border-bottom:none}
+  .env-key code{color:var(--accent3)}
+  .env-req span{font-size:10px;letter-spacing:.06em}
+
+  /* STEP FLOW */
+  .steps-flow{display:flex;flex-direction:column;gap:1px;background:var(--border);margin:20px 0}
+  .step-row{
+    background:var(--surface);padding:20px 24px;
+    display:grid;grid-template-columns:36px 1fr;gap:16px;align-items:start
+  }
+  .step-n{
+    width:28px;height:28px;background:var(--accent);color:#000;
+    font-family:var(--font-display);font-weight:800;font-size:12px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0
+  }
+  .step-content h4{font-family:var(--font-display);font-size:14px;font-weight:700;margin-bottom:4px}
+  .step-content p{font-size:12px;color:var(--muted2);line-height:1.7}
+
+  /* TOC PROGRESS */
+  .toc-progress{
+    position:fixed;top:56px;left:0;width:3px;height:0;
+    background:var(--accent);transition:height .1s;z-index:100
+  }
+
+  /* RESPONSIVE */
+  @media(max-width:800px){
+    .sidebar{display:none}
+    main{padding:32px 24px}
+    .topbar{padding:0 20px}
+    .env-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="toc-progress" id="progress"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back-link" href="/">← Dashboard</a>
+    <span class="topbar-sep">/</span>
+    <span class="topbar-title">Developer Docs</span>
+  </div>
+  <div class="topbar-right">
+    <span class="badge-live">● v2.0.0</span>
+    <a href="/openapi.json" target="_blank">OpenAPI ↗</a>
+    <a href="/health" target="_blank">Health</a>
+    <a href="https://chatgpt.com/g/g-699e1478dc9481919eb995dfb3c06833-erpnext-ai-agent" target="_blank">Try Agent →</a>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Getting Started</div>
+      <a class="sidebar-link active" href="#overview"><span class="sidebar-dot"></span>Overview</a>
+      <a class="sidebar-link" href="#architecture"><span class="sidebar-dot"></span>Architecture</a>
+      <a class="sidebar-link" href="#setup"><span class="sidebar-dot"></span>Setup & Deploy</a>
+      <a class="sidebar-link" href="#chatgpt"><span class="sidebar-dot"></span>ChatGPT Integration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">API Reference</div>
+      <a class="sidebar-link" href="#execute"><span class="sidebar-dot"></span>POST /execute</a>
+      <a class="sidebar-link" href="#query"><span class="sidebar-dot"></span>POST /query</a>
+      <a class="sidebar-link" href="#schema"><span class="sidebar-dot"></span>GET /schema</a>
+      <a class="sidebar-link" href="#report"><span class="sidebar-dot"></span>GET /report</a>
+      <a class="sidebar-link" href="#health"><span class="sidebar-dot"></span>GET /health</a>
+      <a class="sidebar-link" href="#audit"><span class="sidebar-dot"></span>GET /audit</a>
+      <a class="sidebar-link" href="#openapi"><span class="sidebar-dot"></span>GET /openapi.json</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Actions</div>
+      <a class="sidebar-link" href="#actions-crud"><span class="sidebar-dot"></span>CRUD Actions</a>
+      <a class="sidebar-link" href="#actions-finance"><span class="sidebar-dot"></span>Finance Actions</a>
+      <a class="sidebar-link" href="#actions-config"><span class="sidebar-dot"></span>Config Actions</a>
+      <a class="sidebar-link" href="#step-refs"><span class="sidebar-dot"></span>Step References</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Guides</div>
+      <a class="sidebar-link" href="#guide-po"><span class="sidebar-dot"></span>Purchase Order Flow</a>
+      <a class="sidebar-link" href="#guide-invoice"><span class="sidebar-dot"></span>Invoice & Payment</a>
+      <a class="sidebar-link" href="#guide-stock"><span class="sidebar-dot"></span>Stock Check</a>
+      <a class="sidebar-link" href="#errors"><span class="sidebar-dot"></span>Errors & Rollback</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- OVERVIEW -->
+    <div class="doc-section" id="overview">
+      <h1 class="doc-h1">ERPNext<br><span>AI Agent</span><br>Developer Docs</h1>
+      <p class="doc-lead">ChatGPT is the brain. Your Flask server is the executor. No AI keys. Pure ERP automation.</p>
+
+      <p class="doc-p">
+        This server exposes a clean REST API that a ChatGPT Custom GPT uses to interact with ERPNext.
+        You describe a business problem in plain language — the GPT plans the steps, explains each one,
+        asks for your approval, then calls <code>/execute</code> with a structured multi-step payload.
+      </p>
+      <p class="doc-p">
+        Step outputs chain automatically via <code>$step_N.field</code> references. No session state.
+        No AI keys on your server. Stateless, auditable, and built for human-in-the-loop approval.
+      </p>
+
+      <div class="callout callout-note">
+        <div class="callout-title">ℹ Note</div>
+        This server requires no AI API keys. All intelligence runs inside ChatGPT. Deploy this server,
+        paste <code>/openapi.json</code> into your Custom GPT's Actions config, and it's live.
+      </div>
+    </div>
+
+    <!-- ARCHITECTURE -->
+    <div class="doc-section" id="architecture">
+      <h2 class="doc-h2">Architecture</h2>
+      <p class="doc-p">The system is split into two clean layers:</p>
+
+      <div class="steps-flow">
+        <div class="step-row">
+          <div class="step-n">1</div>
+          <div class="step-content">
+            <h4>User → ChatGPT (natural language)</h4>
+            <p>"Create a purchase order for 100 units of BOLT-001 from Acme Corp and submit it."</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-n">2</div>
+          <div class="step-content">
+            <h4>ChatGPT → /schema + /query (discovery)</h4>
+            <p>Before building any payload, ChatGPT fetches the DocType field schema and verifies that the supplier exists by querying the ERP directly.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-n">3</div>
+          <div class="step-content">
+            <h4>ChatGPT → User (plan + approval gate)</h4>
+            <p>The GPT presents a numbered plan with risk levels. High-risk steps (submit, cancel, delete) get a ⚠️ warning. Nothing executes until you say yes.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-n">4</div>
+          <div class="step-content">
+            <h4>ChatGPT → /execute (execution)</h4>
+            <p>All confirmed steps are sent in one request. The server executes them sequentially, passing outputs between steps via <code>$step_N.name</code> references.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-n">5</div>
+          <div class="step-content">
+            <h4>Server → ChatGPT → User (results)</h4>
+            <p>Results are returned to ChatGPT, which formats them in plain language and reports document names, errors, and next steps.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETUP -->
+    <div class="doc-section" id="setup">
+      <h2 class="doc-h2">Setup & Deploy</h2>
+
+      <h3 class="doc-h3">Requirements</h3>
+      <ul class="doc-ul">
+        <li>Python 3.11+</li>
+        <li>A running ERPNext / Frappe instance with API access</li>
+        <li>A publicly accessible URL for this server (Hugging Face Spaces, Railway, Render, etc.)</li>
+        <li>A ChatGPT Plus or Team account (for Custom GPTs)</li>
+      </ul>
+
+      <h3 class="doc-h3">Install & run</h3>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">bash</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">pip install flask requests gunicorn
+
+<span class="cm"># Set environment variables</span>
+export ERP_URL=https://erp.yourcompany.com
+export ERP_API_KEY=your_frappe_api_key
+export ERP_API_SECRET=your_frappe_api_secret
+export PORT=7860
+
+<span class="cm"># Development</span>
+python app.py
+
+<span class="cm"># Production (recommended)</span>
+gunicorn app:app --workers 4 --bind 0.0.0.0:7860 --timeout 120</pre>
+      </div>
+
+      <h3 class="doc-h3">Environment variables</h3>
+      <div class="env-grid">
+        <div class="env-row">
+          <div class="env-key"><code>ERP_URL</code></div>
+          <div><span class="req">required</span></div>
+          <div style="color:var(--muted2)">ERPNext base URL. No trailing slash. e.g. <code>https://erp.company.com</code></div>
+        </div>
+        <div class="env-row">
+          <div class="env-key"><code>ERP_API_KEY</code></div>
+          <div><span class="req">required</span></div>
+          <div style="color:var(--muted2)">Frappe user API key from User → API Access</div>
+        </div>
+        <div class="env-row">
+          <div class="env-key"><code>ERP_API_SECRET</code></div>
+          <div><span class="req">required</span></div>
+          <div style="color:var(--muted2)">Frappe user API secret (paired with key above)</div>
+        </div>
+        <div class="env-row">
+          <div class="env-key"><code>ERP_TIMEOUT</code></div>
+          <div><span class="opt">optional</span></div>
+          <div style="color:var(--muted2)">HTTP timeout in seconds. Default: <code>30</code></div>
+        </div>
+        <div class="env-row">
+          <div class="env-key"><code>PORT</code></div>
+          <div><span class="opt">optional</span></div>
+          <div style="color:var(--muted2)">Server port. Default: <code>7860</code></div>
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠ Frappe API credentials</div>
+        Generate API key and secret from ERPNext: <strong>Settings → My Account → API Access → Generate Keys</strong>. 
+        The user must have appropriate role permissions for the DocTypes the agent will access.
+      </div>
+    </div>
+
+    <!-- CHATGPT INTEGRATION -->
+    <div class="doc-section" id="chatgpt">
+      <h2 class="doc-h2">ChatGPT Custom GPT Setup</h2>
+
+      <p class="doc-p">The Custom GPT is already live at the link below. To connect your own server:</p>
+
+      <div class="steps-flow">
+        <div class="step-row">
+          <div class="step-n">1</div>
+          <div class="step-content">
+            <h4>Open Custom GPT editor</h4>
+            <p>Go to <strong>chatgpt.com → Explore GPTs → Create</strong>. Switch to the <strong>Configure</strong> tab.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-n">2</div>
+          <div class="step-content">
+            <h4>Paste the system prompt</h4>
+            <p>In the <strong>Instructions</strong> field, paste the contents of <code>CHATGPT_SYSTEM_PROMPT.md</code>. This teaches ChatGPT the plan → explain → approve → execute loop and the high-risk action warnings.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-n">3</div>
+          <div class="step-content">
+            <h4>Add the Action</h4>
+            <p>Click <strong>Actions → Create new action</strong>. In the schema field, enter your server URL and click <strong>Import from URL</strong>:</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">url</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">https://your-server.com/openapi.json</pre>
+      </div>
+
+      <p class="doc-p">ChatGPT reads the OpenAPI spec and automatically discovers all endpoints, their descriptions, parameters, and the list of high-risk actions — no manual configuration needed.</p>
+
+      <div class="callout callout-note">
+        <div class="callout-title">ℹ Live GPT</div>
+        The ERPNext AI Agent Custom GPT is already live at:
+        <br><a href="https://chatgpt.com/g/g-699e1478dc9481919eb995dfb3c06833-erpnext-ai-agent" target="_blank" style="color:var(--accent3)">chatgpt.com/g/g-699e1478dc9481919eb995dfb3c06833-erpnext-ai-agent</a>
+      </div>
+    </div>
+
+    <!-- EXECUTE -->
+    <div class="doc-section" id="execute">
+      <h2 class="doc-h2"><span class="method-badge mb-post">POST</span>/execute</h2>
+      <p class="doc-p">
+        The core endpoint. Accepts a single action or a <code>steps[]</code> array for multi-step plans.
+        Steps run sequentially. Each step's output is stored in context and available to subsequent steps
+        via <code>$step_N.field</code> references.
+      </p>
+
+      <h3 class="doc-h3">Single action</h3>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">json</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">{
+  <span class="kw">"action"</span>: <span class="str">"check_stock"</span>,
+  <span class="kw">"data"</span>: {
+    <span class="kw">"item_code"</span>: <span class="str">"BOLT-001"</span>
+  }
+}</pre>
+      </div>
+
+      <h3 class="doc-h3">Multi-step plan</h3>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">json</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">{
+  <span class="kw">"steps"</span>: [
+    {
+      <span class="kw">"action"</span>: <span class="str">"create_document"</span>,
+      <span class="kw">"description"</span>: <span class="str">"Create Purchase Order"</span>,
+      <span class="kw">"data"</span>: {
+        <span class="kw">"doctype"</span>: <span class="str">"Purchase Order"</span>,
+        <span class="kw">"fields"</span>: {
+          <span class="kw">"supplier"</span>: <span class="str">"Acme Corp"</span>,
+          <span class="kw">"items"</span>: [{ <span class="kw">"item_code"</span>: <span class="str">"BOLT-001"</span>, <span class="kw">"qty"</span>: <span class="num">100</span> }]
+        }
+      }
+    },
+    {
+      <span class="kw">"action"</span>: <span class="str">"submit_document"</span>,
+      <span class="kw">"description"</span>: <span class="str">"Submit the Purchase Order"</span>,
+      <span class="kw">"data"</span>: {
+        <span class="kw">"doctype"</span>: <span class="str">"Purchase Order"</span>,
+        <span class="kw">"name"</span>: <span class="str">"$step_1.name"</span>  <span class="cm">← references step 1 output</span>
+      }
+    }
+  ]
+}</pre>
+      </div>
+
+      <h3 class="doc-h3">Response</h3>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">json — success</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">{
+  <span class="kw">"ok"</span>: <span class="kw">true</span>,
+  <span class="kw">"total"</span>: <span class="num">2</span>,
+  <span class="kw">"results"</span>: [
+    {
+      <span class="kw">"step"</span>: <span class="num">1</span>, <span class="kw">"action"</span>: <span class="str">"create_document"</span>,
+      <span class="kw">"status"</span>: <span class="str">"success"</span>,
+      <span class="kw">"result"</span>: { <span class="kw">"name"</span>: <span class="str">"PO-2025-00042"</span>, <span class="cm">...</span> }
+    },
+    {
+      <span class="kw">"step"</span>: <span class="num">2</span>, <span class="kw">"action"</span>: <span class="str">"submit_document"</span>,
+      <span class="kw">"status"</span>: <span class="str">"success"</span>,
+      <span class="kw">"high_risk"</span>: <span class="kw">true</span>,
+      <span class="kw">"result"</span>: { <span class="cm">...</span> }
+    }
+  ]
+}</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">json — partial failure</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">{
+  <span class="kw">"ok"</span>: <span class="kw">false</span>,
+  <span class="kw">"failed_step"</span>: <span class="num">2</span>,
+  <span class="kw">"message"</span>: <span class="str">"Stopped at step 2 (submit_document): ERP PUT failed: 403"</span>,
+  <span class="kw">"results"</span>: [ <span class="cm">/* completed steps before failure */</span> ]
+}</pre>
+      </div>
+    </div>
+
+    <!-- QUERY -->
+    <div class="doc-section" id="query">
+      <h2 class="doc-h2"><span class="method-badge mb-post">POST</span>/query</h2>
+      <p class="doc-p">Read-only. Query any ERPNext DocType with filters and field selection.</p>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">json — request</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">{
+  <span class="kw">"doctype"</span>: <span class="str">"Supplier"</span>,
+  <span class="kw">"filters"</span>: [[<span class="str">"disabled"</span>, <span class="str">"="</span>, <span class="num">0</span>]],
+  <span class="kw">"fields"</span>: [<span class="str">"name"</span>, <span class="str">"supplier_name"</span>, <span class="str">"supplier_group"</span>],
+  <span class="kw">"limit"</span>: <span class="num">20</span>
+}</pre>
+      </div>
+      <table class="doc-table">
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>doctype</code></td><td>string <span class="req">required</span></td><td>ERPNext DocType name</td></tr>
+        <tr><td><code>filters</code></td><td>array</td><td>Frappe filter format: <code>[["field", "operator", value]]</code></td></tr>
+        <tr><td><code>fields</code></td><td>array</td><td>Fields to return. Default: <code>["name", "creation"]</code></td></tr>
+        <tr><td><code>limit</code></td><td>int</td><td>Max records. Default: <code>20</code></td></tr>
+      </table>
+    </div>
+
+    <!-- SCHEMA -->
+    <div class="doc-section" id="schema">
+      <h2 class="doc-h2"><span class="method-badge mb-get">GET</span>/schema/{doctype}</h2>
+      <p class="doc-p">Returns all field definitions for a DocType. ChatGPT calls this before building any payload to ensure it uses correct field names and types.</p>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">example</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">GET /schema/Purchase%20Order
+
+<span class="cm">// Response</span>
+{
+  <span class="kw">"ok"</span>: <span class="kw">true</span>,
+  <span class="kw">"doctype"</span>: <span class="str">"Purchase Order"</span>,
+  <span class="kw">"fields"</span>: [
+    { <span class="kw">"fieldname"</span>: <span class="str">"supplier"</span>, <span class="kw">"fieldtype"</span>: <span class="str">"Link"</span>, <span class="kw">"reqd"</span>: <span class="num">1</span> },
+    { <span class="kw">"fieldname"</span>: <span class="str">"schedule_date"</span>, <span class="kw">"fieldtype"</span>: <span class="str">"Date"</span>, <span class="kw">"reqd"</span>: <span class="num">1</span> },
+    { <span class="kw">"fieldname"</span>: <span class="str">"items"</span>, <span class="kw">"fieldtype"</span>: <span class="str">"Table"</span>, <span class="kw">"reqd"</span>: <span class="num">1</span> }
+  ]
+}</pre>
+      </div>
+    </div>
+
+    <!-- REPORT -->
+    <div class="doc-section" id="report">
+      <h2 class="doc-h2"><span class="method-badge mb-get">GET</span>/report/{report_name}</h2>
+      <p class="doc-p">Run any named ERPNext report. Pass filters as a URL-encoded JSON string.</p>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">example</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">GET /report/Stock%20Balance?filters={"company":"Acme Corp"}</pre>
+      </div>
+    </div>
+
+    <!-- HEALTH -->
+    <div class="doc-section" id="health">
+      <h2 class="doc-h2"><span class="method-badge mb-get">GET</span>/health</h2>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">json</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">{
+  <span class="kw">"ok"</span>: <span class="kw">true</span>,
+  <span class="kw">"status"</span>: <span class="str">"healthy"</span>,
+  <span class="kw">"erp"</span>: { <span class="kw">"ok"</span>: <span class="kw">true</span>, <span class="kw">"detail"</span>: <span class="str">"connected"</span> },
+  <span class="kw">"audit_entries"</span>: <span class="num">142</span>
+}</pre>
+      </div>
+    </div>
+
+    <!-- AUDIT -->
+    <div class="doc-section" id="audit">
+      <h2 class="doc-h2"><span class="method-badge mb-get">GET</span>/audit</h2>
+      <p class="doc-p">Returns the last N audit log entries. Every action, success, and failure is recorded.</p>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">example</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">GET /audit?limit=50
+
+{
+  <span class="kw">"ok"</span>: <span class="kw">true</span>,
+  <span class="kw">"total"</span>: <span class="num">142</span>,
+  <span class="kw">"entries"</span>: [
+    {
+      <span class="kw">"ts"</span>: <span class="str">"2025-03-10T14:22:01Z"</span>,
+      <span class="kw">"event"</span>: <span class="str">"execute.create_document.done"</span>,
+      <span class="kw">"status"</span>: <span class="str">"ok"</span>,
+      <span class="kw">"request_id"</span>: <span class="str">"9f3a1b2c"</span>,
+      <span class="kw">"payload"</span>: { <span class="kw">"step"</span>: <span class="num">1</span>, <span class="kw">"data"</span>: { <span class="cm">...</span> } }
+    }
+  ]
+}</pre>
+      </div>
+    </div>
+
+    <!-- OPENAPI -->
+    <div class="doc-section" id="openapi">
+      <h2 class="doc-h2"><span class="method-badge mb-get">GET</span>/openapi.json</h2>
+      <p class="doc-p">
+        Returns a live OpenAPI 3.1 spec including all endpoints, action enums, risk annotations, and
+        step reference syntax documentation. Paste this URL directly into ChatGPT Custom Action's
+        schema field — ChatGPT will auto-discover everything.
+      </p>
+      <div class="callout callout-note">
+        <div class="callout-title">ℹ Auto-generated</div>
+        The spec is generated dynamically from the running server, so it always reflects the current
+        list of available actions and endpoints.
+      </div>
+    </div>
+
+    <!-- ACTIONS CRUD -->
+    <div class="doc-section" id="actions-crud">
+      <h2 class="doc-h2">CRUD Actions</h2>
+      <table class="doc-table">
+        <tr><th>Action</th><th>Risk</th><th>Required fields in data{}</th></tr>
+        <tr><td><code>create_document</code></td><td><span class="risk r-low">LOW</span></td><td><code>doctype</code>, <code>fields</code></td></tr>
+        <tr><td><code>get_document</code></td><td><span class="risk r-low">READ</span></td><td><code>doctype</code>, <code>name</code></td></tr>
+        <tr><td><code>list_documents</code></td><td><span class="risk r-low">READ</span></td><td><code>doctype</code>; opt: <code>filters</code>, <code>fields</code>, <code>limit</code></td></tr>
+        <tr><td><code>update_document</code></td><td><span class="risk r-med">MED</span></td><td><code>doctype</code>, <code>name</code>, <code>fields</code></td></tr>
+        <tr><td><code>delete_document</code></td><td><span class="risk r-high">HIGH</span></td><td><code>doctype</code>, <code>name</code></td></tr>
+        <tr><td><code>submit_document</code></td><td><span class="risk r-high">HIGH</span></td><td><code>doctype</code>, <code>name</code></td></tr>
+        <tr><td><code>cancel_document</code></td><td><span class="risk r-high">HIGH</span></td><td><code>doctype</code>, <code>name</code></td></tr>
+      </table>
+    </div>
+
+    <!-- ACTIONS FINANCE -->
+    <div class="doc-section" id="actions-finance">
+      <h2 class="doc-h2">Finance & Inventory Actions</h2>
+      <table class="doc-table">
+        <tr><th>Action</th><th>Risk</th><th>Required fields</th></tr>
+        <tr><td><code>check_stock</code></td><td><span class="risk r-low">READ</span></td><td><code>item_code</code></td></tr>
+        <tr><td><code>get_account_balance</code></td><td><span class="risk r-low">READ</span></td><td><code>account</code>; opt: <code>company</code></td></tr>
+        <tr><td><code>run_report</code></td><td><span class="risk r-low">READ</span></td><td><code>report_name</code>; opt: <code>filters</code></td></tr>
+      </table>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠ Stock validation</div>
+        When <code>create_document</code> is called with an <code>items</code> array, item existence 
+        and stock availability are automatically validated before the ERP call is made.
+      </div>
+    </div>
+
+    <!-- ACTIONS CONFIG -->
+    <div class="doc-section" id="actions-config">
+      <h2 class="doc-h2">Configuration Actions</h2>
+      <table class="doc-table">
+        <tr><th>Action</th><th>Risk</th><th>Required fields</th></tr>
+        <tr><td><code>get_schema</code></td><td><span class="risk r-low">READ</span></td><td><code>doctype</code></td></tr>
+        <tr><td><code>create_custom_field</code></td><td><span class="risk r-low">LOW</span></td><td><code>doctype</code>, <code>fieldname</code>, <code>fieldtype</code>, <code>label</code></td></tr>
+        <tr><td><code>create_print_format</code></td><td><span class="risk r-low">LOW</span></td><td><code>doc_type</code>, <code>name</code>, <code>html</code></td></tr>
+        <tr><td><code>create_client_script</code></td><td><span class="risk r-low">LOW</span></td><td><code>doctype</code>, <code>script</code></td></tr>
+      </table>
+    </div>
+
+    <!-- STEP REFS -->
+    <div class="doc-section" id="step-refs">
+      <h2 class="doc-h2">Step References</h2>
+      <p class="doc-p">
+        Use <code>$step_N.field</code> syntax in any <code>data</code> field to reference the output
+        of a previous step. The server resolves these at runtime before calling the action handler.
+      </p>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">example</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">{
+  "steps": [
+    {
+      "action": "create_document",
+      "data": { "doctype": "Sales Invoice", "fields": { ... } }
+      <span class="cm">// step 1 returns: { "name": "SINV-2025-00001", ... }</span>
+    },
+    {
+      "action": "submit_document",
+      "data": {
+        "doctype": "Sales Invoice",
+        "name": <span class="str">"$step_1.name"</span>  <span class="cm">// resolved to "SINV-2025-00001"</span>
+      }
+    },
+    {
+      "action": "create_document",
+      "data": {
+        "doctype": "Payment Entry",
+        "fields": {
+          "reference_name": <span class="str">"$step_1.name"</span>,  <span class="cm">// reuse step 1</span>
+          ...
+        }
+      }
+    }
+  ]
+}</pre>
+      </div>
+    </div>
+
+    <!-- GUIDE PO -->
+    <div class="doc-section" id="guide-po">
+      <h2 class="doc-h2">Guide: Purchase Order Flow</h2>
+      <p class="doc-p">A full example conversation with the ChatGPT agent:</p>
+      <div class="callout callout-note">
+        <div class="callout-title">Example prompt</div>
+        "Create a purchase order for 100 units of BOLT-001 from Acme Corp, then submit it."
+      </div>
+      <p class="doc-p">The agent will:</p>
+      <ol class="doc-ol">
+        <li>Call <code>GET /schema/Purchase Order</code> to discover required fields</li>
+        <li>Call <code>POST /query</code> with <code>doctype: "Supplier"</code> to verify Acme Corp exists</li>
+        <li>Present a 2-step plan: create + submit, with risk levels</li>
+        <li>Warn that submit is HIGH RISK (irreversible without amendment)</li>
+        <li>Wait for your "go ahead" before calling <code>POST /execute</code></li>
+        <li>Report: "✅ PO-2025-00042 created and submitted."</li>
+      </ol>
+    </div>
+
+    <!-- GUIDE INVOICE -->
+    <div class="doc-section" id="guide-invoice">
+      <h2 class="doc-h2">Guide: Invoice & Payment</h2>
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠ Financial documents</div>
+        Sales Invoice, Purchase Invoice, Payment Entry, and Journal Entry always trigger a warning
+        in the ChatGPT agent before execution. These affect your accounts and general ledger.
+      </div>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">3-step plan example</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">{
+  "steps": [
+    { "action": "create_document", "data": { "doctype": "Sales Invoice", "fields": { ... } } },
+    { "action": "submit_document", "data": { "doctype": "Sales Invoice", "name": "$step_1.name" } },
+    { "action": "create_document", "data": {
+        "doctype": "Payment Entry",
+        "fields": { "payment_type": "Receive", "reference_name": "$step_1.name", ... }
+    }}
+  ]
+}</pre>
+      </div>
+    </div>
+
+    <!-- GUIDE STOCK -->
+    <div class="doc-section" id="guide-stock">
+      <h2 class="doc-h2">Guide: Stock Check</h2>
+      <p class="doc-p">Before any delivery or order involving items, use <code>check_stock</code> to verify availability:</p>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">json</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">{ "action": "check_stock", "data": { "item_code": "BOLT-001" } }
+
+<span class="cm">// Response</span>
+{
+  "ok": true,
+  "results": [{
+    "status": "success",
+    "result": { "actual_qty": 450, "reserved_qty": 100, "projected_qty": 350 }
+  }]
+}</pre>
+      </div>
+      <p class="doc-p">Note: when <code>create_document</code> includes an <code>items</code> array, stock validation runs automatically — no need to add a separate check step.</p>
+    </div>
+
+    <!-- ERRORS -->
+    <div class="doc-section" id="errors">
+      <h2 class="doc-h2">Errors & Rollback</h2>
+      <p class="doc-p">
+        When a step fails, the server stops execution and returns all completed steps plus the error.
+        The ChatGPT agent will present the failure and ask whether to retry, skip, or rollback.
+      </p>
+      <div class="code-block">
+        <div class="code-label"><span class="code-lang">error response</span><button class="code-copy" onclick="copyBlock(this)">copy</button></div>
+        <pre class="code">{
+  <span class="kw">"ok"</span>: <span class="kw">false</span>,
+  <span class="kw">"failed_step"</span>: <span class="num">2</span>,
+  <span class="kw">"message"</span>: <span class="str">"Stopped at step 2 (submit_document): ERP PUT failed: 403"</span>,
+  <span class="kw">"results"</span>: [
+    { <span class="kw">"step"</span>: <span class="num">1</span>, <span class="kw">"status"</span>: <span class="str">"success"</span>, <span class="kw">"result"</span>: { <span class="kw">"name"</span>: <span class="str">"PO-2025-00042"</span> } },
+    { <span class="kw">"step"</span>: <span class="num">2</span>, <span class="kw">"status"</span>: <span class="str">"error"</span>, <span class="kw">"error"</span>: <span class="str">"ERP PUT failed: 403 Forbidden"</span> }
+  ]
+}</pre>
+      </div>
+      <div class="callout callout-danger">
+        <div class="callout-title">✕ No auto-rollback</div>
+        The server does not automatically rollback completed steps. This is intentional — 
+        rollback of financial documents requires human judgement. The ChatGPT agent will suggest 
+        compensating actions (e.g. cancel_document) and ask you to confirm.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// Scroll progress bar
+window.addEventListener('scroll',()=>{
+  const total = document.body.scrollHeight - window.innerHeight;
+  const pct   = (window.scrollY / total) * 100;
+  document.getElementById('progress').style.height = pct + '%';
+});
+
+// Active sidebar link
+const sections = document.querySelectorAll('.doc-section');
+const links    = document.querySelectorAll('.sidebar-link');
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(l=>l.classList.remove('active'));
+      const match = document.querySelector(`.sidebar-link[href="#${e.target.id}"]`);
+      if(match) match.classList.add('active');
+    }
+  });
+},{threshold:.3,rootMargin:'-56px 0px -60% 0px'});
+sections.forEach(s=>observer.observe(s));
+
+// Copy buttons
+function copyBlock(btn){
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    btn.textContent='✓ Copied';setTimeout(()=>btn.textContent='copy',1800);
+  });
+}
+</script>
+</body>
+</html>
