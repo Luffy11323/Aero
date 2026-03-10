@@ -37,6 +37,14 @@
       ],
       "destination": "https://aero-woad.vercel.app/",
       "permanent": false
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "automation.akatechsolution.com" }
+      ],
+      "destination": "https://frnklnwrld-erp.hf.space/",
+      "permanent": false
     }
   ]
 }
