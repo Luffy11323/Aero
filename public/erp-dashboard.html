@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ERPNext AI Agent · Intelligent ERP Automation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --bg:#0a0a0b;
+    --surface:#111114;
+    --surface2:#18181d;
+    --border:#222228;
+    --border2:#2e2e38;
+    --accent:#e8ff47;
+    --accent2:#ff6b35;
+    --accent3:#47c8ff;
+    --text:#f0f0f2;
+    --muted:#6b6b7a;
+    --muted2:#9090a0;
+    --green:#3dffa0;
+    --red:#ff4757;
+    --font-display:'Syne',sans-serif;
+    --font-mono:'DM Mono',monospace;
+    --font-serif:'Instrument Serif',serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-mono);font-size:14px;line-height:1.6;overflow-x:hidden}
+
+  /* GRID OVERLAY */
+  body::before{
+    content:'';position:fixed;inset:0;
+    background-image:linear-gradient(rgba(232,255,71,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(232,255,71,.03) 1px,transparent 1px);
+    background-size:60px 60px;pointer-events:none;z-index:0
+  }
+
+  /* SCANLINE */
+  body::after{
+    content:'';position:fixed;inset:0;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);
+    pointer-events:none;z-index:0;opacity:.4
+  }
+
+  /* ─── NAV ─── */
+  nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 48px;height:58px;
+    background:rgba(10,10,11,.92);
+    border-bottom:1px solid var(--border);
+    backdrop-filter:blur(12px);
+  }
+  .nav-brand{display:flex;align-items:center;gap:12px}
+  .nav-logo{
+    width:32px;height:32px;
+    background:var(--accent);
+    clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);font-weight:800;font-size:13px;color:#000;
+    flex-shrink:0
+  }
+  .nav-title{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.02em}
+  .nav-badge{
+    font-size:10px;padding:2px 8px;border-radius:2px;
+    background:rgba(61,255,160,.12);color:var(--green);
+    border:1px solid rgba(61,255,160,.2);letter-spacing:.08em;
+    animation:pulse-badge 3s ease-in-out infinite
+  }
+  @keyframes pulse-badge{0%,100%{opacity:.7}50%{opacity:1}}
+  .nav-links{display:flex;align-items:center;gap:28px}
+  .nav-links a{color:var(--muted2);text-decoration:none;font-size:12px;letter-spacing:.06em;transition:.2s}
+  .nav-links a:hover{color:var(--accent)}
+  .nav-cta{
+    padding:7px 18px;background:var(--accent);color:#000;
+    font-family:var(--font-display);font-weight:700;font-size:12px;
+    text-decoration:none;letter-spacing:.06em;
+    clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+    transition:.2s;
+  }
+  .nav-cta:hover{background:#fff}
+
+  /* ─── HERO ─── */
+  .hero{
+    position:relative;z-index:1;
+    padding:100px 48px 80px;
+    max-width:1200px;margin:0 auto;
+  }
+  .hero-tag{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:11px;letter-spacing:.12em;color:var(--accent);
+    text-transform:uppercase;margin-bottom:28px;
+    padding:6px 14px;border:1px solid rgba(232,255,71,.25);
+    background:rgba(232,255,71,.05)
+  }
+  .hero-tag::before{content:'//';color:var(--muted);margin-right:4px}
+  .hero-h1{
+    font-family:var(--font-display);font-weight:800;
+    font-size:clamp(40px,6vw,80px);line-height:1.0;
+    letter-spacing:-.02em;margin-bottom:8px
+  }
+  .hero-h1 em{font-style:normal;color:var(--accent)}
+  .hero-sub{
+    font-family:var(--font-serif);font-style:italic;
+    font-size:clamp(18px,2vw,26px);color:var(--muted2);
+    margin-bottom:40px;line-height:1.4
+  }
+  .hero-desc{
+    max-width:580px;color:var(--muted2);font-size:14px;line-height:1.8;
+    margin-bottom:48px
+  }
+  .hero-ctas{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .btn-primary{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:14px 28px;background:var(--accent);color:#000;
+    font-family:var(--font-display);font-weight:700;font-size:13px;
+    text-decoration:none;letter-spacing:.04em;
+    clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+    transition:.2s
+  }
+  .btn-primary:hover{background:#fff;transform:translateY(-1px)}
+  .btn-outline{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:14px 28px;border:1px solid var(--border2);color:var(--text);
+    font-family:var(--font-display);font-weight:600;font-size:13px;
+    text-decoration:none;letter-spacing:.04em;transition:.2s;background:transparent
+  }
+  .btn-outline:hover{border-color:var(--accent3);color:var(--accent3)}
+
+  /* HERO STATS */
+  .hero-stats{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    background:var(--border);border:1px solid var(--border);
+    margin-top:72px;
+  }
+  .stat{
+    background:var(--surface);padding:28px 24px;
+    transition:.2s
+  }
+  .stat:hover{background:var(--surface2)}
+  .stat-val{
+    font-family:var(--font-display);font-weight:800;
+    font-size:36px;color:var(--accent);letter-spacing:-.02em;
+    line-height:1
+  }
+  .stat-label{font-size:11px;color:var(--muted);letter-spacing:.08em;margin-top:6px;text-transform:uppercase}
+
+  /* ─── ARCHITECTURE ─── */
+  .section{position:relative;z-index:1;padding:80px 48px;max-width:1200px;margin:0 auto}
+  .section-label{
+    font-size:11px;letter-spacing:.14em;color:var(--accent2);
+    text-transform:uppercase;margin-bottom:16px
+  }
+  .section-label::before{content:'[ ';color:var(--muted)}
+  .section-label::after{content:' ]';color:var(--muted)}
+  .section-title{
+    font-family:var(--font-display);font-weight:700;
+    font-size:clamp(24px,3vw,40px);letter-spacing:-.01em;margin-bottom:48px
+  }
+
+  /* FLOW DIAGRAM */
+  .flow{
+    display:flex;align-items:stretch;gap:0;
+    background:var(--surface);border:1px solid var(--border);overflow:hidden
+  }
+  .flow-step{
+    flex:1;padding:32px 24px;position:relative;
+    border-right:1px solid var(--border);
+  }
+  .flow-step:last-child{border-right:none}
+  .flow-step::after{
+    content:'→';position:absolute;right:-14px;top:50%;transform:translateY(-50%);
+    color:var(--accent);font-size:18px;z-index:2;
+    background:var(--surface);padding:4px
+  }
+  .flow-step:last-child::after{display:none}
+  .flow-num{
+    width:28px;height:28px;background:var(--accent);color:#000;
+    font-family:var(--font-display);font-weight:800;font-size:12px;
+    display:flex;align-items:center;justify-content:center;margin-bottom:14px
+  }
+  .flow-title{font-family:var(--font-display);font-weight:700;font-size:15px;margin-bottom:8px}
+  .flow-body{font-size:12px;color:var(--muted2);line-height:1.7}
+  .flow-tag{
+    display:inline-block;margin-top:10px;font-size:10px;padding:3px 8px;
+    letter-spacing:.06em;
+  }
+  .tag-user{background:rgba(71,200,255,.1);color:var(--accent3);border:1px solid rgba(71,200,255,.2)}
+  .tag-ai{background:rgba(232,255,71,.1);color:var(--accent);border:1px solid rgba(232,255,71,.2)}
+  .tag-erp{background:rgba(255,107,53,.1);color:var(--accent2);border:1px solid rgba(255,107,53,.2)}
+
+  /* ─── FEATURES GRID ─── */
+  .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+  .feature{
+    background:var(--surface);padding:32px 28px;
+    transition:.3s;cursor:default;position:relative;overflow:hidden
+  }
+  .feature::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(135deg,rgba(232,255,71,.04),transparent);
+    opacity:0;transition:.3s
+  }
+  .feature:hover::before{opacity:1}
+  .feature:hover{background:var(--surface2)}
+  .feature-icon{font-size:22px;margin-bottom:16px}
+  .feature-title{font-family:var(--font-display);font-weight:700;font-size:15px;margin-bottom:10px}
+  .feature-body{font-size:12px;color:var(--muted2);line-height:1.75}
+
+  /* ─── ACTIONS TABLE ─── */
+  .actions-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border)}
+  .action-row{
+    background:var(--surface);padding:18px 24px;
+    display:grid;grid-template-columns:180px 60px 1fr;
+    align-items:center;gap:16px;transition:.2s
+  }
+  .action-row:hover{background:var(--surface2)}
+  .action-name{font-weight:500;font-size:13px;color:var(--text)}
+  .risk-badge{
+    font-size:10px;padding:3px 8px;letter-spacing:.04em;text-align:center;
+    font-weight:500;
+  }
+  .risk-low{background:rgba(61,255,160,.1);color:var(--green);border:1px solid rgba(61,255,160,.2)}
+  .risk-med{background:rgba(232,255,71,.1);color:var(--accent);border:1px solid rgba(232,255,71,.2)}
+  .risk-high{background:rgba(255,71,87,.1);color:var(--red);border:1px solid rgba(255,71,87,.2)}
+  .action-desc{font-size:12px;color:var(--muted2)}
+
+  /* ─── ENDPOINTS ─── */
+  .endpoint-list{display:flex;flex-direction:column;gap:1px;background:var(--border)}
+  .endpoint{
+    background:var(--surface);overflow:hidden;
+    border-left:3px solid transparent;transition:.2s
+  }
+  .endpoint.get{border-left-color:var(--green)}
+  .endpoint.post{border-left-color:var(--accent2)}
+  .endpoint-head{
+    display:flex;align-items:center;gap:16px;padding:18px 24px;
+    cursor:pointer;user-select:none
+  }
+  .endpoint-head:hover{background:var(--surface2)}
+  .method{
+    font-size:11px;font-weight:500;padding:3px 10px;letter-spacing:.06em;min-width:46px;text-align:center
+  }
+  .method-get{background:rgba(61,255,160,.12);color:var(--green)}
+  .method-post{background:rgba(255,107,53,.12);color:var(--accent2)}
+  .endpoint-path{font-size:13px;color:var(--text);font-weight:400;flex:1}
+  .endpoint-desc{font-size:12px;color:var(--muted);flex:2}
+  .endpoint-chevron{color:var(--muted);transition:.3s;font-size:11px}
+  .endpoint.open .endpoint-chevron{transform:rotate(90deg)}
+  .endpoint-body{
+    max-height:0;overflow:hidden;transition:.35s ease
+  }
+  .endpoint.open .endpoint-body{max-height:600px}
+  .endpoint-inner{padding:0 24px 24px}
+  pre{
+    background:var(--bg);border:1px solid var(--border);
+    padding:18px;font-size:12px;color:var(--accent3);
+    overflow-x:auto;line-height:1.7;position:relative
+  }
+  .copy-btn{
+    position:absolute;top:10px;right:10px;
+    background:var(--border2);border:none;color:var(--muted2);
+    padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--font-mono);
+    transition:.2s
+  }
+  .copy-btn:hover{background:var(--accent);color:#000}
+
+  /* ─── LIVE TESTER ─── */
+  .tester{
+    background:var(--surface);border:1px solid var(--border);
+    position:relative;overflow:hidden
+  }
+  .tester::before{
+    content:'LIVE TEST CONSOLE';
+    position:absolute;top:0;right:0;
+    padding:6px 16px;background:var(--accent);color:#000;
+    font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.1em
+  }
+  .tester-tabs{
+    display:flex;border-bottom:1px solid var(--border);
+    padding:0 24px;padding-top:44px
+  }
+  .tab{
+    padding:12px 20px;font-size:12px;cursor:pointer;letter-spacing:.06em;
+    color:var(--muted);border-bottom:2px solid transparent;transition:.2s;
+    text-transform:uppercase
+  }
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .tab:hover:not(.active){color:var(--text)}
+  .tab-content{display:none;padding:24px}
+  .tab-content.active{display:block}
+  .field-group{margin-bottom:16px}
+  .field-group label{display:block;font-size:11px;color:var(--muted2);letter-spacing:.06em;margin-bottom:6px;text-transform:uppercase}
+  .field-group input,.field-group textarea,.field-group select{
+    width:100%;background:var(--bg);border:1px solid var(--border);
+    color:var(--text);padding:10px 14px;font-family:var(--font-mono);font-size:13px;
+    outline:none;transition:.2s
+  }
+  .field-group input:focus,.field-group textarea:focus{border-color:var(--accent3)}
+  .field-group textarea{resize:vertical;min-height:80px}
+  .run-btn{
+    width:100%;padding:13px;background:var(--accent);color:#000;
+    font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.06em;
+    border:none;cursor:pointer;transition:.2s;text-transform:uppercase
+  }
+  .run-btn:hover{background:#fff}
+  .run-btn:active{transform:scale(.99)}
+  .response-box{
+    margin-top:16px;background:var(--bg);border:1px solid var(--border);
+    padding:16px;font-size:12px;color:var(--accent3);
+    min-height:80px;white-space:pre-wrap;word-break:break-all;
+    max-height:300px;overflow-y:auto
+  }
+
+  /* ─── GPT CARD ─── */
+  .gpt-card{
+    background:var(--surface);border:1px solid var(--border);
+    padding:40px;display:grid;grid-template-columns:1fr 1fr;gap:48px;
+    align-items:center;position:relative;overflow:hidden
+  }
+  .gpt-card::before{
+    content:'';position:absolute;right:-60px;top:-60px;
+    width:200px;height:200px;
+    background:radial-gradient(circle,rgba(232,255,71,.08),transparent 70%);
+    pointer-events:none
+  }
+  .gpt-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 16px;background:rgba(232,255,71,.08);
+    border:1px solid rgba(232,255,71,.2);margin-bottom:20px;
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)
+  }
+  .gpt-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse-badge 2s infinite}
+  .gpt-h{font-family:var(--font-display);font-weight:800;font-size:28px;margin-bottom:12px;line-height:1.2}
+  .gpt-desc{font-size:13px;color:var(--muted2);line-height:1.8;margin-bottom:24px}
+  .gpt-link{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:13px 24px;background:var(--accent);color:#000;
+    font-family:var(--font-display);font-weight:700;font-size:13px;
+    text-decoration:none;letter-spacing:.04em;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+    transition:.2s
+  }
+  .gpt-link:hover{background:#fff}
+  .gpt-steps{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .gpt-step{
+    display:flex;align-items:flex-start;gap:14px;
+    padding:16px;background:var(--bg);border:1px solid var(--border)
+  }
+  .gpt-step-n{
+    width:24px;height:24px;background:var(--accent);color:#000;
+    font-family:var(--font-display);font-weight:800;font-size:11px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px
+  }
+  .gpt-step-text{font-size:12px;color:var(--muted2);line-height:1.6}
+  .gpt-step-text strong{color:var(--text)}
+
+  /* ─── FOOTER ─── */
+  footer{
+    position:relative;z-index:1;
+    border-top:1px solid var(--border);
+    padding:32px 48px;
+    display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:16px
+  }
+  .footer-brand{font-family:var(--font-display);font-weight:700;font-size:13px}
+  .footer-links{display:flex;gap:24px}
+  .footer-links a{color:var(--muted);text-decoration:none;font-size:12px;transition:.2s}
+  .footer-links a:hover{color:var(--accent)}
+  .footer-copy{font-size:11px;color:var(--muted);letter-spacing:.04em}
+
+  /* DIVIDER */
+  .divider{
+    height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);
+    margin:0 48px
+  }
+
+  /* RESPONSIVE */
+  @media(max-width:900px){
+    nav{padding:0 24px}
+    .hero,.section{padding:60px 24px}
+    .hero-stats{grid-template-columns:repeat(2,1fr)}
+    .features-grid{grid-template-columns:1fr}
+    .actions-grid{grid-template-columns:1fr}
+    .flow{flex-direction:column}
+    .flow-step::after{content:'↓';right:50%;bottom:-14px;top:auto;transform:translateX(50%)}
+    .gpt-card{grid-template-columns:1fr}
+    footer{padding:24px}
+    .nav-links{display:none}
+    .action-row{grid-template-columns:1fr 50px;gap:10px}
+    .action-desc{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">E</div>
+    <span class="nav-title">ERPNext AI Agent</span>
+    <span class="nav-badge">● LIVE</span>
+  </div>
+  <div class="nav-links">
+    <a href="#architecture">Architecture</a>
+    <a href="#actions">Actions</a>
+    <a href="#endpoints">API</a>
+    <a href="#tester">Test</a>
+    <a href="/docs">Docs ↗</a>
+  </div>
+  <a class="nav-cta" href="https://chatgpt.com/g/g-699e1478dc9481919eb995dfb3c06833-erpnext-ai-agent" target="_blank">Open in ChatGPT →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">ERPNext Automation · ChatGPT Custom Action</div>
+  <h1 class="hero-h1">Talk to your<br><em>ERP.</em> Get things done.</h1>
+  <p class="hero-sub">No forms. No clicking. Just describe your business problem.</p>
+  <p class="hero-desc">
+    ChatGPT plans the multi-step ERP transaction, explains every action in plain language, 
+    asks for your approval — then executes. Purchases, invoices, stock checks, reports — 
+    all from a single conversation.
+  </p>
+  <div class="hero-ctas">
+    <a class="btn-primary" href="https://chatgpt.com/g/g-699e1478dc9481919eb995dfb3c06833-erpnext-ai-agent" target="_blank">▶ Launch AI Agent</a>
+    <a class="btn-outline" href="/docs">Read the Docs →</a>
+    <a class="btn-outline" href="/openapi.json" target="_blank">OpenAPI Spec ↗</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-val">14</div>
+      <div class="stat-label">ERP Actions</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">∞</div>
+      <div class="stat-label">Step chaining</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">0</div>
+      <div class="stat-label">AI Keys needed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">100%</div>
+      <div class="stat-label">Human approval</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ARCHITECTURE -->
+<section class="section" id="architecture">
+  <div class="section-label">System Architecture</div>
+  <h2 class="section-title">How it works</h2>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-title">You describe the problem</div>
+      <div class="flow-body">"Create a PO for 100 units of BOLT-001 from Acme Corp and submit it"</div>
+      <span class="flow-tag tag-user">User</span>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-title">ChatGPT plans & explains</div>
+      <div class="flow-body">Queries schema, looks up supplier, builds step-by-step plan, flags risk levels, asks for approval</div>
+      <span class="flow-tag tag-ai">ChatGPT AI</span>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-title">You approve</div>
+      <div class="flow-body">Review every step. Modify if needed. Say "go ahead" — nothing executes without you.</div>
+      <span class="flow-tag tag-user">Human Gate</span>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-title">Agent executes in ERP</div>
+      <div class="flow-body">POST /execute runs all steps sequentially, chains outputs between steps, reports results</div>
+      <span class="flow-tag tag-erp">ERPNext</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-label">Capabilities</div>
+  <h2 class="section-title">Built for real ERP work</h2>
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon">🧠</div>
+      <div class="feature-title">ChatGPT is the brain</div>
+      <div class="feature-body">No AI keys on your server. ChatGPT handles all planning, reasoning and natural language — your backend is a pure, stateless ERP executor.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔗</div>
+      <div class="feature-title">Multi-step plan execution</div>
+      <div class="feature-body">Send a steps[] array. Outputs of step N are automatically passed to step N+1 via <code>$step_1.name</code> references. Full chain without manual IDs.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🛡️</div>
+      <div class="feature-title">Human-in-the-loop approval</div>
+      <div class="feature-body">High-risk actions (submit, cancel, delete) are flagged in the OpenAPI spec. ChatGPT warns you before every irreversible step.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔍</div>
+      <div class="feature-title">Schema-aware payloads</div>
+      <div class="feature-body">/schema/{doctype} lets ChatGPT discover required fields before building any payload. It never guesses field names or supplier names.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📋</div>
+      <div class="feature-title">Full audit trail</div>
+      <div class="feature-body">Every action is logged with timestamp, request ID, action name and result. Query /audit at any time for a complete history.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Stock & finance guardrails</div>
+      <div class="feature-body">Item validation and stock availability checked before any delivery note or order is created. Financial DocTypes always get flagged for approval.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ACTIONS -->
+<section class="section" id="actions">
+  <div class="section-label">Action Registry</div>
+  <h2 class="section-title">14 ERP actions available</h2>
+  <div class="actions-grid">
+    <div class="action-row"><span class="action-name">create_document</span><span class="risk-badge risk-low">LOW</span><span class="action-desc">Create any ERPNext DocType with full field support</span></div>
+    <div class="action-row"><span class="action-name">get_document</span><span class="risk-badge risk-low">READ</span><span class="action-desc">Fetch a single document by doctype + name</span></div>
+    <div class="action-row"><span class="action-name">list_documents</span><span class="risk-badge risk-low">READ</span><span class="action-desc">Query documents with filters, fields, limit</span></div>
+    <div class="action-row"><span class="action-name">update_document</span><span class="risk-badge risk-med">MED</span><span class="action-desc">Update fields on an existing document</span></div>
+    <div class="action-row"><span class="action-name">submit_document</span><span class="risk-badge risk-high">HIGH</span><span class="action-desc">Submit document (docstatus=1) — irreversible</span></div>
+    <div class="action-row"><span class="action-name">cancel_document</span><span class="risk-badge risk-high">HIGH</span><span class="action-desc">Cancel submitted document — requires approval</span></div>
+    <div class="action-row"><span class="action-name">delete_document</span><span class="risk-badge risk-high">HIGH</span><span class="action-desc">Permanently delete a draft document</span></div>
+    <div class="action-row"><span class="action-name">check_stock</span><span class="risk-badge risk-low">READ</span><span class="action-desc">Query real-time bin stock levels for an item</span></div>
+    <div class="action-row"><span class="action-name">get_account_balance</span><span class="risk-badge risk-low">READ</span><span class="action-desc">Fetch GL account balance by account + company</span></div>
+    <div class="action-row"><span class="action-name">run_report</span><span class="risk-badge risk-low">READ</span><span class="action-desc">Execute any named ERPNext report with filters</span></div>
+    <div class="action-row"><span class="action-name">get_schema</span><span class="risk-badge risk-low">READ</span><span class="action-desc">Discover field definitions for any DocType</span></div>
+    <div class="action-row"><span class="action-name">create_custom_field</span><span class="risk-badge risk-low">LOW</span><span class="action-desc">Add a custom field to any DocType</span></div>
+    <div class="action-row"><span class="action-name">create_print_format</span><span class="risk-badge risk-low">LOW</span><span class="action-desc">Deploy an HTML print format to ERPNext</span></div>
+    <div class="action-row"><span class="action-name">create_client_script</span><span class="risk-badge risk-low">LOW</span><span class="action-desc">Push a client-side JS script to a DocType</span></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ENDPOINTS -->
+<section class="section" id="endpoints">
+  <div class="section-label">API Reference</div>
+  <h2 class="section-title">REST endpoints</h2>
+
+  <div class="endpoint-list">
+    <div class="endpoint post" onclick="toggleEndpoint(this)">
+      <div class="endpoint-head">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/execute</span>
+        <span class="endpoint-desc">Execute one or multiple ERP actions sequentially</span>
+        <span class="endpoint-chevron">▶</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-inner">
+          <p style="color:var(--muted2);font-size:12px;margin-bottom:12px">Single action or multi-step plan. Use <code style="color:var(--accent3)">$step_N.field</code> to chain outputs between steps.</p>
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button>{
+  "steps": [
+    {
+      "action": "create_document",
+      "description": "Create Purchase Order",
+      "data": {
+        "doctype": "Purchase Order",
+        "fields": { "supplier": "Acme Corp" }
+      }
+    },
+    {
+      "action": "submit_document",
+      "description": "Submit the PO",
+      "data": {
+        "doctype": "Purchase Order",
+        "name": "$step_1.name"
+      }
+    }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint post" onclick="toggleEndpoint(this)">
+      <div class="endpoint-head">
+        <span class="method method-post">POST</span>
+        <span class="endpoint-path">/query</span>
+        <span class="endpoint-desc">Read-only document list with filters</span>
+        <span class="endpoint-chevron">▶</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-inner">
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button>{
+  "doctype": "Item",
+  "filters": [["disabled", "=", 0]],
+  "fields": ["name", "item_name", "item_group"],
+  "limit": 50
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint get" onclick="toggleEndpoint(this)">
+      <div class="endpoint-head">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/schema/{doctype}</span>
+        <span class="endpoint-desc">Discover field definitions for any DocType</span>
+        <span class="endpoint-chevron">▶</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-inner">
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button">// GET /schema/Purchase%20Order
+{
+  "ok": true,
+  "doctype": "Purchase Order",
+  "fields": [
+    { "fieldname": "supplier", "fieldtype": "Link", "reqd": 1 },
+    { "fieldname": "items",    "fieldtype": "Table", "reqd": 1 }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint get" onclick="toggleEndpoint(this)">
+      <div class="endpoint-head">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/report/{report_name}</span>
+        <span class="endpoint-desc">Run a named ERPNext report</span>
+        <span class="endpoint-chevron">▶</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-inner">
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button">// GET /report/Stock%20Balance?filters={"company":"Acme"}
+{
+  "message": {
+    "columns": [...],
+    "result": [...],
+    "total_row": {...}
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint get" onclick="toggleEndpoint(this)">
+      <div class="endpoint-head">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/health</span>
+        <span class="endpoint-desc">ERP connectivity status</span>
+        <span class="endpoint-chevron">▶</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-inner">
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button">{
+  "ok": true,
+  "status": "healthy",
+  "erp": { "ok": true, "detail": "connected" },
+  "audit_entries": 142
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint get" onclick="toggleEndpoint(this)">
+      <div class="endpoint-head">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/audit</span>
+        <span class="endpoint-desc">Full action audit log</span>
+        <span class="endpoint-chevron">▶</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-inner">
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button">{
+  "ok": true,
+  "total": 58,
+  "entries": [
+    {
+      "ts": "2025-03-10T14:22:01Z",
+      "event": "execute.create_document.done",
+      "status": "ok",
+      "request_id": "9f3a1b2c"
+    }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- LIVE TESTER -->
+<section class="section" id="tester">
+  <div class="section-label">Interactive Console</div>
+  <h2 class="section-title">Test the API live</h2>
+  <div class="tester">
+    <div class="tester-tabs">
+      <div class="tab active" onclick="switchTab(this,'health')">Health</div>
+      <div class="tab" onclick="switchTab(this,'query')">Query</div>
+      <div class="tab" onclick="switchTab(this,'execute')">Execute</div>
+      <div class="tab" onclick="switchTab(this,'audit')">Audit</div>
+    </div>
+
+    <!-- HEALTH -->
+    <div class="tab-content active" id="tc-health">
+      <p style="color:var(--muted2);font-size:12px;margin-bottom:16px">Check ERP connectivity and server status.</p>
+      <button class="run-btn" onclick="runHealth()">▶ GET /health</button>
+      <div class="response-box" id="r-health">// response will appear here</div>
+    </div>
+
+    <!-- QUERY -->
+    <div class="tab-content" id="tc-query">
+      <div class="field-group">
+        <label>DocType</label>
+        <input id="q-doctype" value="Item" placeholder="e.g. Supplier, Customer, Item"/>
+      </div>
+      <div class="field-group">
+        <label>Fields (comma-separated)</label>
+        <input id="q-fields" value="name,item_name" placeholder="name, item_name, item_group"/>
+      </div>
+      <div class="field-group">
+        <label>Limit</label>
+        <input id="q-limit" value="10" type="number"/>
+      </div>
+      <button class="run-btn" onclick="runQuery()">▶ POST /query</button>
+      <div class="response-box" id="r-query">// response will appear here</div>
+    </div>
+
+    <!-- EXECUTE -->
+    <div class="tab-content" id="tc-execute">
+      <div class="field-group">
+        <label>Action</label>
+        <select id="e-action">
+          <option value="check_stock">check_stock</option>
+          <option value="get_account_balance">get_account_balance</option>
+          <option value="get_schema">get_schema</option>
+          <option value="run_report">run_report</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Data (JSON)</label>
+        <textarea id="e-data">{"item_code": "ITEM-001"}</textarea>
+      </div>
+      <button class="run-btn" onclick="runExecute()">▶ POST /execute</button>
+      <div class="response-box" id="r-execute">// response will appear here</div>
+    </div>
+
+    <!-- AUDIT -->
+    <div class="tab-content" id="tc-audit">
+      <div class="field-group">
+        <label>Last N entries</label>
+        <input id="a-limit" value="10" type="number"/>
+      </div>
+      <button class="run-btn" onclick="runAudit()">▶ GET /audit</button>
+      <div class="response-box" id="r-audit">// response will appear here</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- GPT CARD -->
+<section class="section">
+  <div class="gpt-card">
+    <div>
+      <div class="gpt-pill"><span class="gpt-dot"></span>ChatGPT Custom GPT · Live</div>
+      <h3 class="gpt-h">ERPNext AI Agent<br>on ChatGPT</h3>
+      <p class="gpt-desc">
+        The Custom GPT is live. Open it, describe any ERP task in plain language — 
+        procurement, invoicing, reports, master data — and it handles the rest.
+      </p>
+      <a class="gpt-link" href="https://chatgpt.com/g/g-699e1478dc9481919eb995dfb3c06833-erpnext-ai-agent" target="_blank">Open ERPNext Agent ↗</a>
+    </div>
+    <ol class="gpt-steps">
+      <li class="gpt-step">
+        <div class="gpt-step-n">1</div>
+        <div class="gpt-step-text"><strong>Describe your problem</strong> — "I need to create a PO for 50 bolts from Acme Corp and submit it"</div>
+      </li>
+      <li class="gpt-step">
+        <div class="gpt-step-n">2</div>
+        <div class="gpt-step-text"><strong>Review the plan</strong> — ChatGPT lays out every step with risk levels. Ask it to change anything.</div>
+      </li>
+      <li class="gpt-step">
+        <div class="gpt-step-n">3</div>
+        <div class="gpt-step-text"><strong>Say "go ahead"</strong> — Only then does it execute. High-risk steps get a ⚠️ warning.</div>
+      </li>
+      <li class="gpt-step">
+        <div class="gpt-step-n">4</div>
+        <div class="gpt-step-text"><strong>Get a report</strong> — Document names, results, and any errors — all in plain language.</div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-brand">ERPNext AI Agent · v2.0.0</span>
+  <div class="footer-links">
+    <a href="/openapi.json">OpenAPI ↗</a>
+    <a href="/health">Health</a>
+    <a href="/audit">Audit</a>
+    <a href="/docs">Docs</a>
+    <a href="https://aero-woad.vercel.app" target="_blank">← Portfolio</a>
+  </div>
+  <span class="footer-copy">Flask · ERPNext · ChatGPT Custom Action</span>
+</footer>
+
+<script>
+const BASE = window.location.origin;
+
+function toggleEndpoint(el){
+  el.classList.toggle('open');
+}
+
+function copyCode(btn){
+  const pre = btn.parentElement;
+  const text = pre.innerText.replace('copy','').trim();
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓';setTimeout(()=>btn.textContent='copy',1500)
+  });
+}
+
+function switchTab(el,name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tc-'+name).classList.add('active');
+}
+
+function fmt(obj){ return JSON.stringify(obj,null,2) }
+function setRes(id,val){ document.getElementById(id).textContent = typeof val==='string'?val:fmt(val) }
+
+async function runHealth(){
+  setRes('r-health','// fetching...');
+  try{ const r=await fetch(BASE+'/health'); setRes('r-health',await r.json()); }
+  catch(e){ setRes('r-health','// Error: '+e.message); }
+}
+
+async function runQuery(){
+  setRes('r-query','// fetching...');
+  const doctype = document.getElementById('q-doctype').value;
+  const fields  = document.getElementById('q-fields').value.split(',').map(s=>s.trim());
+  const limit   = parseInt(document.getElementById('q-limit').value)||10;
+  try{
+    const r = await fetch(BASE+'/query',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({doctype,fields,limit})
+    });
+    setRes('r-query',await r.json());
+  }catch(e){ setRes('r-query','// Error: '+e.message); }
+}
+
+async function runExecute(){
+  setRes('r-execute','// executing...');
+  const action = document.getElementById('e-action').value;
+  let data={};
+  try{ data=JSON.parse(document.getElementById('e-data').value); }
+  catch(e){ setRes('r-execute','// Invalid JSON in data field'); return; }
+  try{
+    const r = await fetch(BASE+'/execute',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action,data})
+    });
+    setRes('r-execute',await r.json());
+  }catch(e){ setRes('r-execute','// Error: '+e.message); }
+}
+
+async function runAudit(){
+  setRes('r-audit','// fetching...');
+  const limit = document.getElementById('a-limit').value||10;
+  try{ const r=await fetch(BASE+'/audit?limit='+limit); setRes('r-audit',await r.json()); }
+  catch(e){ setRes('r-audit','// Error: '+e.message); }
+}
+
+// Stagger-reveal on scroll
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting) e.target.style.opacity='1', e.target.style.transform='translateY(0)';
+  });
+},{threshold:0.1});
+document.querySelectorAll('.feature,.stat,.action-row,.gpt-step').forEach(el=>{
+  el.style.opacity='0'; el.style.transform='translateY(16px)';
+  el.style.transition='opacity .5s ease, transform .5s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
