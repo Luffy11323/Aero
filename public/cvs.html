@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radiant Medical — CV Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --border: #1e2230;
+    --border-lit: #2a3050;
+    --text: #e8eaf0;
+    --muted: #5a6080;
+    --accent: #4f7aff;
+    --accent-glow: rgba(79,122,255,0.18);
+    --strong: #22c55e;
+    --good: #3b82f6;
+    --maybe: #f59e0b;
+    --reject: #ef4444;
+    --strong-bg: rgba(34,197,94,0.08);
+    --good-bg: rgba(59,130,246,0.08);
+    --maybe-bg: rgba(245,158,11,0.08);
+    --reject-bg: rgba(239,68,68,0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Noise overlay ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; opacity: .5;
+  }
+
+  .wrapper { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0 24px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .brand { display: flex; flex-direction: column; gap: 2px; }
+  .brand-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.7rem; letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .brand-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.12em;
+    color: var(--muted); text-transform: uppercase;
+  }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .pulse-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--strong);
+    box-shadow: 0 0 0 0 rgba(34,197,94,0.4);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+    100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+  }
+  .last-updated {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem; color: var(--muted);
+  }
+  .refresh-btn {
+    background: none; border: 1px solid var(--border-lit);
+    color: var(--muted); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    padding: 6px 14px; border-radius: 4px;
+    transition: all 0.2s;
+    letter-spacing: 0.06em;
+  }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+  /* ── Stats bar ── */
+  .stats-bar {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border); border-radius: 8px;
+    margin: 28px 0; overflow: hidden;
+  }
+  .stat-cell {
+    background: var(--surface); padding: 20px 22px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .stat-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.4rem; line-height: 1; letter-spacing: -0.03em;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem; letter-spacing: 0.1em;
+    color: var(--muted); text-transform: uppercase;
+  }
+  .stat-cell.strong .stat-num { color: var(--strong); }
+  .stat-cell.good   .stat-num { color: var(--good); }
+  .stat-cell.maybe  .stat-num { color: var(--maybe); }
+  .stat-cell.reject .stat-num { color: var(--reject); }
+
+  /* ── Controls ── */
+  .controls {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    align-items: center; margin-bottom: 20px;
+  }
+  .search-wrap {
+    flex: 1; min-width: 220px; position: relative;
+  }
+  .search-wrap input {
+    width: 100%; background: var(--surface);
+    border: 1px solid var(--border); color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 0.82rem;
+    padding: 10px 14px 10px 38px; border-radius: 6px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap input::placeholder { color: var(--muted); }
+  .search-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 0.9rem; pointer-events: none;
+  }
+  .filter-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--muted); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    padding: 10px 16px; border-radius: 6px;
+    transition: all 0.2s; letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .filter-btn:hover, .filter-btn.active { color: var(--text); }
+  .filter-btn.all.active    { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
+  .filter-btn.strong.active { border-color: var(--strong); background: var(--strong-bg); color: var(--strong); }
+  .filter-btn.good.active   { border-color: var(--good);   background: var(--good-bg);   color: var(--good); }
+  .filter-btn.maybe.active  { border-color: var(--maybe);  background: var(--maybe-bg);  color: var(--maybe); }
+  .filter-btn.reject.active { border-color: var(--reject); background: var(--reject-bg); color: var(--reject); }
+
+  .sort-select {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    padding: 10px 14px; border-radius: 6px; outline: none; cursor: pointer;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Candidate grid ── */
+  .candidates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 14px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    animation: cardIn 0.35s ease both;
+  }
+  .card:hover {
+    border-color: var(--border-lit);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card-header {
+    padding: 18px 20px 14px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 12px;
+  }
+  .card-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.18rem; line-height: 1.2; letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .card-email {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    color: var(--muted); margin-top: 3px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px;
+  }
+  .score-badge {
+    display: flex; flex-direction: column; align-items: center;
+    min-width: 52px; padding: 8px 10px; border-radius: 6px;
+    border: 1px solid;
+  }
+  .score-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.5rem; line-height: 1; letter-spacing: -0.03em;
+  }
+  .score-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .score-badge.Strong { border-color: var(--strong); background: var(--strong-bg); color: var(--strong); }
+  .score-badge.Good   { border-color: var(--good);   background: var(--good-bg);   color: var(--good); }
+  .score-badge.Maybe  { border-color: var(--maybe);  background: var(--maybe-bg);  color: var(--maybe); }
+  .score-badge.Reject,.score-badge.Rejected { border-color: var(--reject); background: var(--reject-bg); color: var(--reject); }
+
+  .card-body { padding: 0 20px 16px; }
+  .card-summary {
+    font-size: 0.82rem; color: var(--muted); line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .skills-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .skill-tag {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    padding: 3px 9px; border-radius: 3px;
+    background: rgba(79,122,255,0.08); border: 1px solid rgba(79,122,255,0.2);
+    color: var(--accent); letter-spacing: 0.04em;
+  }
+  .card-meta {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted);
+  }
+  .meta-item { display: flex; align-items: center; gap: 5px; }
+
+  .card-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .rec-badge {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 3px;
+  }
+  .rec-badge.Interview { background: var(--strong-bg); color: var(--strong); border: 1px solid rgba(34,197,94,0.3); }
+  .rec-badge.Maybe     { background: var(--maybe-bg);  color: var(--maybe);  border: 1px solid rgba(245,158,11,0.3); }
+  .rec-badge.Reject    { background: var(--reject-bg); color: var(--reject); border: 1px solid rgba(239,68,68,0.3); }
+  .card-date { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+  /* ── Detail Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center; padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border-lit);
+    border-radius: 14px; width: 100%; max-width: 660px;
+    max-height: 90vh; overflow-y: auto;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .modal-header {
+    padding: 28px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: flex-start;
+    position: sticky; top: 0; background: var(--surface); z-index: 1;
+  }
+  .modal-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.7rem; letter-spacing: -0.02em;
+  }
+  .modal-email { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+  .close-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); cursor: pointer; width: 34px; height: 34px;
+    border-radius: 50%; font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .close-btn:hover { border-color: var(--reject); color: var(--reject); }
+  .modal-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 22px; }
+  .modal-score-row { display: flex; align-items: center; gap: 16px; }
+  .modal-score-big {
+    font-family: 'Instrument Serif', serif;
+    font-size: 3.5rem; line-height: 1; letter-spacing: -0.04em;
+  }
+  .modal-score-big.Strong { color: var(--strong); }
+  .modal-score-big.Good   { color: var(--good); }
+  .modal-score-big.Maybe  { color: var(--maybe); }
+  .modal-score-big.Reject,.modal-score-big.Rejected { color: var(--reject); }
+  .score-bar-wrap { flex: 1; }
+  .score-bar-track {
+    height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+  .score-bar-fill.Strong { background: var(--strong); }
+  .score-bar-fill.Good   { background: var(--good); }
+  .score-bar-fill.Maybe  { background: var(--maybe); }
+  .score-bar-fill.Reject,.score-bar-fill.Rejected { background: var(--reject); }
+  .score-tier {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 6px;
+  }
+
+  .section-title {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .highlights-box {
+    background: rgba(79,122,255,0.06); border: 1px solid rgba(79,122,255,0.15);
+    border-radius: 6px; padding: 14px 16px;
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 1.05rem; color: var(--text); line-height: 1.5;
+  }
+  .detail-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  .detail-item { display: flex; flex-direction: column; gap: 3px; }
+  .detail-key {
+    font-family: 'DM Mono', monospace; font-size: 0.63rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  }
+  .detail-val { font-size: 0.88rem; color: var(--text); }
+  .red-flags { display: flex; flex-direction: column; gap: 6px; }
+  .red-flag-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 0.82rem; color: var(--reject);
+  }
+  .red-flag-item::before { content: '⚠'; flex-shrink: 0; }
+  .cv-excerpt {
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px 16px;
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    color: var(--muted); line-height: 1.7;
+    max-height: 160px; overflow-y: auto;
+    white-space: pre-wrap; word-break: break-word;
+  }
+
+  /* ── Empty / Loading / Error states ── */
+  .state-box {
+    grid-column: 1 / -1; text-align: center; padding: 80px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .state-icon { font-size: 2.5rem; }
+  .state-title {
+    font-family: 'Instrument Serif', serif; font-size: 1.4rem; color: var(--text);
+  }
+  .state-sub { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+  .spinner {
+    width: 36px; height: 36px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-lit); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-name">Radiant Medical</div>
+      <div class="brand-sub">CV Intelligence Dashboard</div>
+    </div>
+    <div class="header-right">
+      <div class="pulse-dot" id="liveIndicator"></div>
+      <span class="last-updated" id="lastUpdated">Loading...</span>
+      <button class="refresh-btn" onclick="loadData()">↺ Refresh</button>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-cell"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Total CVs</div></div>
+    <div class="stat-cell strong"><div class="stat-num" id="statStrong">—</div><div class="stat-label">Strong</div></div>
+    <div class="stat-cell good"><div class="stat-num" id="statGood">—</div><div class="stat-label">Good</div></div>
+    <div class="stat-cell maybe"><div class="stat-num" id="statMaybe">—</div><div class="stat-label">Maybe</div></div>
+    <div class="stat-cell reject"><div class="stat-num" id="statReject">—</div><div class="stat-label">Rejected</div></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Search name, skill, education..." oninput="renderCards()">
+    </div>
+    <button class="filter-btn all active" data-filter="all" onclick="setFilter(this)">All</button>
+    <button class="filter-btn strong" data-filter="Strong" onclick="setFilter(this)">Strong</button>
+    <button class="filter-btn good" data-filter="Good" onclick="setFilter(this)">Good</button>
+    <button class="filter-btn maybe" data-filter="Maybe" onclick="setFilter(this)">Maybe</button>
+    <button class="filter-btn reject" data-filter="Reject" onclick="setFilter(this)">Rejected</button>
+    <select class="sort-select" id="sortSelect" onchange="renderCards()">
+      <option value="score">Sort: Score ↓</option>
+      <option value="date">Sort: Newest</option>
+      <option value="name">Sort: Name A–Z</option>
+      <option value="exp">Sort: Experience</option>
+    </select>
+  </div>
+
+  <!-- Cards -->
+  <div class="candidates-grid" id="cardsGrid">
+    <div class="state-box">
+      <div class="spinner"></div>
+      <div class="state-title">Fetching candidates...</div>
+      <div class="state-sub">Connecting to Radiant Medical inbox</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-name" id="mName"></div>
+        <div class="modal-email" id="mEmail"></div>
+      </div>
+      <button class="close-btn" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Score -->
+      <div class="modal-score-row">
+        <div class="modal-score-big" id="mScoreBig"></div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-track"><div class="score-bar-fill" id="mBarFill"></div></div>
+          <div class="score-tier" id="mTier"></div>
+        </div>
+      </div>
+      <!-- Highlight -->
+      <div>
+        <div class="section-title">Strongest Point</div>
+        <div class="highlights-box" id="mHighlight"></div>
+      </div>
+      <!-- Summary -->
+      <div>
+        <div class="section-title">Summary</div>
+        <div class="card-summary" id="mSummary" style="color:var(--text)"></div>
+      </div>
+      <!-- Details grid -->
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-key">Experience</div><div class="detail-val" id="mExp"></div></div>
+        <div class="detail-item"><div class="detail-key">Education</div><div class="detail-val" id="mEdu"></div></div>
+        <div class="detail-item"><div class="detail-key">Recommendation</div><div class="detail-val" id="mRec"></div></div>
+        <div class="detail-item"><div class="detail-key">Received</div><div class="detail-val" id="mDate"></div></div>
+      </div>
+      <!-- Skills -->
+      <div>
+        <div class="section-title">Key Skills</div>
+        <div class="skills-wrap" id="mSkills"></div>
+      </div>
+      <!-- Red Flags -->
+      <div id="mRedFlagsSection">
+        <div class="section-title">Red Flags</div>
+        <div class="red-flags" id="mRedFlags"></div>
+      </div>
+      <!-- CV Excerpt -->
+      <div>
+        <div class="section-title">CV Excerpt</div>
+        <div class="cv-excerpt" id="mExcerpt"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────────
+const JSON_URL = 'https://radiantmedical.com.pk/cvs.json';
+const POLL_INTERVAL = 5 * 60 * 1000; // refresh every 5 min
+
+// ── State ───────────────────────────────────────────────────────────────────────
+let allCandidates = [];
+let activeFilter  = 'all';
+
+// ── Boot ────────────────────────────────────────────────────────────────────────
+loadData();
+setInterval(loadData, POLL_INTERVAL);
+
+// ── Data Fetching ────────────────────────────────────────────────────────────────
+async function loadData() {
+  try {
+    const r = await fetch(JSON_URL + '?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+
+    allCandidates = data.candidates || [];
+    const genAt   = data.generated_at ? new Date(data.generated_at) : new Date();
+    document.getElementById('lastUpdated').textContent = 'Updated ' + formatRelTime(genAt);
+
+    updateStats();
+    renderCards();
+    setLive(true);
+  } catch (e) {
+    console.error(e);
+    setLive(false);
+    if (allCandidates.length === 0) showError(e.message);
+  }
+}
+
+function setLive(ok) {
+  const dot = document.getElementById('liveIndicator');
+  dot.style.background = ok ? 'var(--strong)' : 'var(--reject)';
+}
+
+function showError(msg) {
+  document.getElementById('cardsGrid').innerHTML = `
+    <div class="state-box">
+      <div class="state-icon">⚡</div>
+      <div class="state-title">Could not load data</div>
+      <div class="state-sub">${msg}<br><br>Make sure poller.php has run at least once and cvs.json is public.</div>
+    </div>`;
+}
+
+// ── Stats ────────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const c = allCandidates;
+  document.getElementById('statTotal').textContent  = c.length;
+  document.getElementById('statStrong').textContent = c.filter(x => normTier(x) === 'Strong').length;
+  document.getElementById('statGood').textContent   = c.filter(x => normTier(x) === 'Good').length;
+  document.getElementById('statMaybe').textContent  = c.filter(x => normTier(x) === 'Maybe').length;
+  document.getElementById('statReject').textContent = c.filter(x => normTier(x) === 'Reject').length;
+}
+
+// ── Filter / Sort / Search ───────────────────────────────────────────────────────
+function setFilter(btn) {
+  activeFilter = btn.dataset.filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards();
+}
+
+function getFiltered() {
+  const q    = document.getElementById('searchInput').value.toLowerCase();
+  const sort = document.getElementById('sortSelect').value;
+
+  let list = allCandidates.filter(c => {
+    if (activeFilter !== 'all' && normTier(c) !== activeFilter) return false;
+    if (q) {
+      const hay = [c.candidate_name, c.from_email, c.education,
+        ...(c.key_skills || []), c.summary, c.highlights].join(' ').toLowerCase();
+      return hay.includes(q);
+    }
+    return true;
+  });
+
+  if (sort === 'score')  list.sort((a,b) => (b.score||0) - (a.score||0));
+  if (sort === 'date')   list.sort((a,b) => new Date(b.received_at) - new Date(a.received_at));
+  if (sort === 'name')   list.sort((a,b) => (a.candidate_name||'').localeCompare(b.candidate_name||''));
+  if (sort === 'exp')    list.sort((a,b) => (b.experience_years||0) - (a.experience_years||0));
+
+  return list;
+}
+
+// ── Render Cards ────────────────────────────────────────────────────────────────
+function renderCards() {
+  const grid = document.getElementById('cardsGrid');
+  const list = getFiltered();
+
+  if (!list.length) {
+    grid.innerHTML = `
+      <div class="state-box">
+        <div class="state-icon">○</div>
+        <div class="state-title">No candidates found</div>
+        <div class="state-sub">Try a different filter or search term</div>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map((c, i) => cardHTML(c, i)).join('');
+}
+
+function cardHTML(c, i) {
+  const tier  = normTier(c);
+  const score = c.score || 0;
+  const skills = (c.key_skills || []).slice(0, 4).map(s =>
+    `<span class="skill-tag">${esc(s)}</span>`).join('');
+  const rec = c.recommendation || '';
+
+  return `
+  <div class="card" style="animation-delay:${i * 40}ms" onclick='openModal(${JSON.stringify(c)})'>
+    <div class="card-header">
+      <div>
+        <div class="card-name">${esc(c.candidate_name || 'Unknown')}</div>
+        <div class="card-email">${esc(c.from_email || '')}</div>
+      </div>
+      <div class="score-badge ${tier}">
+        <div class="score-num">${score}</div>
+        <div class="score-label">${tier}</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-summary">${esc((c.summary || '').slice(0, 130))}${(c.summary||'').length > 130 ? '…' : ''}</div>
+      <div class="skills-wrap">${skills}</div>
+      <div class="card-meta">
+        ${c.experience_years != null ? `<span class="meta-item">⏱ ${c.experience_years}y exp</span>` : ''}
+        ${c.education ? `<span class="meta-item">🎓 ${esc(c.education.slice(0,40))}</span>` : ''}
+        ${(c.attachments||[]).length ? `<span class="meta-item">📎 ${c.attachments.length}</span>` : ''}
+      </div>
+    </div>
+    <div class="card-footer">
+      <span class="rec-badge ${rec}">${esc(rec)}</span>
+      <span class="card-date">${formatDate(c.received_at)}</span>
+    </div>
+  </div>`;
+}
+
+// ── Modal ────────────────────────────────────────────────────────────────────────
+function openModal(c) {
+  const tier = normTier(c);
+  document.getElementById('mName').textContent  = c.candidate_name || 'Unknown';
+  document.getElementById('mEmail').textContent = c.from_email || '';
+  document.getElementById('mScoreBig').textContent  = c.score || 0;
+  document.getElementById('mScoreBig').className    = 'modal-score-big ' + tier;
+  document.getElementById('mBarFill').style.width   = (c.score || 0) + '%';
+  document.getElementById('mBarFill').className     = 'score-bar-fill ' + tier;
+  document.getElementById('mTier').textContent      = tier + ' Candidate';
+  document.getElementById('mHighlight').textContent = c.highlights || '—';
+  document.getElementById('mSummary').textContent   = c.summary || '—';
+  document.getElementById('mExp').textContent  = c.experience_years != null ? c.experience_years + ' years' : '—';
+  document.getElementById('mEdu').textContent  = c.education || '—';
+  document.getElementById('mRec').textContent  = c.recommendation || '—';
+  document.getElementById('mDate').textContent = formatDate(c.received_at);
+  document.getElementById('mSkills').innerHTML = (c.key_skills || []).map(s =>
+    `<span class="skill-tag">${esc(s)}</span>`).join('');
+  document.getElementById('mExcerpt').textContent = c.cv_excerpt || '—';
+
+  const flags = c.red_flags || [];
+  const flagSection = document.getElementById('mRedFlagsSection');
+  if (flags.length) {
+    flagSection.style.display = '';
+    document.getElementById('mRedFlags').innerHTML = flags.map(f =>
+      `<div class="red-flag-item">${esc(f)}</div>`).join('');
+  } else {
+    flagSection.style.display = 'none';
+  }
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────
+function normTier(c) {
+  const t = (c.tier || '').toLowerCase();
+  if (t === 'strong')               return 'Strong';
+  if (t === 'good')                 return 'Good';
+  if (t === 'maybe')                return 'Maybe';
+  if (t === 'reject' || t === 'rejected') return 'Reject';
+  const s = c.score || 0;
+  if (s >= 86) return 'Strong';
+  if (s >= 66) return 'Good';
+  if (s >= 41) return 'Maybe';
+  return 'Reject';
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+function formatRelTime(d) {
+  const diff = Math.floor((Date.now() - d) / 1000);
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return formatDate(d.toISOString());
+}
+</script>
+</body>
+</html>
