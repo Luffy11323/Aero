@@ -9,6 +9,14 @@
     {
       "source": "/(.*)",
       "has": [
+        { "type": "host", "value": "cv-segregation.akatechsolution.com" }
+      ],
+      "destination": "https://aero-woad.vercel.app/cvs.html",
+      "permanent": false
+    },
+    {
+      "source": "/(.*)",
+      "has": [
         { "type": "host", "value": "emailblast.akatechsolution.com" }
       ],
       "destination": "https://frnklnwrld-emailblast-pro.hf.space/",
