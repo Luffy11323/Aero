@@ -51,7 +51,7 @@
       "has": [
         { "type": "host", "value": "automation.akatechsolution.com" }
       ],
-      "destination": "https://frnklnwrld-erp.hf.space/",
+      "destination": "https://aero-woad.vercel.app/automation.html",
       "permanent": false
     }
   ]
