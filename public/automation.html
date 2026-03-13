@@ -1,3 +1,673 @@
-<!DOCTYPE html><html><head>
-<meta http-equiv="refresh" content="0; url=https://frnklnwrld-erp.hf.space/">
-</head><body>Redirecting...</body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ERP AI Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --header-bg:   #1e2235;
+      --header-text: #ffffff;
+      --bg:          #f7f8fa;
+      --surface:     #ffffff;
+      --border:      #e8eaed;
+      --accent:      #2490EF;
+      --accent-soft: #eaf4fe;
+      --text:        #1a1c23;
+      --text-sub:    #6b7280;
+      --text-muted:  #9ca3af;
+      --bubble-me:   #2490EF;
+      --bubble-ai:   #ffffff;
+      --green:       #22c55e;
+      --shadow:      0 1px 4px rgba(0,0,0,.07);
+      --shadow-md:   0 2px 12px rgba(0,0,0,.10);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--bg);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ── Header ─────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 14px 18px;
+      background: var(--header-bg);
+      flex-shrink: 0;
+    }
+
+    .header-back {
+      color: rgba(255,255,255,.7);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 4px;
+    }
+
+    .header-av {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2490EF, #6c5ce7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .header-info { flex: 1; }
+
+    .header-info h1 {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--header-text);
+      letter-spacing: -.01em;
+    }
+
+    .header-info p {
+      font-size: 11.5px;
+      color: rgba(255,255,255,.55);
+      margin-top: 1px;
+    }
+
+    .header-actions { display: flex; gap: 6px; }
+
+    .h-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.8);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      transition: background .12s;
+    }
+
+    .h-btn:hover { background: rgba(255,255,255,.22); }
+
+    /* ── Date chip ──────────────────────────── */
+    .date-chip { text-align: center; padding: 16px 0 6px; }
+
+    .date-chip span {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--border);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    /* ── Messages ───────────────────────────── */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    .messages::-webkit-scrollbar { width: 3px; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .bot-label {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 3px;
+      padding-left: 2px;
+    }
+
+    .msg-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      animation: msgIn .15s ease;
+      max-width: 82%;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-row.me  { align-self: flex-end; align-items: flex-end; }
+    .msg-row.ai  { align-self: flex-start; align-items: flex-start; }
+
+    .bubble {
+      padding: 10px 14px;
+      border-radius: 18px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .msg-row.me .bubble {
+      background: var(--bubble-me);
+      color: #fff;
+      border-bottom-right-radius: 5px;
+      box-shadow: 0 1px 3px rgba(36,144,239,.25);
+    }
+
+    .msg-row.ai .bubble {
+      background: var(--bubble-ai);
+      color: var(--text);
+      border-bottom-left-radius: 5px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .msg-time {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      padding: 0 4px;
+    }
+
+    .action-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+
+    .action-tag {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .action-tag.ok  { background: #dcfce7; color: #15803d; }
+    .action-tag.err { background: #fee2e2; color: #b91c1c; }
+
+    .suggestion-pills {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-top: 8px;
+      width: 100%;
+    }
+
+    .pill-btn {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 22px;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      transition: all .12s;
+      box-shadow: var(--shadow);
+      width: fit-content;
+    }
+
+    .pill-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    /* Typing */
+    .typing-row { align-self: flex-start; animation: msgIn .15s ease; }
+
+    .typing-bubble {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      border-bottom-left-radius: 5px;
+      padding: 11px 16px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+
+    .t-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: bounce 1.3s infinite;
+    }
+
+    .t-dot:nth-child(2) { animation-delay: .18s; }
+    .t-dot:nth-child(3) { animation-delay: .36s; }
+
+    @keyframes bounce {
+      0%,60%,100% { transform: translateY(0); opacity: .5; }
+      30%          { transform: translateY(-5px); opacity: 1; }
+    }
+
+    /* ── Input area ─────────────────────────── */
+    .input-area {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 10px 14px 12px;
+      flex-shrink: 0;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 26px;
+      padding: 7px 7px 7px 16px;
+      transition: border-color .12s;
+    }
+
+    .input-row:focus-within { border-color: var(--accent); background: #fff; }
+
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      resize: none;
+      max-height: 100px;
+      line-height: 1.5;
+      padding: 2px 0;
+    }
+
+    textarea::placeholder { color: var(--text-muted); }
+
+    .input-actions { display: flex; align-items: center; gap: 4px; }
+
+    .send-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .12s;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover:not(:disabled) { background: #1a7ad4; transform: scale(1.05); }
+    .send-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+
+    .powered {
+      text-align: center;
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* ── Config modal ───────────────────────── */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-bg.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 24px;
+      width: 340px;
+      max-width: 90vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,.15);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal h2 { font-size: 15px; font-weight: 600; }
+
+    .field { display: flex; flex-direction: column; gap: 5px; }
+
+    .field label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .field input {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .12s;
+    }
+
+    .field input:focus { border-color: var(--accent); background: #fff; }
+
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    .btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .12s;
+    }
+
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1a7ad4; }
+    .btn-ghost { background: var(--bg); color: var(--text-sub); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--border); }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="header-back">‹</div>
+    <div class="header-av">🤖</div>
+    <div class="header-info">
+      <h1>ERP AI Agent</h1>
+      <p>AI Assistant</p>
+    </div>
+    <div class="header-actions">
+      <button class="h-btn" onclick="openConfig()" title="Settings">⚙</button>
+      <button class="h-btn" onclick="resetSession()" title="New chat">↺</button>
+    </div>
+  </header>
+
+  <div class="messages" id="messages">
+    <div class="date-chip"><span id="todayLabel"></span></div>
+    <div class="bot-label">ERP AI Agent · <span id="timeNow"></span></div>
+    <div class="msg-row ai">
+      <div class="bubble">👋 Hi! I'm your ERP AI Chatbot.<br>Nice to meet you.<br><br>How may I help you today?</div>
+      <div class="suggestion-pills">
+        <button class="pill-btn" onclick="sendSuggestion('List all suppliers')">📋 List all suppliers</button>
+        <button class="pill-btn" onclick="sendSuggestion('Show open purchase orders')">🛒 Show open purchase orders</button>
+        <button class="pill-btn" onclick="sendSuggestion('Create a purchase order')">➕ Create a purchase order</button>
+        <button class="pill-btn" onclick="sendSuggestion('Check stock levels')">📦 Check stock levels</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="input-row">
+      <textarea
+        id="input"
+        placeholder="Write your message…"
+        rows="1"
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+      <div class="input-actions">
+        <button class="send-btn" id="sendBtn" onclick="send()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="powered">Powered by ERP AI Agent</div>
+  </div>
+
+</div>
+
+<!-- Config modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2>⚙️ Settings</h2>
+    <div class="field">
+      <label>HF Space URL</label>
+      <input id="cfgUrl" type="text" placeholder="https://franklnwrld-erp.hf.space"/>
+    </div>
+    <div class="field">
+      <label>HF Token</label>
+      <input id="cfgToken" type="password" placeholder="hf_..."/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeConfig()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveConfig()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Config loaded from Vercel /api/config ─────────────────
+  // Add these in Vercel → Settings → Environment Variables:
+  //   ERP_URL   = https://franklnwrld-erp.hf.space
+  //   ERP_TOKEN = hf_your_token_here
+  // ──────────────────────────────────────────────────────────
+  fetch('/api/config')
+    .then(r => r.json())
+    .then(c => { API_URL = c.url; API_TOKEN = c.token; });
+  let sessionId = 'session_' + Math.random().toString(36).slice(2, 9);
+  let isBusy    = false;
+
+  async function loadConfig() {
+    try {
+      const res  = await fetch('/api/config');
+      const data = await res.json();
+      API_URL   = data.url   || localStorage.getItem('erp_url')   || '';
+      API_TOKEN = data.token || localStorage.getItem('erp_token') || '';
+    } catch {
+      // /api/config not available (e.g. local dev) — fall back to localStorage
+      API_URL   = localStorage.getItem('erp_url')   || '';
+      API_TOKEN = localStorage.getItem('erp_token') || '';
+    }
+  }
+
+  // Init labels + load config
+  const _now = new Date();
+  document.getElementById('timeNow').textContent    = fmt(_now);
+  document.getElementById('todayLabel').textContent = _now.toLocaleDateString([], { weekday:'long', month:'long', day:'numeric' });
+  loadConfig();
+
+  // ── Helpers ───────────────────────────────
+  function fmt(d) {
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  }
+
+  function sendSuggestion(text) {
+    document.getElementById('input').value = text;
+    send();
+  }
+
+  function scrollBot() {
+    const m = document.getElementById('messages');
+    m.scrollTop = m.scrollHeight;
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Config modal ──────────────────────────
+  function openConfig() {
+    document.getElementById('cfgUrl').value   = API_URL;
+    document.getElementById('cfgToken').value = API_TOKEN;
+    document.getElementById('modalBg').classList.add('open');
+  }
+
+  function closeConfig() {
+    document.getElementById('modalBg').classList.remove('open');
+  }
+
+  function saveConfig() {
+    API_URL   = document.getElementById('cfgUrl').value.trim().replace(/\/$/, '');
+    API_TOKEN = document.getElementById('cfgToken').value.trim();
+    localStorage.setItem('erp_url',   API_URL);
+    localStorage.setItem('erp_token', API_TOKEN);
+    closeConfig();
+  }
+
+  // ── Append messages ───────────────────────
+  function appendUser(text) {
+    document.getElementById('messages').insertAdjacentHTML('beforeend', `
+      <div class="msg-row me">
+        <div class="bubble">${escHtml(text)}</div>
+        <div class="msg-time">${fmt(new Date())}</div>
+      </div>
+    `);
+    scrollBot();
+  }
+
+  function appendAI(reply, actions) {
+    const tags = (actions || []).map(a =>
+      `<span class="action-tag ${a.status === 'success' ? 'ok' : 'err'}">
+        ${a.status === 'success' ? '✓' : '✗'} ${a.action}
+      </span>`
+    ).join('');
+
+    document.getElementById('messages').insertAdjacentHTML('beforeend', `
+      <div class="msg-row ai">
+        <div class="bubble">${escHtml(reply)}</div>
+        ${tags ? `<div class="action-tags">${tags}</div>` : ''}
+        <div class="msg-time">${fmt(new Date())}</div>
+      </div>
+    `);
+    scrollBot();
+  }
+
+  function showTyping() {
+    document.getElementById('messages').insertAdjacentHTML('beforeend', `
+      <div class="typing-row" id="typingRow">
+        <div class="typing-bubble">
+          <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
+        </div>
+      </div>
+    `);
+    scrollBot();
+  }
+
+  function hideTyping() { document.getElementById('typingRow')?.remove(); }
+
+  // ── Send ──────────────────────────────────
+  async function send() {
+    const inp  = document.getElementById('input');
+    const text = inp.value.trim();
+    if (!text || isBusy) return;
+
+    if (!API_URL) {
+      appendAI('⚠️ Not configured yet. Click ⚙ to set your HF Space URL.', []);
+      return;
+    }
+
+    inp.value = '';
+    inp.style.height = 'auto';
+    isBusy = true;
+    document.getElementById('sendBtn').disabled = true;
+
+    appendUser(text);
+    showTyping();
+
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (API_TOKEN) headers['Authorization'] = `Bearer ${API_TOKEN}`;
+
+      const res  = await fetch(`${API_URL}/ai/chat`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ message: text, session_id: sessionId }),
+      });
+
+      const data = await res.json();
+      hideTyping();
+
+      if (data.ok) {
+        appendAI(data.reply, data.actions_taken || []);
+      } else {
+        appendAI('⚠️ ' + (data.error || 'Something went wrong.'), []);
+      }
+    } catch {
+      hideTyping();
+      appendAI('⚠️ Could not reach the ERP agent. Click ⚙ to check settings.', []);
+    }
+
+    isBusy = false;
+    document.getElementById('sendBtn').disabled = false;
+    inp.focus();
+  }
+
+  // ── Reset ─────────────────────────────────
+  async function resetSession() {
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (API_TOKEN) headers['Authorization'] = `Bearer ${API_TOKEN}`;
+      await fetch(`${API_URL}/ai/reset`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ session_id: sessionId }),
+      });
+    } catch (_) {}
+
+    sessionId = 'session_' + Math.random().toString(36).slice(2, 9);
+    const n = new Date();
+    document.getElementById('messages').innerHTML = `
+      <div class="date-chip"><span>${n.toLocaleDateString([], { weekday:'long', month:'long', day:'numeric' })}</span></div>
+      <div class="bot-label">ERP AI Agent · ${fmt(n)}</div>
+      <div class="msg-row ai">
+        <div class="bubble">👋 Hi! I'm your ERP AI Chatbot.<br>Nice to meet you.<br><br>How may I help you today?</div>
+        <div class="suggestion-pills">
+          <button class="pill-btn" onclick="sendSuggestion('List all suppliers')">📋 List all suppliers</button>
+          <button class="pill-btn" onclick="sendSuggestion('Show open purchase orders')">🛒 Show open purchase orders</button>
+          <button class="pill-btn" onclick="sendSuggestion('Create a purchase order')">➕ Create a purchase order</button>
+          <button class="pill-btn" onclick="sendSuggestion('Check stock levels')">📦 Check stock levels</button>
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('input').focus();
+</script>
+</body>
+</html>
