@@ -479,9 +479,9 @@
   //   ERP_URL   = https://franklnwrld-erp.hf.space
   //   ERP_TOKEN = hf_your_token_here
   // ──────────────────────────────────────────────────────────
-  fetch('/api/config')
-    .then(r => r.json())
-    .then(c => { API_URL = c.url; API_TOKEN = c.token; });
+// TO:
+  let API_URL   = '';
+  let API_TOKEN = '';
   let sessionId = 'session_' + Math.random().toString(36).slice(2, 9);
   let isBusy    = false;
 
@@ -492,7 +492,6 @@
       API_URL   = data.url   || localStorage.getItem('erp_url')   || '';
       API_TOKEN = data.token || localStorage.getItem('erp_token') || '';
     } catch {
-      // /api/config not available (e.g. local dev) — fall back to localStorage
       API_URL   = localStorage.getItem('erp_url')   || '';
       API_TOKEN = localStorage.getItem('erp_token') || '';
     }
