@@ -47,7 +47,7 @@
       "permanent": false
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api/).*)",
       "has": [
         { "type": "host", "value": "automation.akatechsolution.com" }
       ],
