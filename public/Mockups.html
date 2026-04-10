@@ -16,6 +16,20 @@ body{overflow-x:hidden;cursor:none}
 .cursor{position:fixed;width:8px;height:8px;background:#d4af37;border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:transform 0.1s,width 0.3s,height 0.3s,background 0.3s}
 .cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(212,175,55,0.45);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:transform 0.18s ease,width 0.3s,height 0.3s,border-color 0.3s}
 
+.cursor,
+.cursor-ring{
+will-change: transform;
+}
+
+img{
+max-width:100%;
+display:block;
+}
+
+html{
+-webkit-font-smoothing:antialiased;
+text-rendering:optimizeLegibility;
+}
 /* ─── UNIFIED HEADER ─────────────────────────────────────────────────────── */
 .site-nav{
   position:fixed;top:0;left:0;right:0;z-index:9000;
@@ -919,7 +933,7 @@ loader.style.display="none"
 
 }
 
-window.addEventListener("load",()=>{
+function startLoader(){
 
 let progress = 0
 const bar = document.getElementById("plFill")
@@ -927,14 +941,14 @@ const pct = document.getElementById("plPct")
 
 const interval = setInterval(()=>{
 
-progress += Math.random()*12
+progress += Math.random()*8 + 2
 
-if(progress>100) progress = 100
+if(progress > 100) progress = 100
 
-if(bar) bar.style.width = progress+"%"
-if(pct) pct.innerText = Math.floor(progress)+"%"
+if(bar) bar.style.width = progress + "%"
+if(pct) pct.innerText = Math.floor(progress) + "%"
 
-if(progress>=100){
+if(progress >= 100){
 
 clearInterval(interval)
 
@@ -946,7 +960,15 @@ hideLoader()
 
 },120)
 
-})
+}
+
+/* ensure loader runs even if page already loaded */
+
+if(document.readyState === "complete"){
+startLoader()
+}else{
+window.addEventListener("load", startLoader)
+}
 
 
 
@@ -976,13 +998,13 @@ if(panel) panel.classList.add("active")
 /* HEADER COLOR FIX */
 
 if(target==="m1"){
-  nav.style.color="#f0ede8"
+nav.style.color="#f0ede8"
 }else{
-  nav.style.color="#1a1a1a"
+nav.style.color="#f0ede8"
 }
 
 /* IMPORTANT: recalc GSAP triggers after layout change */
-ScrollTrigger.refresh()
+setTimeout(()=>ScrollTrigger.refresh(),50)
 
 /* scroll to top smoothly */
 lenis.scrollTo(0)
@@ -1004,12 +1026,7 @@ smoothWheel:true,
 smoothTouch:false
 })
 
-function raf(time){
-lenis.raf(time)
-requestAnimationFrame(raf)
-}
 
-requestAnimationFrame(raf)
 
 
 
@@ -1037,7 +1054,7 @@ gsap.to(".hero-h1",{
 y:120,
 opacity:0.2,
 scrollTrigger:{
-trigger:".hero",
+trigger:"#m1 .hero",
 start:"top top",
 end:"bottom top",
 scrub:true
