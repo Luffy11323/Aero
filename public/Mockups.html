@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Rangnoi Reserve</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,200;0,300;0,400;1,200;1,300;1,400&family=Raleway:wght@100;200;300;400&family=Cinzel:wght@300;400&family=Playfair+Display:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@100;200;300&family=IM+Fell+English:ital@0;1&family=Libre+Baskerville:ital@0;1&family=Tenor+Sans&family=Karla:wght@200;300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+body{overflow-x:hidden;cursor:none}
+
+.cursor{position:fixed;width:8px;height:8px;background:#c4a97d;border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:transform 0.1s,width 0.3s,height 0.3s,background 0.3s}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(196,169,125,0.5);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:transform 0.18s ease,width 0.3s,height 0.3s,border-color 0.3s}
+
+.site-nav{position:fixed;top:0;left:0;right:0;z-index:9000;padding:2.4rem 5vw;display:flex;justify-content:space-between;align-items:center;transition:all 0.6s ease;mix-blend-mode:normal}
+.site-nav.scrolled{background:rgba(8,7,6,0.92);backdrop-filter:blur(24px);padding:1.6rem 5vw}
+.nav-brand{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:0.95rem;letter-spacing:0.55em;text-transform:uppercase;color:#f4f0ea;text-decoration:none}
+.nav-links{display:flex;align-items:center;gap:3rem}
+.nav-links a{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.5rem;letter-spacing:0.38em;text-transform:uppercase;color:rgba(244,240,234,0.55);text-decoration:none;transition:color 0.4s}
+.nav-links a:hover{color:rgba(244,240,234,0.95)}
+.nav-cta{color:#c4a97d!important;border-bottom:1px solid rgba(196,169,125,0.35);padding-bottom:2px}
+
+.mockup-nav{display:flex;gap:2.8rem}
+.mockup-btn{
+  font-family:'Raleway',sans-serif;
+  font-weight:200;
+  font-size:0.52rem;
+  letter-spacing:0.45em;
+  text-transform:uppercase;
+  color:rgba(244,240,234,0.55);
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:0.5rem 0;
+  transition:color 0.4s;
+  position:relative;
+}
+.mockup-btn:hover{color:rgba(244,240,234,0.95)}
+.mockup-btn.active{
+  color:#c4a97d;
+}
+.mockup-btn.active::after{
+  content:'';
+  position:absolute;
+  bottom:-2px;
+  left:0;
+  width:100%;
+  height:1px;
+  background:#c4a97d;
+}
+
+.mockup-panel{display:none;min-height:100vh}
+.mockup-panel.active{display:block}
+
+.preloader{position:fixed;inset:0;z-index:99990;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1s ease,visibility 1s ease}
+.preloader.out{opacity:0;visibility:hidden;pointer-events:none}
+.pl-brand{font-family:'Cormorant Garamond',serif;font-weight:300;letter-spacing:0.55em;text-transform:uppercase;margin-bottom:0.6rem}
+.pl-sub{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.45rem;letter-spacing:0.6em;text-transform:uppercase;opacity:0.4;margin-bottom:3.5rem}
+.pl-bar-track{width:140px;height:1px;overflow:hidden;position:relative}
+.pl-bar-fill{position:absolute;left:0;top:0;bottom:0;width:0;transition:width 0.08s linear}
+.pl-pct{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:0.72rem;letter-spacing:0.2em;opacity:0.4;margin-top:1rem}
+
+@keyframes slowzoom{from{transform:scale(1.1)}to{transform:scale(1)}}
+@keyframes fadein{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes growbar{from{width:0}to{width:100%}}
+
+/* ─────────────────────────────────────────────
+   MOCKUP 1 — NOIR VOID
+   Inspired by Dior / Celine
+   Ink black. Ghost typography. Razor restraint.
+───────────────────────────────────────────── */
+#m1{background:#060504;color:#f0ede8}
+#m1 .hero{position:relative;height:100vh;overflow:hidden;display:flex;align-items:flex-end}
+#m1 .hero-bg{position:absolute;inset:0;animation:slowzoom 28s ease-out both}
+#m1 .hero-bg-art{
+  width:100%;height:100%;
+  background:
+    radial-gradient(ellipse 80% 100% at 65% 40%, rgba(40,34,26,0.95) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 80% 70%, rgba(28,24,18,0.8) 0%, transparent 55%),
+    linear-gradient(160deg,#0a0907 0%,#131109 38%,#0c0b08 60%,#080604 100%);
+}
+#m1 .hero-art-shape{position:absolute;inset:0;overflow:hidden}
+#m1 .hero-art-shape::before{
+  content:'';position:absolute;
+  width:55vw;height:55vw;
+  right:-8vw;top:50%;transform:translateY(-50%);
+  background:radial-gradient(ellipse,rgba(196,169,125,0.06) 0%,transparent 70%);
+  border-radius:50%;
+}
+#m1 .hero-art-shape::after{
+  content:'';position:absolute;
+  width:1px;height:38vh;
+  right:26vw;top:20vh;
+  background:linear-gradient(180deg,transparent,rgba(196,169,125,0.18),transparent);
+}
+#m1 .hero-ghost-text{
+  position:absolute;right:-0.02em;bottom:-0.08em;
+  font-family:'Cormorant Garamond',serif;font-weight:200;
+  font-size:clamp(10rem,24vw,26rem);
+  letter-spacing:-0.01em;line-height:0.8;
+  color:rgba(240,237,232,0.028);
+  pointer-events:none;user-select:none;
+}
+#m1 .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,5,4,0.3) 0%,transparent 35%,rgba(6,5,4,0.6) 72%,#060504 100%)}
+#m1 .hero-content{position:relative;z-index:2;padding:0 5vw 9vh;width:100%}
+#m1 .hero-eyebrow{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.48rem;letter-spacing:0.65em;text-transform:uppercase;color:#c4a97d;margin-bottom:2.2rem;animation:fadein 1.2s 0.3s both}
+#m1 .hero-h1{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(5rem,13vw,15rem);line-height:0.82;letter-spacing:-0.02em;color:#f0ede8;margin-bottom:3rem;animation:fadein 1.4s 0.5s both}
+#m1 .hero-h1 em{font-style:italic;color:rgba(240,237,232,0.45)}
+#m1 .hero-desc{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.68rem;line-height:2.4;color:rgba(240,237,232,0.28);letter-spacing:0.04em;max-width:22ch;animation:fadein 1.4s 0.8s both}
+
+#m1 .s-statement{padding:20vh 5vw;display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:center}
+#m1 .s-statement-left{padding-right:8vw}
+#m1 .s-statement-left h2{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(2.8rem,6vw,6.5rem);line-height:1.05;color:#f0ede8}
+#m1 .s-statement-left h2 em{font-style:italic;color:rgba(196,169,125,0.75)}
+#m1 .s-statement-right{border-left:1px solid rgba(240,237,232,0.06);padding-left:8vw;display:flex;flex-direction:column;gap:3.5rem}
+#m1 .s-stat{display:flex;flex-direction:column;gap:0.6rem}
+#m1 .s-stat-n{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:3.2rem;color:rgba(196,169,125,0.55);line-height:1}
+#m1 .s-stat-l{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.48rem;letter-spacing:0.5em;text-transform:uppercase;color:rgba(240,237,232,0.3)}
+
+#m1 .s-fullscape{position:relative;height:90vh;overflow:hidden}
+#m1 .fullscape-art{
+  width:100%;height:100%;
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 50%, #16120d 0%,#0b0907 55%,#060504 100%),
+    linear-gradient(135deg,rgba(196,169,125,0.04) 0%,transparent 50%);
+  display:flex;align-items:center;justify-content:center;
+}
+#m1 .fullscape-inner{position:relative;width:72vw;height:72vw;max-height:75vh}
+#m1 .fc-ring{position:absolute;border-radius:50%;border:1px solid}
+#m1 .fc-r1{inset:0;border-color:rgba(196,169,125,0.06)}
+#m1 .fc-r2{inset:8%;border-color:rgba(240,237,232,0.03)}
+#m1 .fc-r3{inset:18%;border-color:rgba(196,169,125,0.04)}
+#m1 .fc-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem}
+#m1 .fc-numeral{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(5rem,12vw,13rem);color:rgba(240,237,232,0.12);line-height:1}
+#m1 .fc-label{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.46rem;letter-spacing:0.7em;text-transform:uppercase;color:rgba(196,169,125,0.45)}
+#m1 .fullscape-caption{position:absolute;bottom:5rem;right:5vw;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.95rem;color:rgba(240,237,232,0.2);letter-spacing:0.04em}
+
+#m1 .s-split{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+#m1 .split-visual{position:relative;overflow:hidden;background:#0a0906}
+#m1 .split-visual-art{
+  position:absolute;inset:0;
+  transition:transform 2s ease;
+}
+#m1 .split-visual:hover .split-visual-art{transform:scale(1.04)}
+#m1 .sv-art-1{background:radial-gradient(ellipse 70% 90% at 40% 50%,rgba(22,18,14,1) 0%,rgba(10,9,6,1) 100%),linear-gradient(200deg,rgba(196,169,125,0.08) 0%,transparent 40%)}
+#m1 .sv-art-2{background:radial-gradient(ellipse 90% 70% at 60% 60%,rgba(18,16,12,1) 0%,rgba(8,7,5,1) 100%),linear-gradient(30deg,rgba(196,169,125,0.05) 0%,transparent 50%)}
+#m1 .sv-art-num{position:absolute;bottom:3rem;left:3rem;font-family:'Cormorant Garamond',serif;font-weight:200;font-size:8rem;color:rgba(240,237,232,0.04);line-height:1}
+#m1 .sv-line{position:absolute;top:0;left:50%;width:1px;height:100%;background:linear-gradient(180deg,transparent,rgba(196,169,125,0.12),transparent)}
+#m1 .split-text{background:#0d0c0a;display:flex;flex-direction:column;justify-content:center;padding:12vh 7vw}
+#m1 .split-n{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.46rem;letter-spacing:0.5em;text-transform:uppercase;color:rgba(196,169,125,0.5);margin-bottom:3rem}
+#m1 .split-h{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(2.6rem,4.5vw,5.2rem);line-height:1.08;color:#f0ede8;margin-bottom:2.5rem}
+#m1 .split-h em{font-style:italic;color:rgba(240,237,232,0.45)}
+#m1 .split-p{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.68rem;line-height:2.4;color:rgba(240,237,232,0.25);max-width:28ch;letter-spacing:0.02em;margin-bottom:4rem}
+#m1 .split-link{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.46rem;letter-spacing:0.5em;text-transform:uppercase;color:#c4a97d;text-decoration:none;border-bottom:1px solid rgba(196,169,125,0.3);padding-bottom:2px;display:inline-block;transition:all 0.4s}
+#m1 .split-link:hover{letter-spacing:0.6em;border-color:rgba(196,169,125,0.7)}
+
+#m1 .s-residences{padding:18vh 5vw;background:#060504}
+#m1 .res-header{text-align:center;margin-bottom:12vh}
+#m1 .res-eyebrow{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.45rem;letter-spacing:0.65em;text-transform:uppercase;color:rgba(196,169,125,0.5);margin-bottom:2rem}
+#m1 .res-h{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(3rem,6.5vw,7rem);line-height:1.02;color:#f0ede8}
+#m1 .residences-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:rgba(240,237,232,0.03)}
+#m1 .res-card{background:#060504;padding:5rem 3.5rem 4.5rem;position:relative;overflow:hidden;transition:background 0.5s}
+#m1 .res-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(196,169,125,0.2),transparent);transform:scaleX(0);transition:transform 0.6s}
+#m1 .res-card:hover{background:#0c0b09}
+#m1 .res-card:hover::before{transform:scaleX(1)}
+#m1 .res-card-n{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:5rem;color:rgba(196,169,125,0.07);line-height:1;margin-bottom:2.5rem}
+#m1 .res-card-name{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.7rem;color:#f0ede8;margin-bottom:0.8rem;letter-spacing:0.02em}
+#m1 .res-card-type{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.44rem;letter-spacing:0.5em;text-transform:uppercase;color:rgba(196,169,125,0.4);margin-bottom:2.5rem}
+#m1 .res-card-desc{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.66rem;line-height:2.3;color:rgba(240,237,232,0.22);letter-spacing:0.02em;margin-bottom:3rem}
+#m1 .res-card-detail{display:flex;flex-direction:column;gap:0.8rem;padding-top:2.5rem;border-top:1px solid rgba(240,237,232,0.05)}
+#m1 .res-card-detail span{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.44rem;letter-spacing:0.35em;text-transform:uppercase;color:rgba(240,237,232,0.18)}
+
+#m1 .s-reserve{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;background:#060504;padding:10vh 5vw}
+#m1 .reserve-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(16,13,10,1) 0%,#060504 100%)}
+#m1 .reserve-ghost{position:absolute;font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(14rem,28vw,30rem);color:rgba(240,237,232,0.025);line-height:1;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap}
+#m1 .reserve-content{position:relative;z-index:2}
+#m1 .reserve-eyebrow{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.46rem;letter-spacing:0.7em;text-transform:uppercase;color:rgba(196,169,125,0.5);margin-bottom:3rem}
+#m1 .reserve-h{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(3.5rem,8vw,9.5rem);line-height:0.95;color:#f0ede8;margin-bottom:2.5rem}
+#m1 .reserve-h em{font-style:italic;color:rgba(240,237,232,0.4)}
+#m1 .reserve-sub{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.68rem;line-height:2.4;color:rgba(240,237,232,0.2);letter-spacing:0.04em;max-width:30ch;margin:0 auto 5.5rem}
+#m1 .btn-luxury{display:inline-block;padding:1.5rem 4.5rem;border:1px solid rgba(196,169,125,0.3);font-family:'Raleway',sans-serif;font-weight:200;font-size:0.46rem;letter-spacing:0.55em;text-transform:uppercase;color:#c4a97d;background:transparent;transition:all 0.5s;text-decoration:none;position:relative;overflow:hidden}
+#m1 .btn-luxury::after{content:'';position:absolute;inset:0;background:#c4a97d;transform:translateX(-101%);transition:transform 0.5s cubic-bezier(0.4,0,0.2,1)}
+#m1 .btn-luxury:hover{color:#060504;border-color:#c4a97d}
+#m1 .btn-luxury:hover::after{transform:translateX(0)}
+#m1 .btn-luxury span{position:relative;z-index:1}
+
+#m1 .s-moments{background:#060504;padding:2px}
+#m1 .moments-grid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;height:90vh}
+#m1 .mc{background:#0e0c0a;overflow:hidden;position:relative}
+#m1 .mc:first-child{grid-row:1/3}
+#m1 .mc-art{width:100%;height:100%;transition:transform 2s ease}
+#m1 .mc:hover .mc-art{transform:scale(1.05)}
+#m1 .mc-art-a{background:radial-gradient(ellipse 60% 80% at 40% 60%,#18140f,#080604)}
+#m1 .mc-art-b{background:radial-gradient(ellipse 80% 60% at 60% 40%,#14120e,#08070a)}
+#m1 .mc-art-c{background:radial-gradient(ellipse 70% 70% at 50% 50%,#16130d,#070605)}
+#m1 .mc-art-d{background:radial-gradient(ellipse 60% 80% at 35% 55%,#130f0a,#060504)}
+#m1 .mc-art-e{background:radial-gradient(ellipse 80% 60% at 65% 45%,#12100c,#080706)}
+#m1 .mc-cap{position:absolute;bottom:2rem;left:2.5rem;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:rgba(240,237,232,0.18);opacity:0;transition:opacity 0.5s;letter-spacing:0.04em}
+#m1 .mc:hover .mc-cap{opacity:1}
+
+#m1 .s-final{min-height:72vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#0a0906;padding:12vh 5vw}
+#m1 .final-h{font-family:'Cormorant Garamond',serif;font-weight:200;font-style:italic;font-size:clamp(2.8rem,6vw,7rem);line-height:1.08;color:#f0ede8;margin-bottom:4.5rem;max-width:14ch}
+#m1 footer{padding:5rem 5vw 4rem;background:#060504;border-top:1px solid rgba(240,237,232,0.05);display:flex;justify-content:space-between;align-items:center}
+#m1 .f-brand{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:0.9rem;letter-spacing:0.38em;color:rgba(240,237,232,0.25);text-transform:uppercase}
+#m1 .f-mid{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.42rem;letter-spacing:0.55em;text-transform:uppercase;color:rgba(240,237,232,0.08)}
+#m1 .f-right{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.58rem;color:rgba(240,237,232,0.2);text-align:right;line-height:1.9}
+
+/* ─────────────────────────────────────────────
+   MOCKUP 2 — WHITE VOID
+   Inspired by Prada.com / Off-White
+   Alabaster white. Brutal type. Sharp grid.
+───────────────────────────────────────────── */
+#m2{background:#f6f4f0;color:#0d0c0a}
+#m2 .site-nav-2{position:fixed;top:0;left:0;right:0;z-index:9000;padding:2.4rem 5vw;display:flex;justify-content:space-between;align-items:center;transition:all 0.5s;background:#f6f4f0;border-bottom:1px solid rgba(13,12,10,0.06)}
+#m2 .nav-brand-2{font-family:'Tenor Sans',sans-serif;font-size:0.7rem;letter-spacing:0.5em;text-transform:uppercase;color:#0d0c0a;text-decoration:none}
+#m2 .nav-links-2{display:flex;gap:3rem;align-items:center}
+#m2 .nav-links-2 a{font-family:'Raleway',sans-serif;font-weight:300;font-size:0.48rem;letter-spacing:0.35em;text-transform:uppercase;color:rgba(13,12,10,0.45);text-decoration:none;transition:color 0.3s}
+#m2 .nav-links-2 a:hover{color:#0d0c0a}
+#m2 .nav-cta-2{color:#0d0c0a!important;border-bottom:1px solid rgba(13,12,10,0.4);padding-bottom:2px}
+#m2 .hero{position:relative;height:100vh;overflow:hidden;background:#f6f4f0;display:flex;align-items:flex-end}
+#m2 .hero-type-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-start;padding-left:5vw;overflow:hidden}
+#m2 .hero-type-ghost{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(12rem,28vw,32rem);line-height:0.78;letter-spacing:-0.03em;color:rgba(13,12,10,0.04);white-space:nowrap;pointer-events:none;user-select:none}
+#m2 .hero-cross{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:1px;height:55vh;background:linear-gradient(180deg,transparent,rgba(13,12,10,0.06),transparent)}
+#m2 .hero-cross::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:55vw;height:1px;background:linear-gradient(90deg,transparent,rgba(13,12,10,0.06),transparent)}
+#m2 .hero-content-2{position:relative;z-index:2;padding:0 5vw 9vh;width:100%;display:grid;grid-template-columns:1fr auto}
+#m2 .hero-left{display:flex;flex-direction:column}
+#m2 .hero-eyebrow-2{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.45rem;letter-spacing:0.7em;text-transform:uppercase;color:rgba(13,12,10,0.38);margin-bottom:2rem;animation:fadein 1s 0.3s both}
+#m2 .hero-h1-2{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(5.5rem,14vw,17rem);line-height:0.78;letter-spacing:-0.025em;color:#0d0c0a;animation:fadein 1.2s 0.5s both}
+#m2 .hero-h1-2 em{font-style:italic;color:rgba(13,12,10,0.35)}
+#m2 .hero-right{display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-end;gap:1.2rem;animation:fadein 1.2s 0.8s both}
+#m2 .hero-right-label{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.42rem;letter-spacing:0.5em;text-transform:uppercase;color:rgba(13,12,10,0.3);writing-mode:vertical-rl;transform:rotate(180deg)}
+
+#m2 .s-intro-2{padding:18vh 5vw;display:grid;grid-template-columns:1fr 1fr;gap:0}
+#m2 .intro-left-2{padding-right:8vw;border-right:1px solid rgba(13,12,10,0.06)}
+#m2 .intro-h-2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(2.8rem,5.5vw,6rem);line-height:1.06;color:#0d0c0a;margin-bottom:0;letter-spacing:-0.01em}
+#m2 .intro-h-2 em{font-style:italic;color:rgba(13,12,10,0.3)}
+#m2 .intro-right-2{padding-left:8vw;display:flex;flex-direction:column;justify-content:flex-end;gap:3.5rem}
+#m2 .intro-pillar{display:flex;flex-direction:column;gap:0.8rem}
+#m2 .pillar-n{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:3.5rem;color:rgba(13,12,10,0.07);line-height:1}
+#m2 .pillar-label{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.44rem;letter-spacing:0.5em;text-transform:uppercase;color:rgba(13,12,10,0.38)}
+#m2 .pillar-text{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.66rem;line-height:2.3;color:rgba(13,12,10,0.45)}
+
+#m2 .s-full-2{position:relative;height:88vh;overflow:hidden;background:#0d0c0a;display:flex;align-items:center;justify-content:center}
+#m2 .full-art-2{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 90% at 50% 40%,#1a1714 0%,#0a0908 60%,#060504 100%),
+    linear-gradient(210deg,rgba(196,169,125,0.04) 0%,transparent 50%);
+}
+#m2 .full-word{font-family:'Cormorant Garamond',serif;font-weight:200;font-style:italic;font-size:clamp(5rem,14vw,16rem);color:rgba(246,244,240,0.07);position:absolute;letter-spacing:-0.02em;line-height:1}
+#m2 .fw-1{top:15%;left:5%}
+#m2 .fw-2{bottom:15%;right:5%;color:rgba(196,169,125,0.05)}
+#m2 .full-center-2{position:relative;z-index:2;text-align:center}
+#m2 .full-center-2 p{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.46rem;letter-spacing:0.65em;text-transform:uppercase;color:rgba(196,169,125,0.5);margin-bottom:2.5rem}
+#m2 .full-center-2 h2{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(2.5rem,5.5vw,6.5rem);color:#f6f4f0;line-height:1.08;max-width:12ch;margin:0 auto}
+#m2 .full-center-2 h2 em{font-style:italic;color:rgba(246,244,240,0.35)}
+
+#m2 .s-suites-2{background:#f6f4f0;padding:18vh 5vw}
+#m2 .suites-header-2{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:9vh;padding-bottom:3rem;border-bottom:1px solid rgba(13,12,10,0.06)}
+#m2 .suites-h{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(2.5rem,5vw,5.5rem);line-height:1.05;color:#0d0c0a}
+#m2 .suites-h em{font-style:italic;color:rgba(13,12,10,0.3)}
+#m2 .suites-meta{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.44rem;letter-spacing:0.5em;text-transform:uppercase;color:rgba(13,12,10,0.3);text-align:right;line-height:2.5}
+#m2 .suites-list{display:flex;flex-direction:column;gap:0}
+#m2 .suite-row{display:grid;grid-template-columns:auto 1fr auto;gap:0;padding:3.5rem 0;border-bottom:1px solid rgba(13,12,10,0.06);align-items:center;cursor:none;transition:padding 0.4s}
+#m2 .suite-row:hover{padding:3.5rem 1.5rem}
+#m2 .suite-n{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:4.5rem;color:rgba(13,12,10,0.06);line-height:1;width:7rem}
+#m2 .suite-info{display:flex;flex-direction:column;gap:0.6rem}
+#m2 .suite-name{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(1.6rem,2.8vw,2.8rem);color:#0d0c0a;letter-spacing:0.01em}
+#m2 .suite-type{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.44rem;letter-spacing:0.45em;text-transform:uppercase;color:rgba(13,12,10,0.35)}
+#m2 .suite-arr{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:2.5rem;color:rgba(13,12,10,0.12);transition:all 0.4s;transform:rotate(-45deg)}
+#m2 .suite-row:hover .suite-arr{color:rgba(13,12,10,0.4);transform:rotate(0deg)}
+
+#m2 .s-reserve-2{background:#0d0c0a;color:#f6f4f0;padding:20vh 5vw;text-align:center;position:relative;overflow:hidden}
+#m2 .res-bg-type{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#m2 .res-bg-type span{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(16rem,35vw,40rem);color:rgba(246,244,240,0.02);line-height:1;white-space:nowrap}
+#m2 .res-content-2{position:relative;z-index:2}
+#m2 .res-label-2{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.44rem;letter-spacing:0.7em;text-transform:uppercase;color:rgba(196,169,125,0.5);margin-bottom:3rem}
+#m2 .res-h-2{font-family:'Cormorant Garamond',serif;font-weight:200;font-size:clamp(3.8rem,9vw,11rem);line-height:0.9;color:#f6f4f0;margin-bottom:6rem;letter-spacing:-0.02em}
+#m2 .res-h-2 em{font-style:italic;color:rgba(246,244,240,0.35)}
+#m2 .btn-2{display:inline-block;padding:1.5rem 4.5rem;border:1px solid rgba(246,244,240,0.15);font-family:'Raleway',sans-serif;font-weight:200;font-size:0.44rem;letter-spacing:0.55em;text-transform:uppercase;color:#f6f4f0;background:transparent;transition:all 0.5s;text-decoration:none;position:relative;overflow:hidden}
+#m2 .btn-2::after{content:'';position:absolute;inset:0;background:#f6f4f0;transform:translateX(-101%);transition:transform 0.5s cubic-bezier(0.4,0,0.2,1)}
+#m2 .btn-2:hover{color:#0d0c0a;border-color:#f6f4f0}
+#m2 .btn-2:hover::after{transform:translateX(0)}
+#m2 .btn-2 span{position:relative;z-index:1}
+
+#m2 .s-final-2{background:#f6f4f0;padding:20vh 5vw;display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:center}
+#m2 .final-left-2 h2{font-family:'Cormorant Garamond',serif;font-weight:200;font-style:italic;font-size:clamp(3rem,6.5vw,7.5rem);line-height:1.04;color:#0d0c0a;max-width:12ch}
+#m2 .final-right-2{padding-left:8vw;display:flex;flex-direction:column;gap:2rem;align-items:flex-start}
+#m2 .final-right-2 p{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.68rem;line-height:2.4;color:rgba(13,12,10,0.4);max-width:28ch}
+#m2 footer{padding:5rem 5vw 4rem;background:#f6f4f0;border-top:1px solid rgba(13,12,10,0.07);display:flex;justify-content:space-between;align-items:center}
+#m2 .f-brand-2{font-family:'Tenor Sans',sans-serif;font-size:0.6rem;letter-spacing:0.48em;text-transform:uppercase;color:rgba(13,12,10,0.25)}
+#m2 .f-mid-2{font-family:'Raleway',sans-serif;font-weight:100;font-size:0.4rem;letter-spacing:0.55em;text-transform:uppercase;color:rgba(13,12,10,0.1)}
+#m2 .f-right-2{font-family:'Raleway',sans-serif;font-weight:200;font-size:0.56rem;color:rgba(13,12,10,0.22);text-align:right;line-height:1.9}
+
+/* ─────────────────────────────────────────────
+   MOCKUP 3 — SEPIA DAWN
+   Inspired by Belmond / Aesop
+   Bone. Warm ochre. Soft serif gravity.
+───────────────────────────────────────────── */
+#m3{background:#f2ede3;color:#2c2217}
+#m3 .site-nav-3{position:fixed;top:0;left:0;right:0;z-index:9000;padding:2.4rem 5vw;display:flex;justify-content:space-between;align-items:center;transition:all 0.5s;background:#f2ede3}
+#m3 .nav-brand-3{font-family:'Libre Baskerville',serif;font-weight:400;font-size:0.7rem;letter-spacing:0.42em;text-transform:uppercase;color:#2c2217;text-decoration:none}
+#m3 .nav-links-3{display:flex;gap:3rem;align-items:center}
+#m3 .nav-links-3 a{font-family:'Jost',sans-serif;font-weight:200;font-size:0.46rem;letter-spacing:0.38em;text-transform:uppercase;color:rgba(44,34,23,0.4);text-decoration:none;transition:color 0.3s}
+#m3 .nav-links-3 a:hover{color:#2c2217}
+#m3 .nav-cta-3{color:#a07850!important;border-bottom:1px solid rgba(160,120,80,0.4);padding-bottom:2px}
+#m3 .hero{position:relative;height:100vh;overflow:hidden;background:#f2ede3;display:flex;align-items:flex-end}
+#m3 .hero-warm-bg{position:absolute;inset:0;overflow:hidden}
+#m3 .hero-warm-art{
+  width:100%;height:100%;
+  background:
+    radial-gradient(ellipse 120% 100% at 65% 40%,rgba(210,185,155,0.35) 0%,transparent 55%),
+    radial-gradient(ellipse 80% 80% at 20% 80%,rgba(180,145,110,0.2) 0%,transparent 50%),
+    linear-gradient(165deg,#ede7dc 0%,#e8dfd0 35%,#dfd5c2 70%,#d9cdb8 100%);
+  animation:slowzoom 30s ease-out both;
+}
+#m3 .hero-warm-art::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(242,237,227,0.1) 0%,rgba(242,237,227,0) 40%,rgba(242,237,227,0.45) 75%,#f2ede3 100%);
+}
+#m3 .hero-vline{position:absolute;left:48vw;top:15vh;width:1px;height:40vh;background:linear-gradient(180deg,transparent,rgba(44,34,23,0.1),transparent)}
+#m3 .hero-content-3{position:relative;z-index:2;padding:0 5vw 9vh;width:100%}
+#m3 .hero-eyebrow-3{font-family:'Jost',sans-serif;font-weight:200;font-size:0.45rem;letter-spacing:0.68em;text-transform:uppercase;color:rgba(160,120,80,0.65);margin-bottom:2.2rem;animation:fadein 1s 0.3s both}
+#m3 .hero-h1-3{font-family:'Libre Baskerville',serif;font-weight:400;font-size:clamp(4.2rem,11.5vw,14rem);line-height:0.84;letter-spacing:-0.01em;color:#2c2217;margin-bottom:2.5rem;animation:fadein 1.2s 0.5s both}
+#m3 .hero-h1-3 em{font-style:italic;font-weight:400;color:rgba(44,34,23,0.4)}
+#m3 .hero-desc-3{font-family:'Jost',sans-serif;font-weight:200;font-size:0.68rem;line-height:2.4;color:rgba(44,34,23,0.35);letter-spacing:0.04em;max-width:24ch;animation:fadein 1.2s 0.8s both}
+
+#m3 .s-ethos{padding:20vh 5vw;display:grid;grid-template-columns:1fr 1fr;gap:0}
+#m3 .ethos-left{padding-right:8vw}
+#m3 .ethos-tag{font-family:'Jost',sans-serif;font-weight:200;font-size:0.44rem;letter-spacing:0.6em;text-transform:uppercase;color:rgba(160,120,80,0.55);margin-bottom:3rem}
+#m3 .ethos-h{font-family:'Libre Baskerville',serif;font-weight:400;font-size:clamp(2.6rem,5vw,5.5rem);line-height:1.1;color:#2c2217}
+#m3 .ethos-h em{font-style:italic;color:rgba(44,34,23,0.35)}
+#m3 .ethos-right{padding-left:8vw;border-left:1px solid rgba(44,34,23,0.07);display:flex;flex-direction:column;justify-content:center;gap:4rem}
+#m3 .ethos-item{display:flex;flex-direction:column;gap:0.7rem}
+#m3 .ethos-item-n{font-family:'Libre Baskerville',serif;font-style:italic;font-size:3rem;color:rgba(160,120,80,0.18);line-height:1}
+#m3 .ethos-item-h{font-family:'Libre Baskerville',serif;font-weight:400;font-size:1.1rem;color:#2c2217;letter-spacing:0.01em}
+#m3 .ethos-item-p{font-family:'Jost',sans-serif;font-weight:200;font-size:0.65rem;line-height:2.3;color:rgba(44,34,23,0.38);letter-spacing:0.02em}
+
+#m3 .s-full-3{position:relative;height:85vh;overflow:hidden;background:#2c2217;display:flex;align-items:flex-end}
+#m3 .full-art-3{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 40%,#3d2f1e 0%,#241a10 55%,#1a120a 100%),
+    linear-gradient(200deg,rgba(160,120,80,0.08) 0%,transparent 45%);
+  animation:slowzoom 25s ease-out both;
+}
+#m3 .full-overlay-3{position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,20,10,0.2) 0%,transparent 45%,rgba(28,20,10,0.5) 80%,#2c2217 100%)}
+#m3 .full-content-3{position:relative;z-index:2;padding:0 5vw 8vh}
+#m3 .full-label-3{font-family:'Jost',sans-serif;font-weight:100;font-size:0.44rem;letter-spacing:0.65em;text-transform:uppercase;color:rgba(210,185,155,0.4);margin-bottom:2rem}
+#m3 .full-h-3{font-family:'Libre Baskerville',serif;font-weight:400;font-style:italic;font-size:clamp(2.8rem,6.5vw,7.5rem);line-height:1.08;color:#f2ede3;max-width:14ch}
+
+#m3 .s-residences-3{background:#f2ede3;padding:18vh 5vw}
+#m3 .res3-header{margin-bottom:10vh;display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid rgba(44,34,23,0.08);padding-bottom:3rem}
+#m3 .res3-h{font-family:'Libre Baskerville',serif;font-weight:400;font-size:clamp(2.5rem,5.5vw,6rem);line-height:1.04;color:#2c2217}
+#m3 .res3-h em{font-style:italic;color:rgba(44,34,23,0.3)}
+#m3 .res3-note{font-family:'Jost',sans-serif;font-weight:200;font-size:0.44rem;letter-spacing:0.45em;text-transform:uppercase;color:rgba(44,34,23,0.3)}
+#m3 .res3-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3rem}
+#m3 .res3-card{display:flex;flex-direction:column;gap:0;padding-bottom:3rem;border-bottom:1px solid rgba(44,34,23,0.07);cursor:none}
+#m3 .res3-card-art{height:26vw;overflow:hidden;margin-bottom:2.5rem;position:relative}
+#m3 .res3-art-inner{width:100%;height:100%;transition:transform 2s ease}
+#m3 .res3-card:hover .res3-art-inner{transform:scale(1.05)}
+#m3 .rca-1{background:radial-gradient(ellipse 80% 90% at 40% 55%,#c8b99a 0%,#b8a78a 50%,#a89070 100%)}
+#m3 .rca-2{background:radial-gradient(ellipse 70% 80% at 60% 45%,#bfac8e 0%,#b09a7c 50%,#9e8860 100%)}
+#m3 .rca-3{background:radial-gradient(ellipse 90% 70% at 50% 60%,#d4c5a8 0%,#c4b292 50%,#b09a7a 100%)}
+#m3 .res3-art-label{position:absolute;bottom:1.5rem;left:1.8rem;font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.85rem;color:rgba(44,34,23,0.45);letter-spacing:0.03em}
+#m3 .res3-card-n{font-family:'Jost',sans-serif;font-weight:200;font-size:0.42rem;letter-spacing:0.5em;text-transform:uppercase;color:rgba(160,120,80,0.55);margin-bottom:1rem}
+#m3 .res3-card-name{font-family:'Libre Baskerville',serif;font-weight:400;font-size:1.4rem;color:#2c2217;margin-bottom:0.6rem;letter-spacing:0.01em}
+#m3 .res3-card-p{font-family:'Jost',sans-serif;font-weight:200;font-size:0.64rem;line-height:2.2;color:rgba(44,34,23,0.36);letter-spacing:0.02em;margin-bottom:2rem}
+#m3 .res3-card-link{font-family:'Jost',sans-serif;font-weight:200;font-size:0.42rem;letter-spacing:0.45em;text-transform:uppercase;color:#a07850;text-decoration:none;border-bottom:1px solid rgba(160,120,80,0.3);padding-bottom:2px;display:inline-block;transition:all 0.4s}
+#m3 .res3-card-link:hover{letter-spacing:0.58em;border-color:rgba(160,120,80,0.7)}
+
+#m3 .s-reserve-3{background:#2c2217;color:#f2ede3;padding:20vh 5vw;text-align:center;position:relative;overflow:hidden}
+#m3 .reserve-bg-art-3{position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 50% 50%,rgba(55,38,22,1) 0%,#2c2217 100%)}
+#m3 .reserve-ghost-3{position:absolute;font-family:'Libre Baskerville',serif;font-style:italic;font-size:clamp(10rem,22vw,26rem);color:rgba(242,237,227,0.03);line-height:1;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap}
+#m3 .reserve-content-3{position:relative;z-index:2}
+#m3 .reserve-eyebrow-3{font-family:'Jost',sans-serif;font-weight:100;font-size:0.44rem;letter-spacing:0.7em;text-transform:uppercase;color:rgba(210,185,155,0.4);margin-bottom:3rem}
+#m3 .reserve-h-3{font-family:'Libre Baskerville',serif;font-weight:400;font-size:clamp(3.2rem,8vw,10rem);line-height:0.94;color:#f2ede3;margin-bottom:2.5rem}
+#m3 .reserve-h-3 em{font-style:italic;color:rgba(242,237,227,0.35)}
+#m3 .reserve-sub-3{font-family:'Jost',sans-serif;font-weight:200;font-size:0.68rem;line-height:2.4;color:rgba(242,237,227,0.22);letter-spacing:0.04em;max-width:28ch;margin:0 auto 5.5rem}
+#m3 .btn-3{display:inline-block;padding:1.5rem 4.5rem;border:1px solid rgba(242,237,227,0.18);font-family:'Jost',sans-serif;font-weight:200;font-size:0.44rem;letter-spacing:0.55em;text-transform:uppercase;color:#f2ede3;background:transparent;transition:all 0.5s;text-decoration:none;position:relative;overflow:hidden}
+#m3 .btn-3::after{content:'';position:absolute;inset:0;background:#f2ede3;transform:translateX(-101%);transition:transform 0.5s cubic-bezier(0.4,0,0.2,1)}
+#m3 .btn-3:hover{color:#2c2217;border-color:#f2ede3}
+#m3 .btn-3:hover::after{transform:translateX(0)}
+#m3 .btn-3 span{position:relative;z-index:1}
+
+#m3 .s-moments-3{background:#f2ede3;padding:18vh 5vw}
+#m3 .moments-header-3{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6vh;border-bottom:1px solid rgba(44,34,23,0.07);padding-bottom:3rem}
+#m3 .moments-h-3{font-family:'Libre Baskerville',serif;font-weight:400;font-size:clamp(2.2rem,4.5vw,5rem);line-height:1.06;color:#2c2217}
+#m3 .moments-h-3 em{font-style:italic;color:rgba(44,34,23,0.3)}
+#m3 .moments-grid-3{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:2rem}
+#m3 .mg3-wide{grid-column:1/3;height:50vh;overflow:hidden;position:relative}
+#m3 .mg3-half{height:38vh;overflow:hidden;position:relative}
+#m3 .mg3-art{width:100%;height:100%;transition:transform 2s ease}
+#m3 .mg3-wide:hover .mg3-art,.mg3-half:hover .mg3-art{transform:scale(1.04)}
+#m3 .mga-1{background:linear-gradient(170deg,#c8b89a 0%,#b8a48a 40%,#a69478 100%)}
+#m3 .mga-2{background:linear-gradient(210deg,#d2c4a8 0%,#bfae94 45%,#ae9a7c 100%)}
+#m3 .mga-3{background:linear-gradient(140deg,#c0ae90 0%,#b09a7c 50%,#9e8860 100%)}
+#m3 .mg3-cap{position:absolute;bottom:2rem;left:2.5rem;font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.95rem;color:rgba(44,34,23,0.35);opacity:0;transition:opacity 0.5s;letter-spacing:0.03em}
+#m3 .mg3-wide:hover .mg3-cap,.mg3-half:hover .mg3-cap{opacity:1}
+
+#m3 .s-final-3{padding:18vh 5vw;text-align:center;background:#f2ede3}
+#m3 .final-h-3{font-family:'Libre Baskerville',serif;font-weight:400;font-style:italic;font-size:clamp(2.8rem,6vw,7rem);line-height:1.1;color:#2c2217;margin-bottom:5rem;max-width:14ch;margin-left:auto;margin-right:auto}
+#m3 footer{padding:5rem 5vw 4rem;background:#f2ede3;border-top:1px solid rgba(44,34,23,0.07);display:flex;justify-content:space-between;align-items:center}
+#m3 .f-brand-3{font-family:'Libre Baskerville',serif;font-size:0.65rem;letter-spacing:0.42em;text-transform:uppercase;color:rgba(44,34,23,0.25)}
+#m3 .f-mid-3{font-family:'Jost',sans-serif;font-weight:100;font-size:0.4rem;letter-spacing:0.55em;text-transform:uppercase;color:rgba(44,34,23,0.1)}
+#m3 .f-right-3{font-family:'Jost',sans-serif;font-weight:200;font-size:0.56rem;color:rgba(44,34,23,0.22);text-align:right;line-height:1.9}
+
+/* ===================== MOCKUP 3 READABILITY FIX ===================== */
+#m3 .hero-eyebrow-3,
+#m3 .hero-desc-3,
+#m3 .ethos-tag,
+#m3 .ethos-item-p,
+#m3 .res3-note,
+#m3 .res3-card-p,
+#m3 .reserve-eyebrow-3,
+#m3 .reserve-sub-3,
+#m3 .mg3-cap,
+#m3 .f-right-3 {
+  color: rgba(44,34,23,0.82) !important;
+}
+
+#m3 .hero-h1-3,
+#m3 .ethos-h,
+#m3 .res3-h,
+#m3 .reserve-h-3,
+#m3 .moments-h-3,
+#m3 .final-h-3 {
+  color: #2c2217 !important;
+}
+
+/* Stronger dark overlay on dark sections */
+#m3 .full-overlay-3 {
+  background: linear-gradient(180deg, rgba(28,20,10,0.45) 0%, transparent 40%, rgba(28,20,10,0.75) 78%, #2c2217 100%) !important;
+}
+
+#m3 .reserve-bg-art-3 {
+  background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(55,38,22,0.98) 0%, #2c2217 100%) !important;
+}
+
+@media(max-width:768px){
+
+  #m1 .s-statement,#m1 .s-split,#m2 .s-intro-2,#m2 .s-final-2,#m3 .s-ethos{grid-template-columns:1fr}
+  #m1 .s-statement-right{border-left:none;padding-left:0;border-top:1px solid rgba(240,237,232,0.06);padding-top:4rem}
+  #m1 .split-text{padding:8vh 5vw}
+  #m2 .intro-left-2{border-right:none;padding-right:0;border-bottom:1px solid rgba(13,12,10,0.06);padding-bottom:5rem}
+  #m2 .intro-right-2{padding-left:0;padding-top:5rem}
+  #m3 .res3-grid{grid-template-columns:1fr}
+  #m3 .mg3-wide{grid-column:1}
+  #m3 .ethos-right{padding-left:0;border-left:none;padding-top:5rem}
+  .site-nav,.site-nav.scrolled{padding:1.4rem 5vw}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav class="site-nav" id="siteNav">
+  <a href="#" class="nav-brand">Rangnoi Reserve</a>
+  
+  <!-- New Mockup Navigation -->
+  <div class="mockup-nav">
+    <button class="mockup-btn active" data-panel="m1">Mockup 1</button>
+    <button class="mockup-btn" data-panel="m2">Mockup 2</button>
+    <button class="mockup-btn" data-panel="m3">Mockup 3</button>
+  </div>
+</nav>
+
+
+
+<!-- ══════════════════════════════════
+     PRELOADER
+══════════════════════════════════ -->
+<div class="preloader" id="preloader" style="background:#060504">
+  <p class="pl-brand" style="font-family:'Cormorant Garamond',serif;font-weight:200;font-size:1.1rem;letter-spacing:0.55em;text-transform:uppercase;color:#f0ede8">Rangnoi Reserve</p>
+  <p class="pl-sub">Thailand · Private Residences</p>
+  <div class="pl-bar-track" style="background:rgba(240,237,232,0.07)">
+    <div class="pl-bar-fill" id="plFill" style="background:#c4a97d"></div>
+  </div>
+  <p class="pl-pct" id="plPct" style="color:rgba(196,169,125,0.45)">0%</p>
+</div>
+
+<!-- ══════════════════════════════════
+     MOCKUP 1 — NOIR VOID
+══════════════════════════════════ -->
+<div id="m1" class="mockup-panel active">
+
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-bg-art"></div>
+    </div>
+    <div class="hero-art-shape"></div>
+    <span class="hero-ghost-text">Rangnoi</span>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Koh Rang Noi · Thailand</p>
+      <h1 class="hero-h1">Private<br><em>Sanctuary</em></h1>
+      <p class="hero-desc">A world that reveals itself slowly.<br>By invitation only.</p>
+    </div>
+  </section>
+
+  <section class="s-statement" id="experience">
+    <div class="s-statement-left">
+      <h2>Places that do not need to <em>explain</em> themselves.</h2>
+    </div>
+    <div class="s-statement-right">
+      <div class="s-stat">
+        <span class="s-stat-n">03</span>
+        <span class="s-stat-l">Private Residences</span>
+      </div>
+      <div class="s-stat">
+        <span class="s-stat-n">01</span>
+        <span class="s-stat-l">Island · Entire Island</span>
+      </div>
+      <div class="s-stat">
+        <span class="s-stat-n">∞</span>
+        <span class="s-stat-l">Absolute Privacy</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="s-fullscape">
+    <div class="fullscape-art">
+      <div class="fullscape-inner">
+        <div class="fc-ring fc-r1"></div>
+        <div class="fc-ring fc-r2"></div>
+        <div class="fc-ring fc-r3"></div>
+        <div class="fc-center">
+          <span class="fc-numeral">I</span>
+          <span class="fc-label">Koh Rang Noi · Gulf of Thailand</span>
+        </div>
+      </div>
+    </div>
+    <span class="fullscape-caption">The Island</span>
+  </section>
+
+  <section class="s-split">
+    <div class="split-visual">
+      <div class="split-visual-art sv-art-1"></div>
+      <span class="sv-art-num">01</span>
+      <div class="sv-line"></div>
+    </div>
+    <div class="split-text">
+      <span class="split-n">01 — Residence</span>
+      <h2 class="split-h">Three residences.<br><em>One philosophy.</em></h2>
+      <p class="split-p">Composed with restraint. Open to sea and sky. No shared spaces, no schedules, no interruptions.</p>
+      <a href="#reserve" class="split-link">Begin your stay →</a>
+    </div>
+  </section>
+
+  <section class="s-split" style="direction:rtl">
+    <div class="split-visual">
+      <div class="split-visual-art sv-art-2"></div>
+      <span class="sv-art-num">02</span>
+    </div>
+    <div class="split-text" style="direction:ltr">
+      <span class="split-n">02 — Privacy</span>
+      <h2 class="split-h">No shared spaces.<br><em>Only yours.</em></h2>
+      <p class="split-p">Complete discretion. A dedicated host awaits before you arrive. Nothing to ask for — everything already considered.</p>
+      <a href="#reserve" class="split-link">Reserve privately →</a>
+    </div>
+  </section>
+
+  <section class="s-residences">
+    <div class="res-header">
+      <p class="res-eyebrow">The Residences</p>
+      <h2 class="res-h">Three ways to <em>inhabit</em> silence.</h2>
+    </div>
+    <div class="residences-grid">
+      <div class="res-card">
+        <div class="res-card-n">I</div>
+        <div class="res-card-name">The Pavilion</div>
+        <div class="res-card-type">Garden Residence</div>
+        <p class="res-card-desc">Open to the canopy. Morning light through tropical foliage. A private pool vanishing into green.</p>
+        <div class="res-card-detail">
+          <span>Two Bedrooms · Private Pool</span>
+          <span>Full Island Exclusivity Available</span>
+        </div>
+      </div>
+      <div class="res-card">
+        <div class="res-card-n">II</div>
+        <div class="res-card-name">The Water Residence</div>
+        <div class="res-card-type">Clifftop · Sea View</div>
+        <p class="res-card-desc">Elevated above the tide. Unbroken horizon. The sea does not ask permission to be beautiful.</p>
+        <div class="res-card-detail">
+          <span>Three Bedrooms · Infinity Pool</span>
+          <span>Direct Sea Access</span>
+        </div>
+      </div>
+      <div class="res-card">
+        <div class="res-card-n">III</div>
+        <div class="res-card-name">The Reserve Villa</div>
+        <div class="res-card-type">Entire Island · Exclusive</div>
+        <p class="res-card-desc">The island, in its entirety, for you. All three residences. One staff. Complete solitude.</p>
+        <div class="res-card-detail">
+          <span>All Residences · Entire Island</span>
+          <span>Dedicated Staff · By Inquiry</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="s-reserve" id="reserve">
+    <div class="reserve-bg"></div>
+    <span class="reserve-ghost">Stay</span>
+    <div class="reserve-content">
+      <p class="reserve-eyebrow">Your Invitation</p>
+      <h2 class="reserve-h">Begin<br>your time <em>here</em></h2>
+      <p class="reserve-sub">We do not accommodate enquiries. We begin conversations. Share your dates, your party, your intentions.</p>
+      <a href="mailto:reserve@rangnoireserve.com" class="btn-luxury"><span>Request Private Reservation</span></a>
+    </div>
+  </section>
+
+  <section class="s-moments" id="moments">
+    <div class="moments-grid">
+      <div class="mc"><div class="mc-art mc-art-a"></div><span class="mc-cap">Arrival</span></div>
+      <div class="mc"><div class="mc-art mc-art-b"></div><span class="mc-cap">Water & Light</span></div>
+      <div class="mc"><div class="mc-art mc-art-c"></div><span class="mc-cap">Stillness</span></div>
+      <div class="mc"><div class="mc-art mc-art-d"></div><span class="mc-cap">Morning</span></div>
+      <div class="mc"><div class="mc-art mc-art-e"></div><span class="mc-cap">The Sea</span></div>
+    </div>
+  </section>
+
+  <section class="s-final">
+    <h2 class="final-h">Some sanctuaries are not found.<br>They are <em>chosen.</em></h2>
+    <a href="#reserve" class="btn-luxury"><span>Reserve Your Sanctuary</span></a>
+  </section>
+
+  <footer>
+    <span class="f-brand">Rangnoi Reserve</span>
+    <span class="f-mid">Koh Rang Noi · Private Residences</span>
+    <div class="f-right">By invitation only<br>reserve@rangnoireserve.com</div>
+  </footer>
+
+</div>
+
+<!-- ══════════════════════════════════
+     MOCKUP 2 — WHITE VOID
+══════════════════════════════════ -->
+<div id="m2" class="mockup-panel">
+
+  <nav class="site-nav-2" id="nav2">
+    <a href="#" class="nav-brand-2">Rangnoi Reserve</a>
+    <div class="nav-links-2">
+      <a href="#intro2">The Island</a>
+      <a href="#suites2">Residences</a>
+      <a href="#res2" class="nav-cta-2">Reserve</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-type-bg">
+      <span class="hero-type-ghost">Reserve</span>
+    </div>
+    <div class="hero-cross"></div>
+    <div class="hero-content-2">
+      <div class="hero-left">
+        <p class="hero-eyebrow-2">Koh Rang Noi · Gulf of Thailand</p>
+        <h1 class="hero-h1-2">Rangnoi<br><em>Reserve</em></h1>
+      </div>
+      <div class="hero-right">
+        <span class="hero-right-label">Private Island · Thailand</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="s-intro-2" id="intro2">
+    <div class="intro-left-2">
+      <h2 class="intro-h-2">Three residences.<br>One island.<br><em>Entire privacy.</em></h2>
+    </div>
+    <div class="intro-right-2">
+      <div class="intro-pillar">
+        <span class="pillar-n">I</span>
+        <span class="pillar-label">Absolute Exclusivity</span>
+        <p class="pillar-text">The island belongs to one group at a time. Always.</p>
+      </div>
+      <div class="intro-pillar">
+        <span class="pillar-n">II</span>
+        <span class="pillar-label">Dedicated Service</span>
+        <p class="pillar-text">Your host arrives before you do. Nothing is improvised.</p>
+      </div>
+      <div class="intro-pillar">
+        <span class="pillar-n">III</span>
+        <span class="pillar-label">Editorial Space</span>
+        <p class="pillar-text">Architecture that frames the sea. No distractions by design.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="s-full-2">
+    <div class="full-art-2"></div>
+    <span class="full-word fw-1">Silence</span>
+    <span class="full-word fw-2">Reserve</span>
+    <div class="full-center-2">
+      <p>The Island Philosophy</p>
+      <h2>A world with no need to <em>announce itself</em></h2>
+    </div>
+  </section>
+
+  <section class="s-suites-2" id="suites2">
+    <div class="suites-header-2">
+      <h2 class="suites-h">The<br><em>Residences</em></h2>
+      <div class="suites-meta">Three options<br>One island<br>Total seclusion</div>
+    </div>
+    <div class="suites-list">
+      <div class="suite-row">
+        <span class="suite-n">01</span>
+        <div class="suite-info">
+          <span class="suite-name">The Pavilion</span>
+          <span class="suite-type">Garden Residence · Two Bedrooms · Private Pool</span>
+        </div>
+        <span class="suite-arr">→</span>
+      </div>
+      <div class="suite-row">
+        <span class="suite-n">02</span>
+        <div class="suite-info">
+          <span class="suite-name">The Water Residence</span>
+          <span class="suite-type">Clifftop · Three Bedrooms · Infinity Edge · Sea Views</span>
+        </div>
+        <span class="suite-arr">→</span>
+      </div>
+      <div class="suite-row">
+        <span class="suite-n">03</span>
+        <div class="suite-info">
+          <span class="suite-name">The Reserve — Entire Island</span>
+          <span class="suite-type">All Residences · Dedicated Staff · Complete Exclusivity · By Inquiry</span>
+        </div>
+        <span class="suite-arr">→</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="s-reserve-2" id="res2">
+    <div class="res-bg-type"><span>Reserve</span></div>
+    <div class="res-content-2">
+      <p class="res-label-2">Your Invitation</p>
+      <h2 class="res-h-2">Begin<br><em>here</em></h2>
+      <a href="mailto:reserve@rangnoireserve.com" class="btn-2"><span>Request Private Reservation</span></a>
+    </div>
+  </section>
+
+  <section class="s-final-2">
+    <div class="final-left-2">
+      <h2>Somewhere quiet has been <em>waiting</em> for you.</h2>
+    </div>
+    <div class="final-right-2">
+      <p>No categories. No packages. No standard rates. Just your time, the island, and complete silence.</p>
+      <a href="mailto:reserve@rangnoireserve.com" class="btn-2" style="border-color:rgba(13,12,10,0.15);color:#0d0c0a"><span>Begin a Conversation</span></a>
+    </div>
+  </section>
+
+  <footer>
+    <span class="f-brand-2">Rangnoi Reserve</span>
+    <span class="f-mid-2">Koh Rang Noi · Private Residences</span>
+    <div class="f-right-2">By invitation only<br>reserve@rangnoireserve.com</div>
+  </footer>
+
+</div>
+
+<!-- ══════════════════════════════════
+     MOCKUP 3 — SEPIA DAWN
+══════════════════════════════════ -->
+<div id="m3" class="mockup-panel">
+
+  <nav class="site-nav-3" id="nav3">
+    <a href="#" class="nav-brand-3">Rangnoi Reserve</a>
+    <div class="nav-links-3">
+      <a href="#exp3">Experience</a>
+      <a href="#moments3">Moments</a>
+      <a href="#res3" class="nav-cta-3">Reserve</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-warm-bg">
+      <div class="hero-warm-art"></div>
+    </div>
+    <div class="hero-vline"></div>
+    <div class="hero-content-3">
+      <p class="hero-eyebrow-3">Koh Rang Noi · Thailand</p>
+      <h1 class="hero-h1-3">Rangnoi<br><em>Reserve</em></h1>
+      <p class="hero-desc-3">A sunlit sanctuary where time slows<br>and the sea holds its breath.<br>By invitation only.</p>
+    </div>
+  </section>
+
+  <section class="s-ethos" id="exp3">
+    <div class="ethos-left">
+      <p class="ethos-tag">Our Philosophy</p>
+      <h2 class="ethos-h">Restraint is the highest form of <em>luxury.</em></h2>
+    </div>
+    <div class="ethos-right">
+      <div class="ethos-item">
+        <span class="ethos-item-n">I</span>
+        <span class="ethos-item-h">Absolute Privacy</span>
+        <p class="ethos-item-p">One group. The entire island. No strangers, no schedules, no performance of being on holiday.</p>
+      </div>
+      <div class="ethos-item">
+        <span class="ethos-item-n">II</span>
+        <span class="ethos-item-h">Unhurried Ritual</span>
+        <p class="ethos-item-p">Mornings without agenda. Meals timed by appetite. The sea as your only clock.</p>
+      </div>
+      <div class="ethos-item">
+        <span class="ethos-item-n">III</span>
+        <span class="ethos-item-h">Quiet Architecture</span>
+        <p class="ethos-item-p">Spaces that frame the view and disappear into it. Nothing competes with the horizon.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="s-full-3">
+    <div class="full-art-3"></div>
+    <div class="full-overlay-3"></div>
+    <div class="full-content-3">
+      <p class="full-label-3">The Island</p>
+      <h2 class="full-h-3">Where the sea arrives<br>before you wake.</h2>
+    </div>
+  </section>
+
+  <section class="s-residences-3">
+    <div class="res3-header">
+      <h2 class="res3-h">Three ways to<br><em>inhabit stillness.</em></h2>
+      <span class="res3-note">Private Island · Gulf of Thailand</span>
+    </div>
+    <div class="res3-grid">
+      <div class="res3-card">
+        <div class="res3-card-art">
+          <div class="res3-art-inner rca-1"></div>
+          <span class="res3-art-label">The Pavilion</span>
+        </div>
+        <span class="res3-card-n">01 — Garden Residence</span>
+        <span class="res3-card-name">The Pavilion</span>
+        <p class="res3-card-p">Canopy light. A private pool edged by the jungle. Morning arrives unhurried.</p>
+        <a href="#res3" class="res3-card-link">Enquire →</a>
+      </div>
+      <div class="res3-card">
+        <div class="res3-card-art">
+          <div class="res3-art-inner rca-2"></div>
+          <span class="res3-art-label">The Water Residence</span>
+        </div>
+        <span class="res3-card-n">02 — Clifftop · Sea View</span>
+        <span class="res3-card-name">The Water Residence</span>
+        <p class="res3-card-p">Elevated above the tide. Infinity edge into the horizon. Three bedrooms, one sea.</p>
+        <a href="#res3" class="res3-card-link">Enquire →</a>
+      </div>
+      <div class="res3-card">
+        <div class="res3-card-art">
+          <div class="res3-art-inner rca-3"></div>
+          <span class="res3-art-label">The Reserve</span>
+        </div>
+        <span class="res3-card-n">03 — Entire Island</span>
+        <span class="res3-card-name">The Reserve Villa</span>
+        <p class="res3-card-p">All three residences. One island. One staff. Everything, entirely yours. By inquiry only.</p>
+        <a href="#res3" class="res3-card-link">Enquire →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="s-reserve-3" id="res3">
+    <div class="reserve-bg-art-3"></div>
+    <span class="reserve-ghost-3">Reserve</span>
+    <div class="reserve-content-3">
+      <p class="reserve-eyebrow-3">Your Invitation</p>
+      <h2 class="reserve-h-3">Begin your <em>time here</em></h2>
+      <p class="reserve-sub-3">We begin with a conversation, not a form. Share your dates, your vision, your silence.</p>
+      <a href="mailto:reserve@rangnoireserve.com" class="btn-3"><span>Request Private Reservation</span></a>
+    </div>
+  </section>
+
+  <section class="s-moments-3" id="moments3">
+    <div class="moments-header-3">
+      <h2 class="moments-h-3">Moments that<br><em>ask nothing of you.</em></h2>
+    </div>
+    <div class="moments-grid-3">
+      <div class="mg3-wide">
+        <div class="mg3-art mga-1"></div>
+        <span class="mg3-cap">Golden Hour</span>
+      </div>
+      <div class="mg3-half">
+        <div class="mg3-art mga-2"></div>
+        <span class="mg3-cap">Morning Light</span>
+      </div>
+      <div class="mg3-half">
+        <div class="mg3-art mga-3"></div>
+        <span class="mg3-cap">The Water</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="s-final-3">
+    <h2 class="final-h-3">Some places are felt<br>before they are <em>seen.</em></h2>
+    <a href="#res3" class="btn-3" style="border-color:rgba(44,34,23,0.18);color:#2c2217"><span>Reserve Your Sanctuary</span></a>
+  </section>
+
+  <footer>
+    <span class="f-brand-3">Rangnoi Reserve</span>
+    <span class="f-mid-3">Koh Rang Noi · Private Residences</span>
+    <div class="f-right-3">By invitation only<br>reserve@rangnoireserve.com</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx=0, my=0, rx=0, ry=0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  (function animRing(){
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  })();
+
+  // Cursor hover effect
+  document.querySelectorAll('a,button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '14px';
+      cursor.style.height = '14px';
+      ring.style.width = '52px';
+      ring.style.height = '52px';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '8px';
+      cursor.style.height = '8px';
+      ring.style.width = '36px';
+      ring.style.height = '36px';
+    });
+  });
+
+  // Preloader
+  let prog = 0;
+  const fill = document.getElementById('plFill');
+  const pct = document.getElementById('plPct');
+  const pl = document.getElementById('preloader');
+  const iv = setInterval(() => {
+    const step = prog < 70 ? Math.random() * 9 + 2 : prog < 90 ? Math.random() * 3 + 0.5 : 0.4;
+    prog = Math.min(prog + step, 99);
+    fill.style.width = prog + '%';
+    pct.textContent = Math.floor(prog) + '%';
+  }, 90);
+
+  window.addEventListener('load', () => {
+    clearInterval(iv);
+    fill.style.width = '100%';
+    pct.textContent = '100%';
+    setTimeout(() => pl.classList.add('out'), 500);
+  });
+
+  // ==================== MOCKUP SWITCHING (Clean Version) ====================
+  const panels = document.querySelectorAll('.mockup-panel');
+  const mockupBtns = document.querySelectorAll('.mockup-btn');
+  const siteNav = document.getElementById('siteNav');
+  let current = 'm1';
+
+  function switchTo(id) {
+    if (id === current) return;
+
+    panels.forEach(p => p.classList.remove('active'));
+    mockupBtns.forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById(id).classList.add('active');
+    document.querySelector(`[data-panel="${id}"]`).classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    current = id;
+
+    // Simple nav color adjustment
+    if (id === 'm1') {
+      siteNav.style.color = '#f0ede8';
+    } else if (id === 'm2') {
+      siteNav.style.color = '#0d0c0a';
+    } else {
+      siteNav.style.color = '#2c2217';
+    }
+  }
+
+  // Button clicks
+  mockupBtns.forEach(btn => {
+    btn.addEventListener('click', () => switchTo(btn.dataset.panel));
+  });
+
+  // Keyboard support
+  document.addEventListener('keydown', e => {
+    if (e.key === '1') switchTo('m1');
+    if (e.key === '2') switchTo('m2');
+    if (e.key === '3') switchTo('m3');
+  });
+
+  // Scroll effect only for Mockup 1
+  window.addEventListener('scroll', () => {
+    if (current === 'm1') {
+      const s = window.scrollY;
+      if (s > 80) {
+        siteNav.style.background = 'rgba(6,5,4,0.92)';
+        siteNav.style.backdropFilter = 'blur(24px)';
+        siteNav.style.padding = '1.6rem 5vw';
+      } else {
+        siteNav.style.background = 'transparent';
+        siteNav.style.backdropFilter = 'none';
+        siteNav.style.padding = '2.4rem 5vw';
+      }
+    }
+  });
+
+  // Intersection Observer for fade-ins
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.animation = 'fadein 1s ease both';
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.s-statement,.s-split,.s-residences,.s-reserve,.s-intro-2,.s-suites-2,.s-reserve-2,.s-ethos,.s-residences-3,.s-reserve-3').forEach(el => observer.observe(el));
+
+})();
+</script>
+</body>
+</html>
