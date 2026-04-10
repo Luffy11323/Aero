@@ -852,145 +852,239 @@ body{overflow-x:hidden;cursor:none}
 
 </div>
 
+<!-- LIBRARIES -->
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
 <script>
 
-/* ------------------------------
+document.addEventListener("DOMContentLoaded",()=>{
+
+
+/* =====================================================
    HIGH PERFORMANCE CURSOR
------------------------------- */
+===================================================== */
 
-const cursor = document.getElementById("cursor");
-const ring = document.getElementById("cursorRing");
+const cursor = document.getElementById("cursor")
+const ring = document.getElementById("cursorRing")
 
-let mouseX = 0, mouseY = 0;
-let ringX = 0, ringY = 0;
+if(cursor && ring){
 
-document.addEventListener("mousemove", e=>{
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-});
+let mouseX = 0
+let mouseY = 0
+let ringX = 0
+let ringY = 0
+
+document.addEventListener("mousemove",(e)=>{
+  mouseX = e.clientX
+  mouseY = e.clientY
+})
 
 function animateCursor(){
 
   cursor.style.transform =
-    `translate3d(${mouseX}px,${mouseY}px,0)`;
+  `translate3d(${mouseX}px,${mouseY}px,0)`
 
-  ringX += (mouseX - ringX) * 0.18;
-  ringY += (mouseY - ringY) * 0.18;
+  ringX += (mouseX - ringX) * 0.18
+  ringY += (mouseY - ringY) * 0.18
 
   ring.style.transform =
-    `translate3d(${ringX}px,${ringY}px,0)`;
+  `translate3d(${ringX}px,${ringY}px,0)`
 
-  requestAnimationFrame(animateCursor);
+  requestAnimationFrame(animateCursor)
 }
 
-animateCursor();
+animateCursor()
 
-
-
-/* ------------------------------
-   PRELOADERS
------------------------------- */
-
-function runPreloader1(){
-  runLoader("preloader1","plBar1","plPct1",2600);
-}
-
-function runPreloader2(){
-  runLoader("preloader2","plBar2","plPct2",2200);
-}
-
-function runPreloader3(){
-  runLoader("preloader3","plBar3","plPct3",2400);
-}
-
-function runLoader(loaderId,barId,pctId,time){
-
-  const loader = document.getElementById(loaderId);
-  if(!loader) return;
-
-  loader.classList.remove("hidden");
-
-  const bar = document.getElementById(barId);
-  const pct = document.getElementById(pctId);
-
-  let progress = 0;
-
-  const interval = setInterval(()=>{
-
-    const step =
-      progress < 70 ? Math.random()*8+2 :
-      progress < 90 ? Math.random()*3+0.5 :
-      0.3;
-
-    progress = Math.min(progress + step, 99);
-
-    if(bar) bar.style.width = progress+"%";
-    if(bar) bar.style.right = (100-progress)+"%";
-
-    if(pct) pct.textContent = Math.floor(progress)+"%";
-
-  },110);
-
-  setTimeout(()=>{
-    clearInterval(interval);
-
-    if(bar) bar.style.width = "100%";
-    if(bar) bar.style.right = "0";
-
-    if(pct) pct.textContent = "100%";
-
-    loader.classList.add("hidden");
-
-  },time);
 }
 
 
+/* =====================================================
+   PRELOADER FIX
+===================================================== */
 
-/* ------------------------------
+const loader = document.getElementById("preloader")
+
+function hideLoader(){
+
+if(!loader) return
+
+loader.classList.add("out")
+
+setTimeout(()=>{
+loader.style.display="none"
+},900)
+
+}
+
+window.addEventListener("load",()=>{
+
+let progress = 0
+const bar = document.getElementById("plFill")
+const pct = document.getElementById("plPct")
+
+const interval = setInterval(()=>{
+
+progress += Math.random()*12
+
+if(progress>100) progress = 100
+
+if(bar) bar.style.width = progress+"%"
+if(pct) pct.innerText = Math.floor(progress)+"%"
+
+if(progress>=100){
+
+clearInterval(interval)
+
+setTimeout(()=>{
+hideLoader()
+},400)
+
+}
+
+},120)
+
+})
+
+
+
+/* =====================================================
    MOCKUP SWITCHING
------------------------------- */
+===================================================== */
 
-const buttons = document.querySelectorAll(".mockup-btn");
-const panels = document.querySelectorAll(".mockup-panel");
-const nav = document.getElementById("siteNav");
+const buttons = document.querySelectorAll(".mockup-btn")
+const panels = document.querySelectorAll(".mockup-panel")
+const nav = document.getElementById("siteNav")
 
 buttons.forEach(btn=>{
 
-  btn.addEventListener("click",()=>{
+btn.addEventListener("click",()=>{
 
-    const target = btn.dataset.panel;
+const target = btn.dataset.panel
 
-    buttons.forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
+buttons.forEach(b=>b.classList.remove("active"))
+btn.classList.add("active")
 
-    panels.forEach(p=>p.classList.remove("active"));
-    document.getElementById(target).classList.add("active");
+panels.forEach(p=>p.classList.remove("active"))
 
-    /* HEADER COLOR FIX */
-    if(target === "m1"){
-      nav.style.color = "#f0ede8";
-    }else{
-      nav.style.color = "#1a1a1a";
-    }
+const panel = document.getElementById(target)
 
-    /* PRELOADERS */
-    if(target === "m1") runPreloader1();
-    if(target === "m2") runPreloader2();
-    if(target === "m3") runPreloader3();
+if(panel) panel.classList.add("active")
 
-  });
+/* HEADER COLOR FIX */
 
-});
+if(target==="m1"){
+nav.style.color="#f0ede8"
+}else{
+nav.style.color="#1a1a1a"
+}
+
+/* scroll to top smoothly */
+
+lenis.scrollTo(0)
+
+})
+
+})
 
 
-/* ------------------------------
-   INITIAL LOAD
------------------------------- */
 
-window.addEventListener("load",()=>{
-  runPreloader1();
-});
+/* =====================================================
+   LENIS SMOOTH SCROLL
+===================================================== */
 
+const lenis = new Lenis({
+duration:1.4,
+easing:(t)=>1-Math.pow(1-t,4),
+smoothWheel:true,
+smoothTouch:false
+})
+
+function raf(time){
+lenis.raf(time)
+requestAnimationFrame(raf)
+}
+
+requestAnimationFrame(raf)
+
+
+
+/* =====================================================
+   GSAP SCROLL ANIMATIONS
+===================================================== */
+
+gsap.registerPlugin(ScrollTrigger)
+
+/* connect lenis + scrolltrigger */
+
+lenis.on("scroll",ScrollTrigger.update)
+
+gsap.ticker.add((time)=>{
+lenis.raf(time*1000)
+})
+
+gsap.ticker.lagSmoothing(0)
+
+
+
+/* HERO TYPOGRAPHY PARALLAX */
+
+gsap.to(".hero-h1",{
+y:120,
+opacity:0.2,
+scrollTrigger:{
+trigger:".hero",
+start:"top top",
+end:"bottom top",
+scrub:true
+}
+})
+
+gsap.to(".hero-h1-2",{
+y:120,
+opacity:0.2,
+scrollTrigger:{
+trigger:"#m2 .hero",
+start:"top top",
+end:"bottom top",
+scrub:true
+}
+})
+
+gsap.to(".hero-h1-3",{
+y:120,
+opacity:0.2,
+scrollTrigger:{
+trigger:"#m3 .hero",
+start:"top top",
+end:"bottom top",
+scrub:true
+}
+})
+
+
+
+/* SECTION TITLES */
+
+gsap.utils.toArray(
+".split-h, .intro-h-2, .ethos-h, .res-h, .moments-h-3"
+).forEach(el=>{
+
+gsap.from(el,{
+y:80,
+opacity:0,
+duration:1.2,
+ease:"power4.out",
+scrollTrigger:{
+trigger:el,
+start:"top 85%"
+}
+})
+
+})
+
+})
 
 </script>
 </body>
