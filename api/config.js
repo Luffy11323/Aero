@@ -41,7 +41,8 @@ export default function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
+  
+  res.setHeader('Vary', 'Origin');
   // Cache for 60 seconds
   res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
 
