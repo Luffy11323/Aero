@@ -11,7 +11,7 @@ export default function handler(req, res) {
 
   const allowedOrigins = [
     'https://radiant-medical.dev.havenir.com',
-    'https://radiant-medical.frappe.cloud',
+    'https://radiant-medical.frappe.cloud',      // covers / and /app (same origin)
     'https://automation.akatechsolution.com',
     'https://aero-woad.vercel.app',
     process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
