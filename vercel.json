@@ -53,14 +53,6 @@
       ],
       "destination": "https://aero-woad.vercel.app/automation.html",
       "permanent": false
-    },
-    {
-      "source": "/((?!api/).*)",
-      "has": [
-        { "type": "host", "value": "tickets.akatechsolution.com" }
-      ],
-      "destination": "https://ticket-liard-five.vercel.app/",
-      "permanent": false
     }
   ]
 }
